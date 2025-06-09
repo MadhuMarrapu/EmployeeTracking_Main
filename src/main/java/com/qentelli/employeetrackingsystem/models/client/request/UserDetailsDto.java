@@ -24,5 +24,6 @@ public class UserDetailsDto {
 	private String confirmPassword;
 	private Set<String> roles;
 	private String acessToken;
+	
 
 }

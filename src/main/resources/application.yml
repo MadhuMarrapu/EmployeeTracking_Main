@@ -6,9 +6,9 @@ spring:
     name: Employee-Tracking-System
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/testdb
+    url: jdbc:postgresql://localhost:5432/Employee_tracking
     username: postgres
-    password: postgres
+    password: Postgres1996@@
 
   jpa:
     hibernate:
