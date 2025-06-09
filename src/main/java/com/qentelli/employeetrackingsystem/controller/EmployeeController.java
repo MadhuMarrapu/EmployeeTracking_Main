@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qentelli.employeetrackingsystem.models.client.request.CreateEmployeeRequest;
-import com.qentelli.employeetrackingsystem.models.client.request.EmployeeResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.EmployeeResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.EmployeeService;
 
 import lombok.RequiredArgsConstructor;

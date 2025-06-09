@@ -11,7 +11,7 @@ import com.qentelli.employeetrackingsystem.entity.Roles;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
 import com.qentelli.employeetrackingsystem.mappers.EmployeeMapper;
 import com.qentelli.employeetrackingsystem.models.client.request.CreateEmployeeRequest;
-import com.qentelli.employeetrackingsystem.models.client.request.EmployeeResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.EmployeeResponse;
 import com.qentelli.employeetrackingsystem.repository.EmployeeRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.TechStackRepository;

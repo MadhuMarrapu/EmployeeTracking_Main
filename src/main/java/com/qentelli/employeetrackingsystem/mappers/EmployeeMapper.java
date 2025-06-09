@@ -8,7 +8,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Roles;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
 import com.qentelli.employeetrackingsystem.models.client.request.CreateEmployeeRequest;
-import com.qentelli.employeetrackingsystem.models.client.request.EmployeeResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.EmployeeResponse;
 
 public class EmployeeMapper {
 	

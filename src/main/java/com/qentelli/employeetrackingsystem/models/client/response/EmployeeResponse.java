@@ -1,4 +1,4 @@
-package com.qentelli.employeetrackingsystem.models.client.request;
+package com.qentelli.employeetrackingsystem.models.client.response;
 
 import java.util.List;
 
