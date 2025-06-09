@@ -16,6 +16,7 @@ public class ProjectMapper {
         project.setProjectName(dto.getProjectName());
         project.setProjectLocation(dto.getProjectLocation());
         project.setProjectEndDate(dto.getProjectEndDate());
+        project.setAction(dto.getAction());
         // projectStartDate is automatically set by @CreationTimestamp
         return project;
     }
@@ -26,6 +27,7 @@ public class ProjectMapper {
         dto.setProjectName(entity.getProjectName());
         dto.setProjectLocation(entity.getProjectLocation());
         dto.setProjectEndDate(entity.getProjectEndDate());
+        dto.setAction(entity.getAction());
         return dto;
     }
 }

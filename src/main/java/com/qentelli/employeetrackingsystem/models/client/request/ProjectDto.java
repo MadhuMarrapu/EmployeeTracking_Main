@@ -13,4 +13,5 @@ public class ProjectDto {
     private String projectName;
     private String projectLocation;
     private LocalDate projectEndDate;
+    private Boolean action;
 }

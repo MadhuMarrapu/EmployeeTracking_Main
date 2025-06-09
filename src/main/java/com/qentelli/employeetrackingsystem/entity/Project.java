@@ -34,5 +34,7 @@ public class Project {
 	private LocalDate projectStartDate;
 
 	private LocalDate projectEndDate;
+	
+	private Boolean action;
 
 }
