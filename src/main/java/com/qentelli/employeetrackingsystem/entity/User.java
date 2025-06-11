@@ -1,19 +1,15 @@
 package com.qentelli.employeetrackingsystem.entity;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,6 +25,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "UserDetails")
 public class User implements UserDetails {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
@@ -38,24 +39,27 @@ public class User implements UserDetails {
 	private String email;
 	private String password;
 	private String confirmPassword;
-
-	@ElementCollection(fetch = FetchType.EAGER)
-	@Enumerated(EnumType.STRING)
-	private Set<Roles> roles = new HashSet<>();
 	
-	public User(String firstName,String lastName,String employeeId,String email,String password) {
+	@Enumerated(EnumType.STRING)
+	private Roles roles;
+	
+	public User(int id,String firstName,String lastName,String employeeId,String email,String password,String confirmPassword) {
 		super();
+		this.id = id;
 		this.firstName= firstName;
 		this.lastName = lastName;
 		this.employeeId = employeeId;
 		this.email = email;
 		this.password = password;
+		this.confirmPassword = confirmPassword;
 	}
 
+	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name())).collect(Collectors.toSet());
+		return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roles.name()));
 	}
+	 
 
 	@Override
 	public String getUsername() {

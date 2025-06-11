@@ -1,9 +1,6 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +19,9 @@ import com.qentelli.employeetrackingsystem.config.JwtUtil;
 import com.qentelli.employeetrackingsystem.entity.Roles;
 import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.InvalidInputDataException;
+import com.qentelli.employeetrackingsystem.models.client.request.LoginUserRequest;
 import com.qentelli.employeetrackingsystem.models.client.request.UserDetailsDto;
+import com.qentelli.employeetrackingsystem.models.client.response.LoginUserResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.UserDto;
 import com.qentelli.employeetrackingsystem.repository.UserRepository;
 
@@ -33,7 +32,6 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	private UserRepository userRepository;
-
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	@Autowired
@@ -60,50 +58,45 @@ public class UserService implements UserDetailsService {
 	        throw new InvalidInputDataException(HttpStatus.BAD_REQUEST, "Password and Confirm Password do not match!");
 	    }
 
-	    // Create new user entity
+	    // Parse role (expecting only one role)
+	    Roles role;
+	    try {
+	        role = Roles.valueOf(userDetailsDto.getRoles().toUpperCase());
+	    } catch (IllegalArgumentException ex) {
+	        throw new InvalidInputDataException(HttpStatus.BAD_REQUEST,
+	                "Invalid role provided: " + userDetailsDto.getRoles() + ". Valid roles: EMPLOYEE, MANAGER, SUPERADMIN");
+	    }
+
+	    // Create and save user
 	    User user = new User(
+	            userDetailsDto.getId(),
 	            userDetailsDto.getFirstName(),
 	            userDetailsDto.getLastName(),
 	            userDetailsDto.getEmployeeId(),
 	            userDetailsDto.getEmail(),
-	            passwordEncoder.encode(userDetailsDto.getPassword())
+	            passwordEncoder.encode(userDetailsDto.getPassword()),
+	            passwordEncoder.encode(userDetailsDto.getConfirmPassword())
 	    );
+	    user.setRoles(role); // ✅ only one role
 
-	    // Handle roles from JSON without DB
-	    Set<String> strRoles = userDetailsDto.getRoles();
-	    Set<Roles> roles = new HashSet<>();
-
-	    if (strRoles == null || strRoles.isEmpty()) {
-	        roles.add(Roles.EMPLOYEE); // default role
-	    } else {
-	        for (String roleName : strRoles) {
-	            try {
-	                Roles role = Roles.valueOf(roleName.toUpperCase());
-	                roles.add(role);
-	            } catch (IllegalArgumentException ex) {
-	                throw new InvalidInputDataException(HttpStatus.BAD_REQUEST,
-	                        "Invalid role provided: " + roleName + ". Valid roles: EMPLOYEE, MANAGER, SUPERADMIN");
-	            }
-	        }
-	    }
-
-	    user.setRoles(roles); // Assuming your User model supports EnumSet or similar
 	    userRepository.save(user);
 
 	    // Prepare DTO for response
 	    UserDto userDto = new UserDto();
+	    userDto.setId(user.getId());
 	    userDto.setFirstName(user.getFirstName());
 	    userDto.setLastName(user.getLastName());
 	    userDto.setEmployeeId(user.getEmployeeId());
 	    userDto.setEmail(user.getEmail());
+	    userDto.setRoles(role.name());
 
 	    return userDto;
 	}
 
-	public UserDetailsDto loginByEmail(UserDetailsDto userDetailsDto) {
+	public LoginUserResponse loginByEmail(LoginUserRequest loginUser) {
 		try {
-			String email = userDetailsDto.getEmail();
-			String password = userDetailsDto.getPassword();
+			String email = loginUser.getEmail();
+			String password = loginUser.getPassword();
 			// 1. Authenticate
 			Authentication authentication = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(email, password));
@@ -115,20 +108,18 @@ public class UserService implements UserDetailsService {
 			String accessToken = jwtUtil.generateToken(email);
 
 			// 5. Prepare and return DTO (customize as needed)
-			UserDetailsDto userDetails = new UserDetailsDto();
-			userDetails.setFirstName(user.getFirstName());
-			userDetails.setLastName(user.getLastName());
-
+			LoginUserResponse loginUserData = new LoginUserResponse();
 			// password check
 			user = userRepository.findByEmail(email)
 					.orElseThrow(() -> new UsernameNotFoundException("User not found wih email " + email));
 			if (!passwordEncoder.matches(password, user.getPassword())) {
 				throw new BadCredentialsException("Invalid user email or password");
 			}
-			userDetails.setEmployeeId(user.getEmployeeId());
-			userDetails.setEmail(email);
-			userDetails.setAcessToken(accessToken);
-			return userDetails;
+			
+			loginUserData.setEmail(email);
+			loginUserData.setPassword(password);
+			loginUserData.setAcessToken(accessToken);
+			return loginUserData;
 		} catch (AuthenticationException e) {
 			throw new BadCredentialsException("Invalid user email or password");
 		}
