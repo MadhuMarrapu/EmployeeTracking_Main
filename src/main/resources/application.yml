@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
@@ -8,8 +8,6 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/mydb
     username: postgres
-    password: Postgres1996@@
-
   jpa:
     hibernate:
       ddl-auto: update

@@ -1,40 +1,38 @@
 package com.qentelli.employeetrackingsystem.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
+
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "ProjectDetails")
 public class Project {
-
+	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer pId;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-	private String projectName;
+    private String projectName;
+    private String location;
+    @CreationTimestamp
+    private LocalDateTime startDate;
+    private LocalDate endDate;
+    private Boolean action;
 
-	private String projectLocation;
-	
-	@CreationTimestamp
-	@Column(updatable = false, nullable = false)
-	private LocalDate projectStartDate;
-
-	private LocalDate projectEndDate;
-	
-	private Boolean action;
 
 }
