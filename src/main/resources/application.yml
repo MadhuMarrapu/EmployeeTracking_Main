@@ -6,10 +6,8 @@ spring:
     name: Employee-Tracking-System
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/testdb
+    url: jdbc:postgresql://localhost:5432/mydb
     username: postgres
-    password: root
-
   jpa:
     hibernate:
       ddl-auto: update

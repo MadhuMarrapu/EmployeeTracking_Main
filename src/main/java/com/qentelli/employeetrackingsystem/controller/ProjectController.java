@@ -1,8 +1,6 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.util.List;
-
-//import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.mapper.ModelMappers;
 import com.qentelli.employeetrackingsystem.models.client.request.ProjectDetailsDto;
-//import com.qentelli.employeetrackingsystem.models.client.response.ProjectDto;
 import com.qentelli.employeetrackingsystem.serviceImpl.ProjectService;
 
 @RestController
@@ -28,12 +24,6 @@ public class ProjectController {
 	
 	@Autowired
 	private ProjectService projectService;
-	
-	//@Autowired
-	//ModelMapper modelMapper;
-	
-	//@Autowired
-	//ModelMappers modelMappers;
 	
 	@PostMapping("/createProject")
 	public ResponseEntity<?> createProject(@RequestBody ProjectDetailsDto projectDetailsDto){
@@ -71,5 +61,4 @@ public class ProjectController {
 	    projectService.deleteProject(id);
 	    return ResponseEntity.ok("Project deleted successfully with id: " + id);
 	}
-	
 }
