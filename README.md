@@ -7,8 +7,8 @@ A Java-based web application built using Spring Boot for tracking employee detai
 ## 📦 Project Structure
 
 EmployeeTracking_Main-main/
-├── src/ # Java source code
-├── .mvn/ # Maven wrapper files
+  ├── src/ # Java source code
+  ├── .mvn/ # Maven wrapper files
 ├── pom.xml # Maven project configuration
 ├── mvnw, mvnw.cmd # Maven wrapper scripts
 ├── HELP.md # Spring Boot help file
