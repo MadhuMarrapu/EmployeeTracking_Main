@@ -46,9 +46,10 @@ EmployeeTracking_Main-main/
 
 1. **Clone the repository:**
    git clone https://github.com/your-username/EmployeeTracking_Main.git
+   
    cd EmployeeTracking_Main
 
-2. **Build the project:**
+3. **Build the project:**
    mvn clean install
 3.**Run the application:**
    mvn spring-boot:run
@@ -56,11 +57,15 @@ EmployeeTracking_Main-main/
    http://localhost:8080
 
 ### Database Configuration
-Update your application.properties or application.yml file inside src/main/resources/:
+Update your application.properties or application.yml file inside 
+src/main/resources/:
+
  spring.datasource.url=jdbc:mysql://localhost:3306/employee_db
  
 spring.datasource.username=root
+
 spring.datasource.password=yourpassword
+
 spring.jpa.hibernate.ddl-auto=update
 
 ### Testing
