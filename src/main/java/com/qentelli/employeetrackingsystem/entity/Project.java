@@ -1,5 +1,4 @@
 package com.qentelli.employeetrackingsystem.entity;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -9,8 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
-
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,10 +26,14 @@ public class Project {
 
     private String projectName;
     private String location;
-    @CreationTimestamp
-    private LocalDateTime startDate;
-    private LocalDate endDate;
-    private Boolean action;
+   //@CreationTimestamp
+   // private LocalDateTime startDate;
+   // private LocalDate endDate;
+    private Boolean softDelete=false;
+    private LocalDateTime createdAt;
+    private String createdBy;
+    private LocalDateTime updatedAt;
+    private String updatedBy;
 
 
 }

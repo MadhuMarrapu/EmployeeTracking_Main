@@ -42,8 +42,11 @@ public class ProjectService {
 		// Full update (ignore startDate if it's auto-managed)
 		existingProject.setProjectName(dto.getProjectName());
 		existingProject.setLocation(dto.getLocation());
-		existingProject.setEndDate(dto.getEndDate());
-		existingProject.setAction(dto.getAction());
+		existingProject.setCreatedAt(dto.getCreatedAt());
+		existingProject.setCreatedBy(dto.getCreatedBy());
+		existingProject.setUpdatedAt(dto.getUpdatedAt());
+		existingProject.setUpdatedBy(dto.getUpdatedBy());
+//		existingProject.setAction(dto.getAction());
 
 		return projectRepository.save(existingProject);
 	}
@@ -70,25 +73,58 @@ public class ProjectService {
 			project.setLocation(dto.getLocation());
 		}
 
-		if (dto.getEndDate() != null) {
-			project.setEndDate(dto.getEndDate());
+//		if (dto.getEndDate() != null) {
+//			project.setEndDate(dto.getEndDate());
+//		}
+		
+		if (dto.getCreatedAt() != null) {
+			project.setCreatedAt(dto.getCreatedAt());
 		}
-		if (dto.getAction() != null) {
-			project.setAction(dto.getAction());
+		
+		if (dto.getCreatedBy() != null) {
+			project.setCreatedBy(dto.getCreatedBy());
 		}
+		
+		if (dto.getUpdatedAt() != null) {
+			project.setUpdatedAt(dto.getUpdatedAt());
+		}
+		
+		if (dto.getUpdatedBy() != null) {
+			project.setUpdatedBy(dto.getUpdatedBy());
+		}
+		
+		
+//		if (dto.getAction() != null) {
+//			project.setAction(dto.getAction());
+//		}
 
 		Project save = projectRepository.save(project);
 		System.out.println(save);
 
 		return save;
 	}
-
-	public void deleteProject(int id) {
+	
+	public Project softDeleteProject(int id) {
+		
+		Project projectFound = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
+		projectFound.setSoftDelete(true);
+		return projectRepository.save(projectFound);
+		
+	}
+	
+	public Project deleteProject(int id) {
+		
+	    Optional<Project> optionalProject = projectRepository.findById(id);
 		if (!projectRepository.existsById(id)) {
 			throw new RuntimeException("Project not found with id: " + id);
 		}
-		projectRepository.deleteById(id);
 
+	    Project project = optionalProject.get();
+	    projectRepository.deleteById(id); // delete happens here
+
+	    return project; 
+
+		projectRepository.deleteById(id);
 	}
 
 }
