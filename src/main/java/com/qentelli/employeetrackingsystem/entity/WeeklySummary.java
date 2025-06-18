@@ -1,36 +1,53 @@
 package com.qentelli.employeetrackingsystem.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "weekly_summaries")
 public class WeeklySummary {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int weekId;
 
-    private String weekStartDate;
-    private String weekEndDate;
+	private LocalDate weekStartDate;
+	private LocalDate weekEndDate;
 
-    @ManyToMany
-    @JoinTable(
-        name = "weekly_summary_projects",
-        joinColumns = @JoinColumn(name = "summary_id"),
-        inverseJoinColumns = @JoinColumn(name = "project_id")
-    )
-    private List<Project> listProject;
+	@ElementCollection
+	@CollectionTable(name = "upcoming_tasks", joinColumns = @JoinColumn(name = "week_id"))
+	@Column(name = "task")
+	private List<String> upcomingTasks;
 
-    @ManyToMany
-    @JoinTable(
-        name = "weekly_summary_employees",
-        joinColumns = @JoinColumn(name = "summary_id"),
-        inverseJoinColumns = @JoinColumn(name = "employee_id")
-    )
-    private List<Employee> employeeList;
+	private boolean status;
+
+	private LocalDateTime createdAt;
+	private String createdBy;
+	private LocalDateTime updatedAt;
+	private String updatedBy;
+
+	@ManyToMany
+	@JoinTable(name = "weekly_summary_project", joinColumns = @JoinColumn(name = "week_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
+	private List<Project> listProject;
+
+	// Getters and Setters
 }

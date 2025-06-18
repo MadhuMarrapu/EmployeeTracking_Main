@@ -6,8 +6,10 @@ spring:
     name: Employee-Tracking-System
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mydb
-    username: postgres
+    url: jdbc:postgresql://ep-fancy-rice-a859181v-pooler.eastus2.azure.neon.tech:5432/Employee-track?sslmode=require
+    username: Employee-track_owner
+    password: npg_ONC8zRT4EtrH
+
   jpa:
     hibernate:
       ddl-auto: update
