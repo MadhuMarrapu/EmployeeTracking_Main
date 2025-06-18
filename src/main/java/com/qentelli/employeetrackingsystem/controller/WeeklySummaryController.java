@@ -46,12 +46,12 @@ public class WeeklySummaryController {
 		return WeeklySummaryMapper.toDto(service.updateSummary(id, entity));
 	}
 
-	@GetMapping("/all")
+	@GetMapping("/fetch/all")
 	public List<WeeklySummaryResponse> getAll() {
 		return service.getAllSummaries().stream().map(WeeklySummaryMapper::toDto).collect(Collectors.toList());
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/fetchById/{id}")
 	public WeeklySummaryResponse getById(@PathVariable int id) {
 		WeeklySummary entity = service.getSummaryById(id);
 		return entity != null ? WeeklySummaryMapper.toDto(entity) : null;
