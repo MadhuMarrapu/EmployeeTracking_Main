@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import org.springframework.web.server.ResponseStatusException;
+
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.mapper.ModelMappers;
@@ -22,6 +24,7 @@ import com.qentelli.employeetrackingsystem.models.client.request.ProjectDetailsD
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse2;
 import com.qentelli.employeetrackingsystem.models.client.response.MessageResponse;
+
 import com.qentelli.employeetrackingsystem.serviceImpl.ProjectService;
 
 @RestController

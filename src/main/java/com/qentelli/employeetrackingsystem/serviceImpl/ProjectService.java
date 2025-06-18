@@ -1,10 +1,9 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
 import java.util.List;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-//import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -119,10 +118,13 @@ public class ProjectService {
 		if (!projectRepository.existsById(id)) {
 			throw new RuntimeException("Project not found with id: " + id);
 		}
+
 	    Project project = optionalProject.get();
 	    projectRepository.deleteById(id); // delete happens here
 
 	    return project; 
+
+		projectRepository.deleteById(id);
 	}
 
 }
