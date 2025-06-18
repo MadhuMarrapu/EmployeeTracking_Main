@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
-import com.qentelli.employeetrackingsystem.models.client.request.CreateWeeklySummaryRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.WeeklySummaryRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.WeeklySummaryResponse;
 
 public class WeeklySummaryMapper {
@@ -14,7 +14,7 @@ public class WeeklySummaryMapper {
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static WeeklySummary toEntity(CreateWeeklySummaryRequest dto, List<Project> projects) {
+	public static WeeklySummary toEntity(WeeklySummaryRequest dto, List<Project> projects) {
 		WeeklySummary summary = new WeeklySummary();
 		summary.setWeekStartDate(dto.getWeekStartDate());
 		summary.setWeekEndDate(dto.getWeekEndDate());

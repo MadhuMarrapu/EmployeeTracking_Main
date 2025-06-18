@@ -49,5 +49,5 @@ public class WeeklySummary {
 	@JoinTable(name = "weekly_summary_project", joinColumns = @JoinColumn(name = "week_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
 	private List<Project> listProject;
 
-	// Getters and Setters
+	
 }
