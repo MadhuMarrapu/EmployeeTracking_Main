@@ -1,10 +1,10 @@
 package com.qentelli.employeetrackingsystem.entity;
 
-import java.time.LocalDate;
+//import java.time.LocalDate;
 //import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
+//import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,9 +26,13 @@ public class Project {
 
     private String projectName;
     private String location;
-    @CreationTimestamp
-    private LocalDateTime startDate;
-    private LocalDate endDate;
-    private Boolean action;
+   //@CreationTimestamp
+   // private LocalDateTime startDate;
+   // private LocalDate endDate;
+    private Boolean softDelete=false;
+    private LocalDateTime createdAt;
+    private String createdBy;
+    private LocalDateTime updatedAt;
+    private String updatedBy;
 
 }
