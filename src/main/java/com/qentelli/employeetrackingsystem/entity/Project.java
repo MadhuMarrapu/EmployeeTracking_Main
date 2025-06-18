@@ -1,5 +1,6 @@
 package com.qentelli.employeetrackingsystem.entity;
 
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -21,6 +22,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 @Data
 @NoArgsConstructor
@@ -56,5 +58,6 @@ public class Project {
 	@ManyToOne
 	@JoinColumn(name = "employee_id", referencedColumnName = "employeeId") // maps to employeeId, not id
 	private User user;
+
 
 }

@@ -36,4 +36,5 @@ public class WeeklySummary {
 	private LocalDateTime updatedAt;
 	private String updatedBy;
 
+
 }

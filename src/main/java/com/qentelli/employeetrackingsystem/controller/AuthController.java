@@ -34,7 +34,6 @@ public class AuthController {
 			UserDtoResponse userDto = userService.registerNewUser(userDetailsDto);
 			AuthResponse<UserDtoResponse> authResponse = new AuthResponse<UserDtoResponse>(HttpStatus.OK.value(),
 					RequestProcessStatus.SUCCESS, LocalDateTime.now(), null, userDto);
-			System.out.println("authResponse"+authResponse);
 			return new ResponseEntity<>(authResponse, HttpStatus.OK);
 		} catch (ResponseStatusException e) {
 			return ResponseEntity.status(e.getStatusCode()).body(new MessageResponse(e.getMessage()));

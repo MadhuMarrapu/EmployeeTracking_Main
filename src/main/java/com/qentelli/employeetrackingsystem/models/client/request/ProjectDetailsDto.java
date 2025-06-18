@@ -1,5 +1,6 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,6 +11,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,8 +22,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProjectDetailsDto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int projectId;
 	private String projectName;
 	private String location;
@@ -32,4 +32,5 @@ public class ProjectDetailsDto {
 	private LocalDateTime updatedAt;
 	private String updatedBy;
 	private boolean active; // false means soft-deleted.
+
 }
