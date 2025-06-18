@@ -16,7 +16,7 @@ import com.qentelli.employeetrackingsystem.models.client.request.UserDetailsDto;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.LoginUserResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.MessageResponse;
-import com.qentelli.employeetrackingsystem.models.client.response.UserDto;
+import com.qentelli.employeetrackingsystem.models.client.response.UserDtoResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,9 +31,10 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<?> registerByUser(@RequestBody UserDetailsDto userDetailsDto) {
 		try {
-			UserDto userDto = userService.registerNewUser(userDetailsDto);
-			AuthResponse<UserDto> authResponse = new AuthResponse<UserDto>(HttpStatus.OK.value(),
+			UserDtoResponse userDto = userService.registerNewUser(userDetailsDto);
+			AuthResponse<UserDtoResponse> authResponse = new AuthResponse<UserDtoResponse>(HttpStatus.OK.value(),
 					RequestProcessStatus.SUCCESS, LocalDateTime.now(), null, userDto);
+			System.out.println("authResponse"+authResponse);
 			return new ResponseEntity<>(authResponse, HttpStatus.OK);
 		} catch (ResponseStatusException e) {
 			return ResponseEntity.status(e.getStatusCode()).body(new MessageResponse(e.getMessage()));
