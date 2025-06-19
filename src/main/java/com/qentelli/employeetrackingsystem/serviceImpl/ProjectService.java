@@ -125,7 +125,7 @@ public class ProjectService {
 
 	    return project; 
 
-		projectRepository.deleteById(id);
+		
 	}
 
 }
