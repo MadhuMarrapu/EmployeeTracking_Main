@@ -1,44 +1,35 @@
 package com.qentelli.employeetrackingsystem.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class Employee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int employeeId;
+    private String employeeId;
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
+    private String employeeName;
+    private String summary;
+    private String projectName;
+    private String techstack;
 
-    @Transient
-    private String confirmPassword;
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
-    @ManyToMany
-    @JoinTable(
-        name = "employee_project",
-        joinColumns = @JoinColumn(name = "employee_id"),
-        inverseJoinColumns = @JoinColumn(name = "project_id")
-    )
-    private List<Project> listProject;
-
-    @ManyToMany
-    @JoinTable(
-        name = "employee_techstack",
-        joinColumns = @JoinColumn(name = "employee_id"),
-        inverseJoinColumns = @JoinColumn(name = "techstack_id")
-    )
-    private List<TechStack> techStackList;
-
-    @Enumerated(EnumType.STRING)
-    private Roles roles;
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyUpdate> dailyUpdates;
 }
