@@ -1,10 +1,12 @@
 @Configuration
-public class CorsConfig {
-
+public class WebConfig {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return registry -> registry.addMapping("/**")
-            .allowedOrigins("http://localhost:3000") // frontend domain
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH");
+            .allowedOrigins("http://localhost:3000") // your frontend domain
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(86400); // ⏱ Cache preflight for 24 hours (in seconds)
     }
 }
