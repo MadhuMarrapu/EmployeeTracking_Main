@@ -1,52 +1,87 @@
+/*
 package com.qentelli.employeetrackingsystem.mappers;
 
+import com.qentelli.employeetrackingsystem.entity.*;
+import com.qentelli.employeetrackingsystem.models.client.request.*;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.qentelli.employeetrackingsystem.entity.Employee;
-import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.Roles;
-import com.qentelli.employeetrackingsystem.entity.TechStack;
-import com.qentelli.employeetrackingsystem.models.client.request.CreateEmployeeRequest;
-import com.qentelli.employeetrackingsystem.models.client.response.EmployeeResponse;
-
-public class EmployeeMapper {
+public abstract class EmployeeMapper {
 	
 	// Prevent instantiation
-    private EmployeeMapper() {
-        throw new UnsupportedOperationException("Utility class");
+		private EmployeeMapper() {
+			throw new UnsupportedOperationException("Utility class");
+		}
+
+    public static EmployeeDTO toDTO(Employee employee) {
+        if (employee == null) return null;
+
+        EmployeeDTO dto = new EmployeeDTO();
+        dto.setEmployeeId(employee.getEmployeeId());
+        dto.setEmployeeName(employee.getEmployeeName());
+        dto.setSummary(employee.getSummary());
+        dto.setProjectName(employee.getProjectName());
+        dto.setTechstack(employee.getTechstack());
+        dto.setProjectId(employee.getProject() != null ? employee.getProject().getId().toString() : null);
+
+        if (employee.getDailyUpdates() != null) {
+            List<DailyUpdateDTO> dtoList = new ArrayList<>();
+            for (DailyUpdate d : employee.getDailyUpdates()) {
+                dtoList.add(DailyUpdateMapper.toDTO(d));
+            }
+            dto.setDailyUpdates(dtoList);
+        }
+
+        return dto;
     }
 
-    public static Employee toEntity(CreateEmployeeRequest dto, List<Project> projects, List<TechStack> techStacks, Roles role) {
+    public static Employee toEntity(EmployeeDTO dto) {
+        if (dto == null) return null;
         Employee employee = new Employee();
-        employee.setFirstName(dto.getFirstName());
-        employee.setLastName(dto.getLastName());
-        employee.setEmail(dto.getEmail());
-        employee.setPassword(dto.getPassword());
-        employee.setConfirmPassword(dto.getConfirmPassword());
-        employee.setListProject(projects);
-        employee.setTechStackList(techStacks);
-        employee.setRoles(role);
+        employee.setEmployeeId(dto.getEmployeeId());
+        employee.setEmployeeName(dto.getEmployeeName());
+        employee.setSummary(dto.getSummary());
+        employee.setProjectName(dto.getProjectName());
+        employee.setTechstack(dto.getTechstack());
+        if (dto.getProjectId() != null) {
+            Project project = new Project();
+            project.setId(Integer.valueOf(dto.getProjectId()));
+            employee.setProject(project);
+        }
+        if (dto.getDailyUpdates() != null) {
+            List<DailyUpdate> updateList = new ArrayList<>();
+            for (DailyUpdateDTO d : dto.getDailyUpdates()) {
+                DailyUpdate dailyUpdate = DailyUpdateMapper.toEntity(d);
+                dailyUpdate.setEmployee(employee);
+                updateList.add(dailyUpdate);
+            }
+            employee.setDailyUpdates(updateList);
+        }
+
         return employee;
     }
+    
+    public static List<EmployeeDTO> toDTOList(List<Employee> employees) {
+        if (employees == null) return null;
 
-    public static EmployeeResponse toDto(Employee employee) {
-        EmployeeResponse response = new EmployeeResponse();
-        response.setEmployeeId(employee.getEmployeeId());
-        response.setFirstName(employee.getFirstName());
-        response.setLastName(employee.getLastName());
-        response.setEmail(employee.getEmail());
-        response.setProjectNames(
-                employee.getListProject().stream()
-                        .map(Project::getProjectName)
-                        .collect(Collectors.toList())
-        );
-        response.setTechStackNames(
-                employee.getTechStackList().stream()
-                        .map(TechStack::getName)
-                        .collect(Collectors.toList())
-        );
-        response.setRoleName(employee.getRoles().name());
-        return response;
+        List<EmployeeDTO> dtoList = new ArrayList<>();
+        for (Employee emp : employees) {
+            dtoList.add(toDTO(emp));
+        }
+        return dtoList;
     }
+
+    public static List<Employee> toEntityList(List<EmployeeDTO> dtoList) {
+        if (dtoList == null) return null;
+
+        List<Employee> entityList = new ArrayList<>();
+        for (EmployeeDTO dto : dtoList) {
+            entityList.add(toEntity(dto));
+        }
+        return entityList;
+    }
+ 
 }
+
+*/
