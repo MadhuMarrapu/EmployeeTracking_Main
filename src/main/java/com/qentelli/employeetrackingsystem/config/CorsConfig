@@ -1,0 +1,10 @@
+@Configuration
+public class CorsConfig {
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return registry -> registry.addMapping("/**")
+            .allowedOrigins("http://localhost:3000") // frontend domain
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH");
+    }
+}
