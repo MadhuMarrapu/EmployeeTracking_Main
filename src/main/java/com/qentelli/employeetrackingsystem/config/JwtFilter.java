@@ -22,6 +22,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     @Lazy
     private UserDetailsService userDetailsService;
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth/");
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
