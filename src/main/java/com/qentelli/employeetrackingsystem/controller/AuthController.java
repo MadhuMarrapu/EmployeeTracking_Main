@@ -31,7 +31,9 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<?> registerByUser(@RequestBody UserDetailsDto userDetailsDto) {
 		try {
+			System.out.println("AuthController.register called with email=" + userDetailsDto.getEmail());
 			UserDtoResponse userDto = userService.registerNewUser(userDetailsDto);
+			
 			AuthResponse<UserDtoResponse> authResponse = new AuthResponse<UserDtoResponse>(HttpStatus.OK.value(),
 					RequestProcessStatus.SUCCESS, LocalDateTime.now(), null, userDto);
 			return new ResponseEntity<>(authResponse, HttpStatus.OK);
@@ -43,6 +45,7 @@ public class AuthController {
 	@PostMapping("/login")
 	// @PreAuthorize("hasRole('EMPLOYEE')")
 	public ResponseEntity<?> loginByUser(@RequestBody LoginUserRequest loginUserRequest) {
+		System.out.println("AuthController.login called with email=" + loginUserRequest.getEmail());
 		LoginUserResponse loginuser = userService.loginByEmail(loginUserRequest);
 		AuthResponse<LoginUserResponse> authResponse = new AuthResponse<LoginUserResponse>(HttpStatus.OK.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), null, loginuser);
