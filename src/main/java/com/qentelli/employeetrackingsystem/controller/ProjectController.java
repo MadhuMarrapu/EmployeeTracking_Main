@@ -56,6 +56,23 @@ public class ProjectController {
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Projects fetched successfully", projectDetailsDto);
 		return new ResponseEntity<>(authResponse, HttpStatus.OK);
 	}
+	
+	@GetMapping("/viewProject/{id}")
+	public ResponseEntity<AuthResponse<ProjectDetailsDto>> getProjectById(@PathVariable int id) {
+
+		ProjectDetailsDto projectDetailsDto = projectService.getProjectById(id);
+
+		AuthResponse<ProjectDetailsDto> authResponse = new AuthResponse<>(
+			HttpStatus.OK.value(),
+			RequestProcessStatus.SUCCESS,
+			LocalDateTime.now(),
+			"Project fetched successfully",
+			projectDetailsDto
+		);
+
+		return new ResponseEntity<>(authResponse, HttpStatus.OK);
+	}
+
 
 	@PutMapping("/updateProject/{id}")
 	public ResponseEntity<?> updateProject(@PathVariable int id, @RequestBody ProjectDetailsDto dto) {

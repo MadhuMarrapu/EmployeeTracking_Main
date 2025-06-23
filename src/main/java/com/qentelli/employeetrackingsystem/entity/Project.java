@@ -1,5 +1,12 @@
 package com.qentelli.employeetrackingsystem.entity;
 
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -9,7 +16,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.Column;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
@@ -22,40 +28,26 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-@Table(name = "Projects")
 public class Project {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int projectId;
+	private Integer id;
 	private String projectName;
-	private String location;
-	private LocalDate startDate;
-	private LocalDate endDate;
 	
-	@CreatedDate
-	@Column(updatable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "account_id", nullable = false) // FK column in project table
+	@JsonBackReference
+	private Account account;
+	
+	private Boolean softDelete = false;
 	private LocalDateTime createdAt;
-	
-	@CreatedBy
-	@Column(updatable = false)
 	private String createdBy;
-	
-	@LastModifiedDate
 	private LocalDateTime updatedAt;
-	
-	@LastModifiedBy
 	private String updatedBy;
-	private boolean active; // false means soft-deleted.
-	
-	@ManyToOne
-	@JoinColumn(name = "employee_id", referencedColumnName = "employeeId") // maps to employeeId, not id
-	private User user;
-
 }
+

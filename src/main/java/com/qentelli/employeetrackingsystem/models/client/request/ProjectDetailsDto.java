@@ -1,8 +1,9 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.qentelli.employeetrackingsystem.entity.Account;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -24,13 +25,9 @@ public class ProjectDetailsDto {
 
 	private int projectId;
 	private String projectName;
-	private String location;
-	private LocalDate startDate;
-	private LocalDate endDate;
 	private LocalDateTime createdAt;
 	private String createdBy;
 	private LocalDateTime updatedAt;
 	private String updatedBy;
-	private boolean active; // false means soft-deleted.
-
+	private Account account;
 }
