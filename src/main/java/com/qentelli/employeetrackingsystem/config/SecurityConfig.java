@@ -31,7 +31,8 @@ public class SecurityConfig {
         
         // Allow any origin (can restrict to specific domains)
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:4200");  // Frontend URL (Angular's default)
+        config.addAllowedOriginPattern("*");
+      //  config.addAllowedOrigin("http://localhost:4200");  // Frontend URL (Angular's default)
         
         // Allow headers and methods
         config.addAllowedMethod("*");
@@ -52,7 +53,9 @@ public class SecurityConfig {
                         .configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())  // Disable CSRF protection (needed for stateless JWT)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/**", "/api/**").permitAll()  // Allow authentication and API paths
+                              //  .requestMatchers("/auth/**", "/api/**")
+                                .requestMatchers("/auth/register", "/auth/login")
+                                .permitAll()  // Allow authentication and API paths
                                 .anyRequest().authenticated()  // Require authentication for other requests
                 )
                 .userDetailsService(userDetailsService)  // Set custom user details service (for authentication)
