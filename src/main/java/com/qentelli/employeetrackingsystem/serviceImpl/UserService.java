@@ -165,10 +165,11 @@ public class UserService implements UserDetailsService {
 				throw new BadCredentialsException("Invalid user email or password");
 			}
 			
-		//	loginUserData.setEmail(email);
+			loginUserData.setEmail(user.getEmail());
 		//	loginUserData.setPassword(password);
-			loginUserData.setAcessToken(accessToken);
 			loginUserData.setRole(user.getRoles().name());
+			loginUserData.setAcessToken(accessToken);
+			
 			return loginUserData;
 		} catch (AuthenticationException e) {
 			throw new BadCredentialsException("Invalid user email or password");
