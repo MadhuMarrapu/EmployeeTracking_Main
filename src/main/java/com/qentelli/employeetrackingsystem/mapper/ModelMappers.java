@@ -14,14 +14,16 @@ public class ModelMappers {
 	    public static Project toEntity(ProjectDetailsDto dto) {
 	        Project project = new Project();
 	        project.setProjectName(dto.getProjectName());
-	        project.setLocation(dto.getLocation());
-//	        project.setEndDate(dto.getEndDate());
 	        project.setCreatedAt(dto.getCreatedAt());
 	        project.setCreatedBy(dto.getCreatedBy());
 	        project.setUpdatedAt(dto.getUpdatedAt());
 	        project.setUpdatedBy(dto.getUpdatedBy());
-//	        project.setAction(dto.getAction());
-	        // projectStartDate is automatically set by @CreationTimestamp
+	        project.setAccount(dto.getAccount());
+	        
+//	        if (dto.getAccount() != null) {
+//				project.setAccount(AccountMapper.toEntity(dto.getAccount())); // ✅ full Account mapping
+//			}
+
 	        return project;
 	    }
 	 
@@ -29,13 +31,15 @@ public class ModelMappers {
 	    public static ProjectDetailsDto toDto(Project entity) {
 	        ProjectDetailsDto dto = new ProjectDetailsDto();
 	        dto.setProjectName(entity.getProjectName());
-	        dto.setLocation(entity.getLocation());
-//	        dto.setEndDate(entity.getEndDate());
 	        dto.setCreatedAt(entity.getCreatedAt());
 	        dto.setCreatedBy(entity.getCreatedBy());
 	        dto.setUpdatedAt(entity.getUpdatedAt());
 	        dto.setUpdatedBy(entity.getUpdatedBy());
-//	        dto.setAction(entity.getAction());
+	        dto.setAccount(entity.getAccount());
+//	        if (entity.getAccount() != null) {
+//				dto.setAccount(AccountMapper.toDto(entity.getAccount())); // ✅ full Account DTO
+//			}
+
 	        return dto;
 	    }
 	}

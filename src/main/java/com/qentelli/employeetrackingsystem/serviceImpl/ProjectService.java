@@ -3,11 +3,12 @@ package com.qentelli.employeetrackingsystem.serviceImpl;
 import java.util.List;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
+import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
 import com.qentelli.employeetrackingsystem.mapper.ModelMappers;
 import com.qentelli.employeetrackingsystem.models.client.request.ProjectDetailsDto;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
@@ -28,20 +29,32 @@ public class ProjectService {
 	public List<ProjectDetailsDto> getAllProjects() {
 		List<Project> projects = projectRepository.findAll();
 
-		return projects.stream().map(ModelMappers::toDto).collect(Collectors.toList());
+		return projects.stream().map(ModelMappers::toDto).toList();
+	}
+
+	public ProjectDetailsDto getProjectById(int id) {
+
+		Optional<Project> byId = projectRepository.findById(id);
+
+		if (!byId.isPresent()) {
+			throw new ProjectNotFoundException("Project not found with id: " + id);
+		}
+		Project existingProject = byId.get();
+
+		return ModelMappers.toDto(existingProject);
 	}
 
 	public Project updateProject(int id, ProjectDetailsDto dto) {
 		Optional<Project> optionalProject = projectRepository.findById(id);
 		if (!optionalProject.isPresent()) {
-			throw new RuntimeException("Project not found with id: " + id);
+			throw new ProjectNotFoundException("Project not found with id: " + id);
 		}
 
 		Project existingProject = optionalProject.get();
 
 		// Full update (ignore startDate if it's auto-managed)
 		existingProject.setProjectName(dto.getProjectName());
-		existingProject.setLocation(dto.getLocation());
+		existingProject.setAccount(dto.getAccount());
 		existingProject.setCreatedAt(dto.getCreatedAt());
 		existingProject.setCreatedBy(dto.getCreatedBy());
 		existingProject.setUpdatedAt(dto.getUpdatedAt());
@@ -69,31 +82,30 @@ public class ProjectService {
 			project.setProjectName(dto.getProjectName());
 		}
 
-		if (dto.getLocation() != null) {
-			project.setLocation(dto.getLocation());
+		if (dto.getAccount() != null) {
+			project.setAccount(dto.getAccount());
 		}
 
 //		if (dto.getEndDate() != null) {
 //			project.setEndDate(dto.getEndDate());
 //		}
-		
+
 		if (dto.getCreatedAt() != null) {
 			project.setCreatedAt(dto.getCreatedAt());
 		}
-		
+
 		if (dto.getCreatedBy() != null) {
 			project.setCreatedBy(dto.getCreatedBy());
 		}
-		
+
 		if (dto.getUpdatedAt() != null) {
 			project.setUpdatedAt(dto.getUpdatedAt());
 		}
-		
+
 		if (dto.getUpdatedBy() != null) {
 			project.setUpdatedBy(dto.getUpdatedBy());
 		}
-		
-		
+
 //		if (dto.getAction() != null) {
 //			project.setAction(dto.getAction());
 //		}
@@ -103,28 +115,28 @@ public class ProjectService {
 
 		return save;
 	}
-	
+
 	public Project softDeleteProject(int id) {
-		
-		Project projectFound = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
+
+		Project projectFound = projectRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Project not found"));
 		projectFound.setSoftDelete(true);
 		return projectRepository.save(projectFound);
-		
+
 	}
-	
+
 	public Project deleteProject(int id) {
-		
-	    Optional<Project> optionalProject = projectRepository.findById(id);
+
+		Optional<Project> optionalProject = projectRepository.findById(id);
 		if (!projectRepository.existsById(id)) {
 			throw new RuntimeException("Project not found with id: " + id);
 		}
 
-	    Project project = optionalProject.get();
-	    projectRepository.deleteById(id); // delete happens here
+		Project project = optionalProject.get();
+		projectRepository.deleteById(id); // delete happens here
 
-	    return project; 
+		return project;
 
-		projectRepository.deleteById(id);
 	}
 
 }

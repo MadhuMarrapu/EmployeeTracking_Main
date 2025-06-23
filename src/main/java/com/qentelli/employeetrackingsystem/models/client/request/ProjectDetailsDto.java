@@ -1,9 +1,9 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
-//import java.time.LocalDate;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.qentelli.employeetrackingsystem.entity.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ProjectDetailsDto {
 
 	private String projectName;
-	private String location;
+//	private String location;
 	//private LocalDate startDate;
 	//private LocalDate endDate;
 	//private Boolean action;
@@ -23,5 +23,6 @@ public class ProjectDetailsDto {
 	private String createdBy;
 	private LocalDateTime updatedAt;
 	private String updatedBy;
-
+	private Account account;
+	//private Integer accountId;
 }
