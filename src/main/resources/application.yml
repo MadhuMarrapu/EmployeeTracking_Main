@@ -1,14 +1,15 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
     name: Employee-Tracking-System
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/testdb
-    username: postgres
-    password: root
+    url: jdbc:postgresql://ep-little-base-a83tfhl9-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require
+    username: neondb_owner
+    password: npg_eP7OdxXmFh1s
+    
   jpa:
     hibernate:
       ddl-auto: update

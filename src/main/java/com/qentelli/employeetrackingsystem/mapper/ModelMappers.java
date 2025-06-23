@@ -5,6 +5,7 @@ import com.qentelli.employeetrackingsystem.models.client.request.ProjectDetailsD
 
 public class ModelMappers {
 
+
 		// Prevent instantiation
 	    private ModelMappers() {
 	        throw new UnsupportedOperationException("Utility class");
@@ -20,10 +21,6 @@ public class ModelMappers {
 	        project.setUpdatedBy(dto.getUpdatedBy());
 	        project.setAccount(dto.getAccount());
 	        
-//	        if (dto.getAccount() != null) {
-//				project.setAccount(AccountMapper.toEntity(dto.getAccount())); // ✅ full Account mapping
-//			}
-
 	        return project;
 	    }
 	 
@@ -36,12 +33,8 @@ public class ModelMappers {
 	        dto.setUpdatedAt(entity.getUpdatedAt());
 	        dto.setUpdatedBy(entity.getUpdatedBy());
 	        dto.setAccount(entity.getAccount());
-//	        if (entity.getAccount() != null) {
-//				dto.setAccount(AccountMapper.toDto(entity.getAccount())); // ✅ full Account DTO
-//			}
 
 	        return dto;
 	    }
-	}
 
-
+}

@@ -1,7 +1,9 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.LocalDateTime;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,12 @@ public class UserDetailsDto {
 	private String password;
 	private String confirmPassword;
 	private String roles;
+	private String techStack;
+	private List<ProjectDetailsDto> projects;
+	private LocalDateTime createdAt;
+	private String createdBy;
+	private LocalDateTime updatedAt;
+	private String updatedBy;
 
 
 }
