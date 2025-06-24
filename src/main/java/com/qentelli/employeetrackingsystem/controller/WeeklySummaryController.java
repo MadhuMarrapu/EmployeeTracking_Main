@@ -1,4 +1,4 @@
-/*
+
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.util.List;
@@ -63,4 +63,3 @@ public class WeeklySummaryController {
 		service.deleteSummary(id);
 	}
 }
-*/
