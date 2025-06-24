@@ -29,6 +29,6 @@ public class DailyUpdate {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
-    private Employee employee;
+    private Manager employee;
 }
 
