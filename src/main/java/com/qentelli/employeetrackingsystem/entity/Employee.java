@@ -1,4 +1,4 @@
-/*
+
 package com.qentelli.employeetrackingsystem.entity;
 
 import java.util.List;
@@ -34,4 +34,4 @@ public class Employee {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DailyUpdate> dailyUpdates;
 }
-*/
+
