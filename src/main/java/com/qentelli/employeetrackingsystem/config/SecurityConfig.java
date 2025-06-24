@@ -3,6 +3,7 @@ package com.qentelli.employeetrackingsystem.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,53 +16,45 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
+
     @Autowired
     private UserDetailsService userDetailsService;
 
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Allow any origin (can restrict to specific domains)
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-      //  config.addAllowedOrigin("http://localhost:4200");  // Frontend URL (Angular's default)
-        
-        // Allow headers and methods
-        config.addAllowedMethod("*");
+        config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:4200")); // Update as needed
         config.addAllowedHeader("*");
-        config.setAllowCredentials(true);
-        
-        // Apply CORS to all paths
+        config.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
 
-    // Security Filter Chain Configuration
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Configure Spring Security HTTP settings
         http
-                .cors(cors -> cors // Apply CORS configuration
-                        .configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())  // Disable CSRF protection (needed for stateless JWT)
-                .authorizeHttpRequests(auth -> auth
-                              //  .requestMatchers("/auth/**", "/api/**")
-                                .requestMatchers("/auth/register", "/auth/login")
-                                .permitAll()  // Allow authentication and API paths
-                                .anyRequest().authenticated()  // Require authentication for other requests
-                )
-                .userDetailsService(userDetailsService)  // Set custom user details service (for authentication)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT filter before the authentication filter
-        
-        return http.build();  // Build and return the security configuration
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/auth/register", "/auth/login").permitAll()
+                .anyRequest().authenticated()
+            )
+            .userDetailsService(userDetailsService)
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
     @Bean
@@ -73,5 +66,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
 }
