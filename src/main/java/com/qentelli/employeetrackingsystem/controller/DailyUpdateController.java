@@ -1,4 +1,4 @@
-/*
+
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.util.List;
@@ -52,4 +52,4 @@ public class DailyUpdateController {
 		return ResponseEntity.noContent().build();
 	}
 }
-*/
+
