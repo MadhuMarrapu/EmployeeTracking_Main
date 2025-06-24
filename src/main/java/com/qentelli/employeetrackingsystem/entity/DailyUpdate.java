@@ -1,4 +1,4 @@
-/*
+
 package com.qentelli.employeetrackingsystem.entity;
 
 import jakarta.persistence.*;
@@ -31,4 +31,4 @@ public class DailyUpdate {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 }
-*/
+
