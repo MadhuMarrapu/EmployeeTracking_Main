@@ -1,4 +1,4 @@
-/*
+
 package com.qentelli.employeetrackingsystem.mappers;
 
 import com.qentelli.employeetrackingsystem.entity.DailyUpdate;
@@ -64,4 +64,3 @@ public abstract class DailyUpdateMapper {
         return entities;
     }
 }
-*/
