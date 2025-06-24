@@ -1,4 +1,4 @@
-/*
+
 package com.qentelli.employeetrackingsystem.mappers;
 
 import java.util.List;
@@ -44,4 +44,3 @@ public class WeeklySummaryMapper {
 		return dto;
 	}
 }
-*/
