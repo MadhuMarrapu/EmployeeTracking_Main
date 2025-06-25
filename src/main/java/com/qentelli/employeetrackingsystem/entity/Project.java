@@ -37,7 +37,7 @@ public class Project {
     private Account account;
     
     @ManyToOne
-    @JoinColumn(name = "managerId")
+    @JoinColumn(name = "manager_id", referencedColumnName = "managerId")
     private Manager manager;
 
 }

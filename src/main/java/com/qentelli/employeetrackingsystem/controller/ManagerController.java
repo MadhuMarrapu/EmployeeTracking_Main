@@ -1,49 +1,46 @@
 package com.qentelli.employeetrackingsystem.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.qentelli.employeetrackingsystem.models.client.request.ManagerDTO;
 import com.qentelli.employeetrackingsystem.serviceImpl.ManagerService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/managers")
 public class ManagerController {
 
-	@Autowired
-	private ManagerService managerService;
+    @Autowired
+    private ManagerService managerService;
 
-	@PostMapping
-	public ManagerDTO createManager(@RequestBody ManagerDTO managerDTO) {
-		return managerService.createManager(managerDTO);
-	}
+    @GetMapping
+    public ResponseEntity<List<ManagerDTO>> getAllManagers() {
+        return ResponseEntity.ok(managerService.getAllManagers());
+    }
 
-	@GetMapping
-	public List<ManagerDTO> getAllManagers() {
-		return managerService.getAllManagers();
-	}
+    @GetMapping("/{id}")
+    public ResponseEntity<ManagerDTO> getManagerById(@PathVariable Integer id) {
+        ManagerDTO manager = managerService.getManagerById(id);
+        return (manager != null)
+                ? ResponseEntity.ok(manager)
+                : ResponseEntity.notFound().build();
+    }
 
-	@GetMapping("/{managerId}")
-	public ManagerDTO getManagerById(@PathVariable String managerId) {
-		return managerService.getManagerById(managerId);
-	}
+    @PostMapping
+    public ResponseEntity<ManagerDTO> createManager(@RequestBody ManagerDTO dto) {
+        return ResponseEntity.ok(managerService.createManager(dto));
+    }
 
-	@PutMapping("/{managerId}")
-	public ManagerDTO updateManager(@PathVariable String managerId, @RequestBody ManagerDTO managerDTO) {
-		return managerService.updateManager(managerId, managerDTO);
-	}
+    @PutMapping("/{id}")
+    public ResponseEntity<ManagerDTO> updateManager(@PathVariable Integer id, @RequestBody ManagerDTO dto) {
+        return ResponseEntity.ok(managerService.updateManager(id, dto));
+    }
 
-	@DeleteMapping("/{managerId}")
-	public void deleteManager(@PathVariable String managerId) {
-		managerService.deleteManager(managerId);
-	}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteManager(@PathVariable Integer id) {
+        managerService.deleteManager(id);
+        return ResponseEntity.noContent().build();
+    }
 }

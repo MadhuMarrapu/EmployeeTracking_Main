@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 public class ManagerDTO {
-    private String managerId;
+    private Integer managerId;
     private String firstName;
     private String lastName;
     private String email;

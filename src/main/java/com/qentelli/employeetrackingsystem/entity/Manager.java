@@ -20,9 +20,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Manager {
 
+	
 	@Id
 //	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private String managerId;
+	private Integer managerId;
 	private String firstName;
 	private String lastName;
 	private String email;
