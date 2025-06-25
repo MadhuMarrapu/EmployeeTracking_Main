@@ -16,70 +16,77 @@ import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 @Service
 public class ManagerService {
 
-	@Autowired
-	private ManagerRepository managerRepository;
+    @Autowired
+    private ManagerRepository managerRepository;
 
-	@Autowired
-	private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
-	@Autowired
-	private ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
-	public List<ManagerDTO> getAllManagers() {
-		return managerRepository.findAll().stream().map(manager -> {
-			ManagerDTO dto = modelMapper.map(manager, ManagerDTO.class);
-			dto.setProjectIds(manager.getProjects().stream().map(Project::getProjectId).collect(Collectors.toList()));
-			return dto;
-		}).collect(Collectors.toList());
-	}
+    public List<ManagerDTO> getAllManagers() {
+        return managerRepository.findAll().stream().map(manager -> {
+            ManagerDTO dto = modelMapper.map(manager, ManagerDTO.class);
+            dto.setProjectIds(manager.getProjects()
+                .stream()
+                .map(Project::getProjectId)
+                .collect(Collectors.toList()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
-	public ManagerDTO getManagerById(String managerId) {
-		return managerRepository.findById(managerId).map(manager -> {
-			ManagerDTO dto = modelMapper.map(manager, ManagerDTO.class);
-			dto.setProjectIds(manager.getProjects().stream().map(Project::getProjectId).collect(Collectors.toList()));
-			return dto;
-		}).orElse(null);
-	}
+    public ManagerDTO getManagerById(Integer managerId) {
+        return managerRepository.findById(managerId).map(manager -> {
+            ManagerDTO dto = modelMapper.map(manager, ManagerDTO.class);
+            dto.setProjectIds(manager.getProjects()
+                .stream()
+                .map(Project::getProjectId)
+                .collect(Collectors.toList()));
+            return dto;
+        }).orElse(null);
+    }
 
-	public ManagerDTO createManager(ManagerDTO dto) {
-		Manager manager = modelMapper.map(dto, Manager.class);
+    public ManagerDTO createManager(ManagerDTO dto) {
+        Manager manager = modelMapper.map(dto, Manager.class);
 
-		if (dto.getProjectIds() != null) {
-			List<Project> projects = projectRepository.findAllById(dto.getProjectIds());
-			manager.setProjects(projects);
-		}
+        if (dto.getProjectIds() != null) {
+            List<Project> projects = projectRepository.findAllById(dto.getProjectIds());
+            manager.setProjects(projects);
+        }
 
-		Manager savedManager = managerRepository.save(manager);
-		ManagerDTO savedDto = modelMapper.map(savedManager, ManagerDTO.class);
-		savedDto.setProjectIds(
-				savedManager.getProjects().stream().map(Project::getProjectId).collect(Collectors.toList()));
-		return savedDto;
-	}
+        Manager savedManager = managerRepository.save(manager);
+        ManagerDTO savedDto = modelMapper.map(savedManager, ManagerDTO.class);
+        savedDto.setProjectIds(savedManager.getProjects()
+            .stream()
+            .map(Project::getProjectId)
+            .collect(Collectors.toList()));
+        return savedDto;
+    }
 
-	public void deleteManager(String managerId) {
-		managerRepository.deleteById(managerId);
-	}
+    public void deleteManager(Integer managerId) {
+        managerRepository.deleteById(managerId);
+    }
 
-	public ManagerDTO updateManager(String managerId, ManagerDTO dto) {
-		Manager existingManager = managerRepository.findById(managerId)
-				.orElseThrow(() -> new RuntimeException("Manager not found"));
+    public ManagerDTO updateManager(Integer managerId, ManagerDTO dto) {
+        Manager existingManager = managerRepository.findById(managerId)
+            .orElseThrow(() -> new RuntimeException("Manager not found"));
 
-		// Map incoming DTO to existing entity (except ID)
-		existingManager.setFirstName(dto.getFirstName());
-		existingManager.setLastName(dto.getLastName());
-		existingManager.setEmail(dto.getEmail());
-		existingManager.setEmployeeId(dto.getEmployeeId());
-		existingManager.setPassword(dto.getPassword());
-		existingManager.setConfirmPassword(dto.getConfirmPassword());
-		existingManager.setRole(dto.getRole());
-		existingManager.setTechStack(dto.getTechStack());
+        existingManager.setFirstName(dto.getFirstName());
+        existingManager.setLastName(dto.getLastName());
+        existingManager.setEmail(dto.getEmail());
+        existingManager.setEmployeeId(dto.getEmployeeId());
+        existingManager.setPassword(dto.getPassword());
+        existingManager.setConfirmPassword(dto.getConfirmPassword());
+        existingManager.setRole(dto.getRole());
+        existingManager.setTechStack(dto.getTechStack());
 
-		if (dto.getProjectIds() != null) {
-			List<Project> projects = projectRepository.findAllById(dto.getProjectIds());
-			existingManager.setProjects(projects);
-		}
+        if (dto.getProjectIds() != null) {
+            List<Project> projects = projectRepository.findAllById(dto.getProjectIds());
+            existingManager.setProjects(projects);
+        }
 
-		Manager updated = managerRepository.save(existingManager);
-		return modelMapper.map(updated, ManagerDTO.class);
-	}
+        Manager updated = managerRepository.save(existingManager);
+        return modelMapper.map(updated, ManagerDTO.class);
+    }
 }

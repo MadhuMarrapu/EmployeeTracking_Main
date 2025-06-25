@@ -40,7 +40,7 @@ public class Project {
     private String updatedBy;
     
     @ManyToOne
-    @JoinColumn(name = "managerId")
+    @JoinColumn(name = "manager_id", referencedColumnName = "managerId")
     private Manager manager;
 
 }
