@@ -1,14 +1,12 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
-import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
@@ -25,41 +23,42 @@ public class AccountService {
 	// CREATE
 	public Account createAccount(AccountDetailsDto dto) {
 		Account account = modelMapper.map(dto, Account.class);
-		if (dto.getProjects() != null) {
-			List<Project> projects = dto.getProjects().stream().map(projectDto -> {
-				Project project = modelMapper.map(projectDto, Project.class);
-				project.setAccount(account);
-				return project;
-			}).collect(Collectors.toList());
-			account.setProjects(projects);
-		}
 		return accountRepository.save(account);
 	}
 
 	// READ ALL
 	public List<AccountDetailsDto> getAllAccounts() {
 		return accountRepository.findAll().stream().map(account -> modelMapper.map(account, AccountDetailsDto.class))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	// READ BY ID
-	public AccountDetailsDto getAccountById(int id) {
+	public AccountDetailsDto getAccountById(Integer id) {
 		Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
 		return modelMapper.map(account, AccountDetailsDto.class);
 	}
 
-	// UPDATE
-	public Account updateAccount(int id, AccountDetailsDto dto) {
-		Account account = accountRepository.findById(id)
+	// FULL UPDATE
+	public Account updateAccount(Integer id, AccountDetailsDto dto) {
+		Account existingAccount = accountRepository.findById(id)
 				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
-
-		modelMapper.map(dto, account);
-		return accountRepository.save(account);
+		modelMapper.map(dto, existingAccount);
+		
+		existingAccount.setAccountId(dto.getAccountId());
+		existingAccount.setAccountName(dto.getAccountName());
+		existingAccount.setAccountStartDate(dto.getAccountStartDate());
+		existingAccount.setAccountEndDate(dto.getAccountEndDate());
+		existingAccount.setCreatedAt(dto.getCreatedAt());
+		existingAccount.setCreatedBy(dto.getCreatedBy());
+		existingAccount.setUpdatedAt(dto.getUpdatedAt());
+		existingAccount.setUpdatedBy(dto.getUpdatedBy());
+		
+		return accountRepository.save(existingAccount);
 	}
 
 	// PARTIAL UPDATE
-	public Account partialUpdateAccount(int id, AccountDetailsDto dto) {
+	public Account partialUpdateAccount(Integer id, AccountDetailsDto dto) {
 		Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
 
@@ -82,7 +81,7 @@ public class AccountService {
 	}
 
 	// SOFT DELETE
-	public Account softDeleteAccount(int id) {
+	public Account softDeleteAccount(Integer id) {
 		Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 		account.setSoftDelete(true);
@@ -90,10 +89,10 @@ public class AccountService {
 	}
 
 	// HARD DELETE
-	public Account deleteAccount(int id) {
+	public Account deleteAccount(Integer id) {
 		Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
-		accountRepository.delete(account);
+		accountRepository.deleteById(id);
 		return account;
 	}
 }

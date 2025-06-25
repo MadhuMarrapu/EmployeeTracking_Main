@@ -22,8 +22,7 @@ public class Manager {
 
 	
 	@Id
-//	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private String managerId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer managerId;
 	private String firstName;
 	private String lastName;
@@ -37,8 +36,8 @@ public class Manager {
 	private Roles role;
 
 	// one manage can have multiple projects
-	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
-	private List<Project> projects;
+//	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+//	private List<Project> projects;
 
 	@Enumerated(EnumType.STRING)
 	private TechStack techStack;
