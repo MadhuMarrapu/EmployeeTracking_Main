@@ -1,5 +1,6 @@
 package com.qentelli.employeetrackingsystem.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -20,7 +21,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Manager {
 
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer managerId;
@@ -36,8 +36,8 @@ public class Manager {
 	private Roles role;
 
 	// one manage can have multiple projects
-	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
-	private List<Project> projects;
+	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Project> projects = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
 	private TechStack techStack;

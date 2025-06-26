@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class LoginUserRequest {
-
+	
+	
 	private String usernName;
 	private String password;
 	
