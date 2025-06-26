@@ -25,7 +25,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse2;
 import com.qentelli.employeetrackingsystem.serviceImpl.AccountService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/Account/")
 public class AccountController {
 
     @Autowired
@@ -34,7 +34,7 @@ public class AccountController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @PostMapping("/createAccount")
+    @PostMapping()
     public ResponseEntity<?> createAccount(@RequestBody AccountDetailsDto dto) {
         Account created = accountService.createAccount(dto);
         AccountDetailsDto mapped = modelMapper.map(created, AccountDetailsDto.class);
@@ -47,7 +47,7 @@ public class AccountController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/viewAccounts")
+    @GetMapping()
     public ResponseEntity<AuthResponse<List<AccountDetailsDto>>> getAllAccounts() {
         List<AccountDetailsDto> list = accountService.getAllAccounts();
 
@@ -61,7 +61,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/viewAccount/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<AuthResponse<AccountDetailsDto>> getAccountById(@PathVariable int id) {
         AccountDetailsDto dto = accountService.getAccountById(id);
 
@@ -75,7 +75,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/updateAccount/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<?> updateAccount(@PathVariable int id, @RequestBody AccountDetailsDto dto) {
         Account updated = accountService.updateAccount(id, dto);
         AccountDetailsDto mapped = modelMapper.map(updated, AccountDetailsDto.class);
@@ -88,7 +88,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/partialUpdateAccount/{id}")
+    @PatchMapping("{id}")
     public ResponseEntity<?> partialUpdateAccount(@PathVariable int id, @RequestBody AccountDetailsDto dto) {
         Account updated = accountService.partialUpdateAccount(id, dto);
         AccountDetailsDto mapped = modelMapper.map(updated, AccountDetailsDto.class);
@@ -101,7 +101,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/softDeleteAccount/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> softDeleteAccount(@PathVariable int id) {
         accountService.softDeleteAccount(id);
 
@@ -113,7 +113,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/deleteAccount/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteAccount(@PathVariable int id) {
         accountService.deleteAccount(id);
 
