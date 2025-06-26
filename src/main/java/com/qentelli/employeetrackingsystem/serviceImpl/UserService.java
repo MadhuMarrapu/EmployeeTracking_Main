@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService {
 
 	public LoginUserResponse loginByEmail(LoginUserRequest loginUser) {
 		try {
-			String userName = loginUser.getUsernName();
+			String userName = loginUser.getUserName();
 			String password = loginUser.getPassword();
 			// 1. Authenticate
 			Authentication authentication = authenticationManager

@@ -36,8 +36,13 @@ public class Manager {
 	private Roles role;
 
 	// one manage can have multiple projects
+<<<<<<< HEAD
 	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Project> projects = new ArrayList<>();
+=======
+//	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+//	private List<Project> projects;
+>>>>>>> 7c12d92743737efb9d27729fe47a2cd9ef1f8869
 
 	@Enumerated(EnumType.STRING)
 	private TechStack techStack;
