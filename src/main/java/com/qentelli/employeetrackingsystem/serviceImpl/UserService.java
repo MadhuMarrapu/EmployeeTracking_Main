@@ -59,10 +59,13 @@ public class UserService implements UserDetailsService {
 			if (!passwordEncoder.matches(password, user.getPassword())) {
 				throw new BadCredentialsException("Invalid user email or password");
 			}
-
+			
+			loginUserData.setFirstName(user.getFirstName());
+			loginUserData.setLastName(user.getLastName());
 			loginUserData.setUserName(user.getUsername());
 			loginUserData.setRole(user.getRoles().name());
 			loginUserData.setAcessToken(accessToken);
+			
 
 			return loginUserData;
 		} catch (AuthenticationException e) {

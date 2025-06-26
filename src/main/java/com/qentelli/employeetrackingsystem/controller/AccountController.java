@@ -101,7 +101,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/soft/{id}")
     public ResponseEntity<?> softDeleteAccount(@PathVariable int id) {
         accountService.softDeleteAccount(id);
 

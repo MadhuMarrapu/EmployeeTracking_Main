@@ -1,119 +1,71 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
-import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
-import com.qentelli.employeetrackingsystem.models.client.request.ProjectDetailsDto;
+import com.qentelli.employeetrackingsystem.models.client.request.ProjectDTO;
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectService {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepo;
+    private final AccountRepository accountRepo;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public Project createProject(ProjectDetailsDto dto) {
+   
+    public ProjectDTO create(ProjectDTO dto) {
         Project project = modelMapper.map(dto, Project.class);
+        Account account = accountRepo.findById(dto.getAccountId())
+            .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        if (dto.getAccountId() != null) {
-            Account account = accountRepository.findById(dto.getAccountId())
-                    .orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + dto.getAccountId()));
-            project.setAccount(account);
-        }
-
-        return projectRepository.save(project);
+        project.setAccount(account);
+        Project saved = projectRepo.save(project);
+        return modelMapper.map(saved, ProjectDTO.class);
     }
 
-    public List<ProjectDetailsDto> getAllProjects() {
-        List<Project> projects = projectRepository.findAll();
-
-        return projects.stream()
-                .map(project -> {
-                    ProjectDetailsDto dto = modelMapper.map(project, ProjectDetailsDto.class);
-                    if (project.getAccount() != null) {
-                        dto.setAccountId(project.getAccount().getAccountId());
-                        dto.setAccountName(project.getAccount().getAccountName());
-                    }
-                    return dto;
-                })
-                .toList();
+ 
+    public ProjectDTO getById(Integer id) {
+        Project project = projectRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Project not found"));
+        return modelMapper.map(project, ProjectDTO.class);
     }
 
-    public ProjectDetailsDto getProjectById(int id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
-        ProjectDetailsDto dto = modelMapper.map(project, ProjectDetailsDto.class);
-
-        if (project.getAccount() != null) {
-            dto.setAccountId(project.getAccount().getAccountId());
-            dto.setAccountName(project.getAccount().getAccountName());
-        }
-
-        return dto;
+   
+    public List<ProjectDTO> getAll() {
+        return projectRepo.findAll().stream()
+            .map(p -> modelMapper.map(p, ProjectDTO.class))
+            .collect(Collectors.toList());
     }
 
-    public Project updateProject(int id, ProjectDetailsDto dto) {
-        Project existing = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
-
-        modelMapper.map(dto, existing);
-
-        if (dto.getAccountId() != null) {
-            Account account = accountRepository.findById(dto.getAccountId())
-                    .orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + dto.getAccountId()));
-            existing.setAccount(account);
-        }
-
-        return projectRepository.save(existing);
-    }
-
+ 
     @Transactional
-    public Project partialUpdateProject(int id, ProjectDetailsDto dto) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
+    public ProjectDTO update(Integer id, ProjectDTO dto) {
+        Project project = projectRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        if (dto.getProjectName() != null) project.setProjectName(dto.getProjectName());
-        if (dto.getCreatedBy() != null) project.setCreatedBy(dto.getCreatedBy());
-        if (dto.getUpdatedBy() != null) project.setUpdatedBy(dto.getUpdatedBy());
-        if (dto.getCreatedAt() != null) project.setCreatedAt(dto.getCreatedAt());
-        if (dto.getUpdatedAt() != null) project.setUpdatedAt(dto.getUpdatedAt());
+        project.setProjectName(dto.getProjectName());
+        project.setUpdatedAt(dto.getUpdatedAt());
+        project.setUpdatedBy(dto.getUpdatedBy());
+        project.setSoftDelete(dto.getSoftDelete());
 
-        if (dto.getAccountId() != null) {
-            Account account = accountRepository.findById(dto.getAccountId())
-                    .orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + dto.getAccountId()));
-            project.setAccount(account);
-        }
-
-        return projectRepository.save(project);
+        return modelMapper.map(project, ProjectDTO.class);
     }
 
-    public Project softDeleteProject(int id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
-        project.setSoftDelete(true);
-        return projectRepository.save(project);
-    }
 
-    public Project deleteProject(int id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
-        projectRepository.delete(project);
-        return project;
+    public void delete(Integer id) {
+        Project project = projectRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Project not found"));
+        projectRepo.delete(project);
     }
 }

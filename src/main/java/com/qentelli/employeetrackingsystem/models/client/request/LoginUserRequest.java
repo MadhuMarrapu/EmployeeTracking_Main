@@ -11,14 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class LoginUserRequest {
-<<<<<<< HEAD
-	
-	
-	private String usernName;
-=======
+
 
 	private String userName;
->>>>>>> 7c12d92743737efb9d27729fe47a2cd9ef1f8869
 	private String password;
 	
 
