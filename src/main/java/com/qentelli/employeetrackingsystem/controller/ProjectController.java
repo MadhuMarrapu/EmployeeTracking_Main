@@ -25,7 +25,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse2;
 import com.qentelli.employeetrackingsystem.serviceImpl.ProjectService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/Project/")
 public class ProjectController {
 
     @Autowired
@@ -34,7 +34,7 @@ public class ProjectController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @PostMapping("/createProject")
+    @PostMapping()
     public ResponseEntity<?> createProject(@RequestBody ProjectDetailsDto dto) {
         Project project = projectService.createProject(dto);
         ProjectDetailsDto responseDto = modelMapper.map(project, ProjectDetailsDto.class);
@@ -46,7 +46,7 @@ public class ProjectController {
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping("/viewProjects")
+    @GetMapping()
     public ResponseEntity<AuthResponse<List<ProjectDetailsDto>>> getAllProjects() {
         List<ProjectDetailsDto> dtoList = projectService.getAllProjects();
         AuthResponse<List<ProjectDetailsDto>> authResponse = new AuthResponse<>(
@@ -59,7 +59,7 @@ public class ProjectController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @GetMapping("/viewProject/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<AuthResponse<ProjectDetailsDto>> getProjectById(@PathVariable int id) {
         ProjectDetailsDto dto = projectService.getProjectById(id);
         AuthResponse<ProjectDetailsDto> authResponse = new AuthResponse<>(
@@ -72,7 +72,7 @@ public class ProjectController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @PutMapping("/updateProject/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<?> updateProject(@PathVariable int id, @RequestBody ProjectDetailsDto dto) {
         Project updated = projectService.updateProject(id, dto);
         ProjectDetailsDto responseDto = modelMapper.map(updated, ProjectDetailsDto.class);
@@ -84,7 +84,7 @@ public class ProjectController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @PatchMapping("/partialUpdateProject/{id}")
+    @PatchMapping("{id}")
     public ResponseEntity<?> partialUpdateProject(@PathVariable int id, @RequestBody ProjectDetailsDto dto) {
         Project updated = projectService.partialUpdateProject(id, dto);
         ProjectDetailsDto responseDto = modelMapper.map(updated, ProjectDetailsDto.class);
@@ -96,7 +96,7 @@ public class ProjectController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @DeleteMapping("/softDeleteProject/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> softDeleteProject(@PathVariable int id) {
         projectService.softDeleteProject(id);
         AuthResponse2<ProjectDetailsDto> authResponse = new AuthResponse2<>(
@@ -107,7 +107,7 @@ public class ProjectController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @DeleteMapping("/deleteProject/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteProject(@PathVariable int id) {
         projectService.deleteProject(id);
         AuthResponse2<ProjectDetailsDto> authResponse = new AuthResponse2<>(
