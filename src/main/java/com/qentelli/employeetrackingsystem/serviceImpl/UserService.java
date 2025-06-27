@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService {
 
 	public LoginUserResponse loginByEmail(LoginUserRequest loginUser) {
 		try {
-			String userName = loginUser.getUsernName();
+			String userName = loginUser.getUserName();
 			String password = loginUser.getPassword();
 			// 1. Authenticate
 			Authentication authentication = authenticationManager
@@ -59,6 +59,9 @@ public class UserService implements UserDetailsService {
 			if (!passwordEncoder.matches(password, user.getPassword())) {
 				throw new BadCredentialsException("Invalid user email or password");
 			}
+			
+			loginUserData.setFirstName(user.getFirstName());
+			loginUserData.setLastName(user.getLastName());
 			loginUserData.setUserName(user.getUsername());
 			loginUserData.setRole(user.getRoles().name());
 			loginUserData.setAcessToken(accessToken);

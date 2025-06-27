@@ -2,6 +2,8 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,83 +16,112 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
 import com.qentelli.employeetrackingsystem.entity.Account;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
-import com.qentelli.employeetrackingsystem.mapper.AccountMapper;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse2;
-import com.qentelli.employeetrackingsystem.models.client.response.MessageResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.AccountService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/Account/")
 public class AccountController {
 
-	@Autowired
-	private AccountService accountService;
+    @Autowired
+    private AccountService accountService;
 
-	@PostMapping("/createAccount")
-	public ResponseEntity<?> createAccount(@RequestBody AccountDetailsDto accountDetailsDto) {
-		try {
-			Account account = accountService.createAccount(accountDetailsDto);
-			AccountDetailsDto responseDto = AccountMapper.toDto(account);
-			AuthResponse2<AccountDetailsDto> authResponse = new AuthResponse2<>(HttpStatus.OK.value(),
-					RequestProcessStatus.SUCCESS, "Account created successfully");
-			return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
-		} catch (ResponseStatusException e) {
-			return ResponseEntity.status(e.getStatusCode()).body(new MessageResponse(e.getMessage()));
-		}
-	}
+    @Autowired
+    private ModelMapper modelMapper;
 
-	@GetMapping("/viewAccounts")
-	public ResponseEntity<AuthResponse<List<AccountDetailsDto>>> getAllAccounts() {
-		List<AccountDetailsDto> accountList = accountService.getAllAccounts();
-		AuthResponse<List<AccountDetailsDto>> authResponse = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Accounts fetched successfully", accountList);
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
-	}
+    @PostMapping()
+    public ResponseEntity<?> createAccount(@RequestBody AccountDetailsDto dto) {
+        Account created = accountService.createAccount(dto);
+        AccountDetailsDto mapped = modelMapper.map(created, AccountDetailsDto.class);
 
-	@GetMapping("/viewAccount/{id}")
-	public ResponseEntity<AuthResponse<AccountDetailsDto>> getAccountById(@PathVariable Integer id) {
-		AccountDetailsDto accountDto = accountService.getAccountById(id);
-		AuthResponse<AccountDetailsDto> authResponse = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Account fetched successfully", accountDto);
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
-	}
+        AuthResponse2<AccountDetailsDto> response = new AuthResponse2<>(
+                HttpStatus.CREATED.value(),
+                RequestProcessStatus.SUCCESS,
+                "Account created successfully"
+        );
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
-	@PutMapping("/updateAccount/{id}")
-	public ResponseEntity<?> updateAccount(@PathVariable Integer id, @RequestBody AccountDetailsDto dto) {
-		Account updatedAccount = accountService.updateAccount(id, dto);
-		AccountDetailsDto responseDto = AccountMapper.toDto(updatedAccount);
-		AuthResponse2<AccountDetailsDto> authResponse = new AuthResponse2<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, "Account updated successfully");
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
-	}
+    @GetMapping()
+    public ResponseEntity<AuthResponse<List<AccountDetailsDto>>> getAllAccounts() {
+        List<AccountDetailsDto> list = accountService.getAllAccounts();
 
-	@PatchMapping("/partialUpdateAccount/{id}")
-	public ResponseEntity<?> partialUpdateAccount(@PathVariable Integer id, @RequestBody AccountDetailsDto dto) {
-		Account updatedAccount = accountService.partialUpdateAccount(id, dto);
-		AccountDetailsDto responseDto = AccountMapper.toDto(updatedAccount);
-		AuthResponse2<AccountDetailsDto> authResponse = new AuthResponse2<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, "Account partially updated successfully");
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
-	}
+        AuthResponse<List<AccountDetailsDto>> response = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "Accounts fetched successfully",
+                list
+        );
+        return ResponseEntity.ok(response);
+    }
 
-	@DeleteMapping("/softDeleteAccount/{id}")
-	public ResponseEntity<?> softDeleteAccount(@PathVariable Integer id) {
-		accountService.softDeleteAccount(id);
-		AuthResponse2<AccountDetailsDto> authResponse = new AuthResponse2<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, "Account soft deleted successfully");
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
-	}
+    @GetMapping("{id}")
+    public ResponseEntity<AuthResponse<AccountDetailsDto>> getAccountById(@PathVariable int id) {
+        AccountDetailsDto dto = accountService.getAccountById(id);
 
-	@DeleteMapping("/deleteAccount/{id}")
-	public ResponseEntity<?> deleteAccount(@PathVariable Integer id) {
-		accountService.deleteAccount(id);
-		AuthResponse2<AccountDetailsDto> authResponse = new AuthResponse2<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, "Account deleted successfully");
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
-	}
+        AuthResponse<AccountDetailsDto> response = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "Account fetched successfully",
+                dto
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateAccount(@PathVariable int id, @RequestBody AccountDetailsDto dto) {
+        Account updated = accountService.updateAccount(id, dto);
+        AccountDetailsDto mapped = modelMapper.map(updated, AccountDetailsDto.class);
+
+        AuthResponse2<AccountDetailsDto> response = new AuthResponse2<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                "Account updated successfully"
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<?> partialUpdateAccount(@PathVariable int id, @RequestBody AccountDetailsDto dto) {
+        Account updated = accountService.partialUpdateAccount(id, dto);
+        AccountDetailsDto mapped = modelMapper.map(updated, AccountDetailsDto.class);
+
+        AuthResponse2<AccountDetailsDto> response = new AuthResponse2<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                "Account partially updated successfully"
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/soft/{id}")
+    public ResponseEntity<?> softDeleteAccount(@PathVariable int id) {
+        accountService.softDeleteAccount(id);
+
+        AuthResponse2<AccountDetailsDto> response = new AuthResponse2<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                "Account soft deleted successfully"
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteAccount(@PathVariable int id) {
+        accountService.deleteAccount(id);
+
+        AuthResponse2<AccountDetailsDto> response = new AuthResponse2<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                "Account permanently deleted successfully"
+        );
+        return ResponseEntity.ok(response);
+    }
 }
