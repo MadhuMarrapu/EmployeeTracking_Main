@@ -25,8 +25,6 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer projectId;
-
-
     private String projectName;
 
     @ManyToOne(fetch = FetchType.LAZY)
