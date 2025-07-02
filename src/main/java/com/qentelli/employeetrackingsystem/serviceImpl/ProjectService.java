@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
+import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
@@ -17,6 +18,7 @@ import com.qentelli.employeetrackingsystem.exception.DuplicateProjectException;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ProjectDTO;
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
+import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class ProjectService {
 
 	private final ProjectRepository projectRepo;
 	private final AccountRepository accountRepo;
+	private final PersonRepository personRepository;
 	private final ModelMapper modelMapper;
 
 	public ProjectDTO create(ProjectDTO dto) throws DuplicateProjectException {
@@ -46,13 +49,29 @@ public class ProjectService {
 		return modelMapper.map(saved, ProjectDTO.class);
 	}
 
+	
+	
 	public ProjectDTO getById(Integer id) {
-		Project project = projectRepo.findById(id).orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND));
-		return modelMapper.map(project, ProjectDTO.class);
+	    Project project = projectRepo.findById(id)
+	        .orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND));
+
+	    ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
+	    if (project.getAccount() != null) {
+	        dto.setAccountName(project.getAccount().getAccountName());
+	    }
+
+	    return dto;
 	}
 
+	
 	public List<ProjectDTO> getAll() {
-		return projectRepo.findAll().stream().map(p -> modelMapper.map(p, ProjectDTO.class)).toList();
+	    List<Project> projects = projectRepo.findAll();
+
+	    return projects.stream().map(project -> {
+	        ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
+	        dto.setAccountName(project.getAccount().getAccountName());
+	        return dto;
+	    }).toList();
 	}
 
 	@Transactional
@@ -93,10 +112,26 @@ public class ProjectService {
 		return modelMapper.map(saved, ProjectDTO.class);
 	}
 
-	public void delete(Integer id) {
-		Project project = projectRepo.findById(id).orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND));
-		projectRepo.delete(project);
+	@Transactional
+	public void deleteProject(Integer projectId) {
+	    Project project = projectRepo.findById(projectId)
+	            .orElseThrow(() -> new ProjectNotFoundException(PROJECT_NOT_FOUND+" with ID: " + projectId));
+
+	    List<Person> linkedPersons = personRepository.findByProjectsContaining(project);
+	    for (Person person : linkedPersons) {
+	        person.getProjects().remove(project);
+	    }
+	    personRepository.saveAll(linkedPersons);
+
+	    projectRepo.delete(project);
 	}
+	
+	public Project softDeleteProject(int id) {
+        Project project = projectRepo.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(PROJECT_NOT_FOUND + " with id: " + id));
+        project.setSoftDelete(true);
+        return projectRepo.save(project);
+    }
 
 	private String getAuthenticatedUserFullName() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

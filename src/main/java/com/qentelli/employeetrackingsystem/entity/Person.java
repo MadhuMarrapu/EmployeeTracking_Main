@@ -3,19 +3,17 @@ package com.qentelli.employeetrackingsystem.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,16 +22,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Manager {
+public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer managerId;
-    
+    private Integer personId;
+
     private String firstName;
     private String lastName;
+    @Column(unique = true, nullable = false)
     private String email;
-    
+    @Column(unique = true, nullable = false)
     private String employeeCode;
     private String password;
     private String confirmPassword;
@@ -41,11 +40,14 @@ public class Manager {
     @Enumerated(EnumType.STRING)
     private Roles role;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "manager_id") // FK will be added in Project table
+    @ManyToMany
+    @JoinTable(
+        name = "person_project",
+        joinColumns = @JoinColumn(name = "person_id"),
+        inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
     private List<Project> projects = new ArrayList<>();
 
-    @ElementCollection(targetClass = TechStack.class)
     @Enumerated(EnumType.STRING)
-    private List<TechStack> techStack = new ArrayList<>();
+    private TechStack techStack;
 }
