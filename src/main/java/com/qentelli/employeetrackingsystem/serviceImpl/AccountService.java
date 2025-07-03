@@ -1,27 +1,43 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
+import com.qentelli.employeetrackingsystem.entity.Person;
+import com.qentelli.employeetrackingsystem.entity.Project;
+import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
+import com.qentelli.employeetrackingsystem.exception.DuplicateAccountException;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
+import com.qentelli.employeetrackingsystem.repository.PersonRepository;
+import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class AccountService {
 
-	@Autowired
-	private AccountRepository accountRepository;
+	private static final String ACCOUNT_NOT_FOUND = "Account not found with id: ";
+	private final AccountRepository accountRepository;
+	private final PersonRepository personRepository;
+	private final ProjectRepository projectRepository;
+	private final ModelMapper modelMapper;
 
-	@Autowired
-	private ModelMapper modelMapper;
 
 	// CREATE
 	public Account createAccount(AccountDetailsDto dto) {
+		if (accountRepository.existsByAccountName(dto.getAccountName())) {
+			throw new DuplicateAccountException("An account with this name already exists.");
+		}
 		Account account = modelMapper.map(dto, Account.class);
 		return accountRepository.save(account);
 	}
@@ -35,32 +51,30 @@ public class AccountService {
 	// READ BY ID
 	public AccountDetailsDto getAccountById(Integer id) {
 		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
+				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
 		return modelMapper.map(account, AccountDetailsDto.class);
 	}
 
 	// FULL UPDATE
 	public Account updateAccount(Integer id, AccountDetailsDto dto) {
 		Account existingAccount = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
+				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+
 		modelMapper.map(dto, existingAccount);
-		
-		existingAccount.setAccountId(dto.getAccountId());
 		existingAccount.setAccountName(dto.getAccountName());
 		existingAccount.setAccountStartDate(dto.getAccountStartDate());
 		existingAccount.setAccountEndDate(dto.getAccountEndDate());
-		existingAccount.setCreatedAt(dto.getCreatedAt());
-		existingAccount.setCreatedBy(dto.getCreatedBy());
-		existingAccount.setUpdatedAt(dto.getUpdatedAt());
-		existingAccount.setUpdatedBy(dto.getUpdatedBy());
-		
+
+		existingAccount.setUpdatedAt(LocalDateTime.now());
+		existingAccount.setUpdatedBy(getAuthenticatedUserFullName());
+
 		return accountRepository.save(existingAccount);
 	}
 
 	// PARTIAL UPDATE
 	public Account partialUpdateAccount(Integer id, AccountDetailsDto dto) {
 		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
+				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
 
 		if (dto.getAccountName() != null)
 			account.setAccountName(dto.getAccountName());
@@ -68,14 +82,9 @@ public class AccountService {
 			account.setAccountStartDate(dto.getAccountStartDate());
 		if (dto.getAccountEndDate() != null)
 			account.setAccountEndDate(dto.getAccountEndDate());
-		if (dto.getCreatedAt() != null)
-			account.setCreatedAt(dto.getCreatedAt());
-		if (dto.getCreatedBy() != null)
-			account.setCreatedBy(dto.getCreatedBy());
-		if (dto.getUpdatedAt() != null)
-			account.setUpdatedAt(dto.getUpdatedAt());
-		if (dto.getUpdatedBy() != null)
-			account.setUpdatedBy(dto.getUpdatedBy());
+
+		account.setUpdatedAt(LocalDateTime.now());
+		account.setUpdatedBy(getAuthenticatedUserFullName());
 
 		return accountRepository.save(account);
 	}
@@ -83,16 +92,38 @@ public class AccountService {
 	// SOFT DELETE
 	public Account softDeleteAccount(Integer id) {
 		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
+				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
 		account.setSoftDelete(true);
+		account.setUpdatedAt(LocalDateTime.now());
+		account.setUpdatedBy(getAuthenticatedUserFullName());
 		return accountRepository.save(account);
 	}
 
-	// HARD DELETE
-	public Account deleteAccount(Integer id) {
-		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
-		accountRepository.deleteById(id);
-		return account;
+	@Transactional
+	public void deleteAccount(Integer id) {
+	    Account account = accountRepository.findById(id)
+	            .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+
+	    // Disconnect projects from persons before deleting them
+	    if (account.getProjects() != null) {
+	        for (Project project : account.getProjects()) {
+	            List<Person> linkedPersons = personRepository.findByProjectsContaining(project);
+	            for (Person person : linkedPersons) {
+	                person.getProjects().remove(project);
+	            }
+	            personRepository.saveAll(linkedPersons); // Persist changes
+	            projectRepository.delete(project);        // Now safe to delete
+	        }
+	    }
+	    accountRepository.delete(account); // Delete the account itself
+	}
+
+	// Extracted method for full name resolution
+	private String getAuthenticatedUserFullName() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof User user) {
+			return user.getFirstName() + " " + user.getLastName();
+		}
+		return "System"; // Fallback
 	}
 }

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.WeeklySummaryRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
-import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse2;
 import com.qentelli.employeetrackingsystem.models.client.response.WeeklySummaryResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.WeeklySummaryService;
 
@@ -73,8 +72,8 @@ public class WeeklySummaryController {
 	@DeleteMapping("/softDeleteSummary/{weekId}")
 	public ResponseEntity<?> softDeleteAccount(@PathVariable int weekId) {
 		weeklySummaryService.softDeleteSummery(weekId);
+		AuthResponse<WeeklySummaryRequest> response = new AuthResponse<>(HttpStatus.OK.value(),
 
-		AuthResponse2<WeeklySummaryRequest> response = new AuthResponse2<>(HttpStatus.OK.value(),
 				RequestProcessStatus.SUCCESS, "WeeklySummary soft deleted successfully");
 		return ResponseEntity.ok(response);
 	}

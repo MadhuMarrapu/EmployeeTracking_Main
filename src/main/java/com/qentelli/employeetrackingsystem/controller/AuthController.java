@@ -16,6 +16,10 @@ import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.LoginUserResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.UserService;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -25,7 +29,7 @@ public class AuthController {
 	
 	
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponse<LoginUserResponse>> loginByUser(@RequestBody LoginUserRequest loginUserRequest) {
+	public ResponseEntity<AuthResponse<LoginUserResponse>> loginByUser(@Valid @RequestBody LoginUserRequest loginUserRequest) {
 		LoginUserResponse loginuser = userService.loginByEmail(loginUserRequest);
 
 		AuthResponse<LoginUserResponse> authResponse = new AuthResponse<>(
@@ -38,5 +42,5 @@ public class AuthController {
 
 		return new ResponseEntity<>(authResponse, HttpStatus.OK);
 	}
-
 }
+

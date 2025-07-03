@@ -29,36 +29,58 @@ public class PersonService {
 
 	public PersonDTO create(PersonDTO dto) {
 
-		boolean exists = personRepo.existsByEmail(dto.getEmail())
-				|| personRepo.existsByEmployeeCode(dto.getEmployeeCode());
+	    boolean exists = personRepo.existsByEmail(dto.getEmail())
+	            || personRepo.existsByEmployeeCode(dto.getEmployeeCode());
 
-		if (exists) {
-			throw new DuplicatePersonException("Person with this email or employee code already exists");
-		}
+	    if (exists) {
+	        throw new DuplicatePersonException("Person with this email or employee code already exists");
+	    }
 
-		Person person = modelMapper.map(dto, Person.class);
+	    Person person = modelMapper.map(dto, Person.class);
 
-		if (dto.getProjectIds() != null) {
-			List<Project> projects = projectRepo.findAllById(dto.getProjectIds());
-			person.setProjects(projects);
-		}
+	    // Strict project ID validation
+	    if (dto.getProjectIds() != null && !dto.getProjectIds().isEmpty()) {
+	        List<Project> projects = projectRepo.findAllById(dto.getProjectIds());
 
-		Person saved = personRepo.save(person);
-		return convertToDTO(saved);
+	        // Find which IDs are missing
+	        List<Integer> foundIds = projects.stream()
+	                .map(Project::getProjectId)
+	                .toList();
+
+	        List<Integer> missingIds = dto.getProjectIds().stream()
+	                .filter(id -> !foundIds.contains(id))
+	                .toList();
+
+	        if (!missingIds.isEmpty()) {
+	            throw new IllegalArgumentException("Invalid project IDs: " + missingIds);
+	        }
+
+	        person.setProjects(projects);
+	    }
+
+	    if (dto.getTechStack() != null) {
+	        person.setTechStack(dto.getTechStack());
+	    }
+
+	    Person saved = personRepo.save(person);
+	    return convertToDTO(saved);
+	}
+	public List<PersonDTO> getAllResponses() {
+	    return personRepo.findAll().stream()
+	        .map(this::convertToDTO)
+	        .toList();
 	}
 
-	public PersonDTO getById(Integer id) {
-		Person person = personRepo.findById(id).orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND));
-		return convertToDTO(person);
+	public PersonDTO getByIdResponse(Integer id) {
+	    return personRepo.findById(id)
+	        .map(this::convertToDTO)
+	        .orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND));
 	}
 
-	public List<PersonDTO> getAll() {
-		return personRepo.findAll().stream().map(this::convertToDTO).toList();
-	}
-
-	public List<PersonDTO> getByRole(Roles role) {
-		List<Person> persons = personRepo.findByRole(role);
-		return persons.stream().map(this::convertToDTO).toList();
+	public List<PersonDTO> getByRoleResponse(Roles role) {
+	    return personRepo.findByRole(role).stream()
+	        .map(this::convertToDTO)
+	        .toList();
 	}
 
 	@Transactional
@@ -72,14 +94,21 @@ public class PersonService {
 		person.setPassword(dto.getPassword());
 		person.setConfirmPassword(dto.getConfirmPassword());
 		person.setRole(dto.getRole());
-		person.setTechStack(dto.getTechStack());
+
+		
+        if (dto.getTechStack() != null) {
+            person.setTechStack(dto.getTechStack());
+        }
+
 
 		if (dto.getProjectIds() != null) {
 			List<Project> projects = projectRepo.findAllById(dto.getProjectIds());
 			person.setProjects(projects);
 		}
 
-		return convertToDTO(person);
+		Person saved = personRepo.save(person);
+		return convertToDTO(saved);
+
 	}
 
 	@Transactional
@@ -87,11 +116,8 @@ public class PersonService {
 		Person person = personRepo.findById(personId)
 				.orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND + "with id :" + personId));
 
-		// Unlink projects
+	
 		person.getProjects().clear();
-
-		// You can also optionally clear techStack if needed:
-		person.getTechStack().clear();
 
 		personRepo.delete(person);
 	}
@@ -108,4 +134,6 @@ public class PersonService {
 
 		return dto;
 	}
+	
+	
 }

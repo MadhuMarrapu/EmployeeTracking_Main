@@ -6,9 +6,13 @@ import java.util.List;
 
 import com.qentelli.employeetrackingsystem.entity.TaskStatus;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ViewReportResponse {
 	private int viewReportId;
 	private String taskName;
@@ -17,7 +21,7 @@ public class ViewReportResponse {
 	private List<String> keyAccomplishment;
 	private List<String> comments;
 	private String projectName;
-	private String employeeName;
+	private String personName;
 	private LocalDate taskStartDate;
 	private LocalDate taskEndDate;
 	private LocalDateTime createdAt;

@@ -57,8 +57,11 @@ public class ViewReports {
 	private Project project;
 
 	@ManyToOne
-	@JoinColumn(name = "employee_id")
-	private User user;
+	@JoinColumn(name = "personId")
+	private Person person;
+	
+	//private User user;
+	
 	private String taskName;
 	private LocalDate taskStartDate;
 	private LocalDate taskEndDate;

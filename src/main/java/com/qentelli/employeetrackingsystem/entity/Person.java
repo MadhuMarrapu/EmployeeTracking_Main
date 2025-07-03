@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,7 +35,7 @@ public class Person {
     private String employeeCode;
     private String password;
     private String confirmPassword;
-
+    
     @Enumerated(EnumType.STRING)
     private Roles role;
 
@@ -48,7 +47,6 @@ public class Person {
     )
     private List<Project> projects = new ArrayList<>();
 
-    @ElementCollection()
     @Enumerated(EnumType.STRING)
-    private List<TechStack> techStack = new ArrayList<>();
+    private TechStack techStack;
 }

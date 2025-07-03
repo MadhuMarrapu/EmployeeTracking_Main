@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +23,9 @@ import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.PersonService;
 
+
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,7 +38,7 @@ public class PersonController {
 	private final PersonService personService;
 
 	@PostMapping
-	public ResponseEntity<AuthResponse<PersonDTO>> createPerson(@Validated @RequestBody PersonDTO personDto) {
+	public ResponseEntity<AuthResponse<PersonDTO>> createPerson(@Valid @RequestBody PersonDTO personDto) {
 		logger.info("Creating new person: {}", personDto.getFirstName());
 		PersonDTO responseDto = personService.create(personDto);
 
@@ -49,7 +52,8 @@ public class PersonController {
 	@GetMapping
 	public ResponseEntity<AuthResponse<List<PersonDTO>>> getAllPersons() {
 		logger.info("Fetching all persons");
-		List<PersonDTO> persons = personService.getAll();
+
+		List<PersonDTO> persons = personService.getAllResponses();
 
 		logger.debug("Persons fetched: {}", persons.size());
 		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
@@ -61,7 +65,8 @@ public class PersonController {
 	@GetMapping("/{id}")
 	public ResponseEntity<AuthResponse<PersonDTO>> getPersonById(@PathVariable int id) {
 		logger.info("Fetching person by ID: {}", id);
-		PersonDTO dto = personService.getById(id);
+
+		PersonDTO dto = personService.getByIdResponse(id);
 
 		logger.debug("Person fetched: {}", dto);
 		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
@@ -82,8 +87,8 @@ public class PersonController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse<>(HttpStatus.BAD_REQUEST.value(),
 					RequestProcessStatus.FAILURE, LocalDateTime.now(), "Invalid role: " + role, null));
 		}
+		List<PersonDTO> persons = personService.getByRoleResponse(parsedRole);
 
-		List<PersonDTO> persons = personService.getByRole(parsedRole);
 
 		logger.debug("Persons with role {} fetched: {}", role, persons.size());
 		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
@@ -106,14 +111,14 @@ public class PersonController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<AuthResponse<PersonDTO>> deletePerson(@PathVariable int id) {
-		logger.info("Deleting person with ID: {}", id);
-		personService.deletePersonById(id);
+	public ResponseEntity<AuthResponse<Void>> deletePerson(@PathVariable int id) {
+	    logger.info("Deleting person with ID: {}", id);
+	    personService.deletePersonById(id);
 
-		logger.debug("Person deleted: {}", id);
-		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-				"Person deleted successfully");
+	    logger.debug("Person deleted: {}", id);
+	    AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+	            "Person deleted successfully");
 
-		return ResponseEntity.ok(response);
+	    return ResponseEntity.ok(response);
 	}
 }

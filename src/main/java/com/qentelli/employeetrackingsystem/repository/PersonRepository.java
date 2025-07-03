@@ -1,6 +1,7 @@
 package com.qentelli.employeetrackingsystem.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -21,5 +22,9 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	List<Person> findByRole(Roles role);
 	
 	List<Person> findByProjectsContaining(Project project);
+
+	
+	Optional<Person> findByPersonId(Integer personId);
+
 
 }
