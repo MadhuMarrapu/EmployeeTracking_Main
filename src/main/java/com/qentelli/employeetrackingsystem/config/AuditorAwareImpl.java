@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.qentelli.employeetrackingsystem.entity.User;
+
 @Component
 public class AuditorAwareImpl implements AuditorAware<String>{
 
@@ -17,6 +19,10 @@ public class AuditorAwareImpl implements AuditorAware<String>{
 		 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
 	            return Optional.of("System"); // fallback
+	        }
+	        Object principal = auth.getPrincipal();
+	        if (principal instanceof User user) {
+	            return Optional.of(user.getFirstName() + " " + user.getLastName());
 	        }
 	        return Optional.of(auth.getName()); // typically the email or username
 	    

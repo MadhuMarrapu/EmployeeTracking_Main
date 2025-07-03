@@ -69,6 +69,5 @@ public class UserService implements UserDetailsService {
 		} catch (AuthenticationException e) {
 			throw new BadCredentialsException("Invalid user email or password");
 		}
-	}
-
+	}	
 }

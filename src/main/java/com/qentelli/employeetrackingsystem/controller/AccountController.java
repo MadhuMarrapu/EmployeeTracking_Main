@@ -25,7 +25,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse2;
 import com.qentelli.employeetrackingsystem.serviceImpl.AccountService;
 
 @RestController
-@RequestMapping("/Account/")
+@RequestMapping("/Account")
 public class AccountController {
 
     @Autowired

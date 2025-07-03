@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
-public class WeeklySummaryDto {
+public class WeeklySummaryRequest {
     private int weekId;
     private LocalDate weekStartDate;
     private LocalDate weekEndDate;

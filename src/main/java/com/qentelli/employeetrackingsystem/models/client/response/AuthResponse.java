@@ -29,4 +29,10 @@ public class AuthResponse<T> {
 	   this.message = message;
 	   this.data = data;
    }
+   
+   public AuthResponse(Integer code,RequestProcessStatus statusType,String message) {
+	   this.code=code.toString();
+	   this.statusType= statusType;
+	   this.message = message;
+   }
 }
