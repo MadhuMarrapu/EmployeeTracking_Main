@@ -22,8 +22,10 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	List<Person> findByProjectsContaining(Project project);
 	
 	Optional<Person> findByPersonId(Integer personId);
+
 	
 	List<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 	 
+
 
 }
