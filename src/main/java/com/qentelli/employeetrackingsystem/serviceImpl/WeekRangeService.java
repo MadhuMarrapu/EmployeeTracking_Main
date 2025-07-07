@@ -1,18 +1,17 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.models.client.response.WeekRangeResponse;
+import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WeekRangeService {
@@ -20,31 +19,49 @@ public class WeekRangeService {
     @Autowired
     private WeekRangeRepository weekRangeRepository;
 
-    public List<WeekRangeResponse> generateWeeks(LocalDate inputDate) {
-        LocalDate startMonday = inputDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
+    // Save weekly data in the database
 
-        List<WeekRangeResponse> responses = new ArrayList<>();
+    public void saveWeeklyData(LocalDate weekFromDate, LocalDate weekToDate) {
+        LocalDate currentDate = weekFromDate;
+        while (!currentDate.isAfter(weekToDate)) {
+            LocalDate weekStart = currentDate.with(DayOfWeek.MONDAY);
+            LocalDate weekEnd = weekStart.plusDays(4); // Exclude Saturday and Sunday
+            WeekRange weekRange = new WeekRange();
+            weekRange.setWeekFromDate(weekStart);
+            weekRange.setWeekToDate(weekEnd);
+            weekRange.setSoftDelete(false); // Assuming soft delete is false by default
+            weekRangeRepository.save(weekRange);
+            currentDate = currentDate.plusWeeks(1);
 
-        for (int i = 0; i < 52; i++) {
-            LocalDate weekStart = startMonday.plusWeeks(i);
-            LocalDate weekEnd = weekStart.plusDays(6);
-
-            String label = "WEEK " + (i + 1) + " : " + weekStart.format(formatter) + " To " + weekEnd.format(formatter);
-
-            WeekRange entity = new WeekRange();
-            entity.setRangeLabel(label);
-            weekRangeRepository.save(entity);
-
-            responses.add(new WeekRangeResponse(entity.getId(), entity.getRangeLabel()));
         }
 
-        return responses;
     }
 
-    public List<WeekRangeResponse> getAll() {
-        return weekRangeRepository.findAll().stream()
-                .map(e -> new WeekRangeResponse(e.getId(), e.getRangeLabel()))
+    // Generate report excluding Saturdays and Sundays
+    public Page<WeekRangeResponse> generateReport(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable) {
+        
+    	// Adjust the weekFromDate to the start of the week (Monday)
+        LocalDate adjustedWeekFromDate = weekFromDate.with(DayOfWeek.MONDAY);
+
+        // Fetch all records without pagination
+        List<WeekRange> weekRanges = weekRangeRepository.findByWeekFromDateBetweenAndSoftDeleteFalse(adjustedWeekFromDate, weekToDate, Pageable.unpaged()).getContent();
+
+        // Map entities to response objects
+        List<WeekRangeResponse> filteredResponses = weekRanges.stream()
+                .map(weekRange -> new WeekRangeResponse(
+                        weekRange.getWeekId(),
+                        weekRange.getWeekFromDate(),
+                        weekRange.getWeekToDate()
+
+                ))
+
                 .collect(Collectors.toList());
+
+        // Return paginated response manually
+
+        return new PageImpl<>(filteredResponses, pageable, filteredResponses.size());
+
     }
+
 }
+ 

@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +18,8 @@ public class WeekRange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String rangeLabel;
+    private int weekId;
+	private LocalDate weekFromDate;
+	private LocalDate weekToDate;
+	 private boolean softDelete = false;
 }
-

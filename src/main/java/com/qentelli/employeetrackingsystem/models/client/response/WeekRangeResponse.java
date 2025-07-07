@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.models.client.response;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WeekRangeResponse {
-	private int id;
-    private String rangeLabel;
+	private int weekId;
+	private LocalDate weekFromDate;
+	private LocalDate weekToDate;
 }

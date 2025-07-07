@@ -6,5 +6,7 @@ import lombok.Data;
 
 @Data
 public class WeekRangeRequest {
-	private LocalDate startDate;
+	
+	private LocalDate weekFromDate;
+	private LocalDate weekToDate;
 }
