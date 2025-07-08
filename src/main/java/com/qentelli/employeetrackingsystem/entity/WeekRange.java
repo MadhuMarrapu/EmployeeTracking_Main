@@ -21,5 +21,5 @@ public class WeekRange {
     private int weekId;
 	private LocalDate weekFromDate;
 	private LocalDate weekToDate;
-	 private boolean softDelete = false;
+	private boolean softDelete = false;
 }
