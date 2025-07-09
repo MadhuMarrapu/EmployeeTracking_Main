@@ -1,11 +1,14 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +39,7 @@ public class ViewReportController {
                 RequestProcessStatus.SUCCESS,
                 "Report created successfully"
         );
-        authResponse.setData(response);
+       // authResponse.setData(response);
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 
@@ -55,22 +58,31 @@ public class ViewReportController {
         );
         return ResponseEntity.ok(authResponse);
     }
-
     @GetMapping("/all")
-    public ResponseEntity<AuthResponse<List<ViewReportResponse>>> getAllReports() {
-        logger.info("Fetching all reports");
-        List<ViewReportResponse> responseList = viewReportService.getAllReports();
-        logger.info("Total reports found: {}", responseList.size());
+    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllReportsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        AuthResponse<List<ViewReportResponse>> authResponse = new AuthResponse<>(
+        logger.info("Fetching paginated reports - Page: {}, Size: {}", page, size);
+
+        Page<ViewReportResponse> pagedResult = viewReportService.getAllReportsPaginated(PageRequest.of(page, size));
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("content", pagedResult.getContent());
+        responseData.put("currentPage", pagedResult.getNumber());
+        responseData.put("totalItems", pagedResult.getTotalElements());
+        responseData.put("totalPages", pagedResult.getTotalPages());
+
+        AuthResponse<Map<String, Object>> authResponse = new AuthResponse<>(
                 HttpStatus.OK.value(),
                 RequestProcessStatus.SUCCESS,
                 LocalDateTime.now(),
-                "All reports fetched successfully",
-                responseList
+                "Paginated reports fetched successfully",
+                responseData
         );
+
         return ResponseEntity.ok(authResponse);
     }
+
 
     @PutMapping("/update")
     public ResponseEntity<AuthResponse<ViewReportResponse>> updateReport(@RequestBody ViewReportRequest request) {
@@ -83,7 +95,7 @@ public class ViewReportController {
                 RequestProcessStatus.SUCCESS,
                 "Report updated successfully"
         );
-        authResponse.setData(response);
+     //   authResponse.setData(response);
         return ResponseEntity.ok(authResponse);
     }
 

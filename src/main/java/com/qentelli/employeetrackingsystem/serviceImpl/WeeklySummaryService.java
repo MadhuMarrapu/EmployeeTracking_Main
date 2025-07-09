@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
@@ -143,27 +145,20 @@ public class WeeklySummaryService {
 		weeklySummaryRepository.delete(summary);
 	}
 
-	public List<WeeklySummaryResponse> getFormattedWeekRanges() {
-		List<WeeklySummary> summaries = weeklySummaryRepository.findAll();
-		System.out.println("Summaries: " + summaries); // Debug
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
+	public Page<WeeklySummaryResponse> getAllSummariesPaginated(Pageable pageable) {
+	    Page<WeeklySummary> summaries = weeklySummaryRepository.findAllBySoftDeleteFalse(pageable);
 
-		return summaries.stream()
-				// .filter(summary -> !Boolean.TRUE.equals(summary.getSoftDelete())) //
-				// optionally add back
-				.map(summary -> {
-					String range = "WEEK: " + summary.getWeekStartDate().format(formatter) + " To "
-							+ summary.getWeekEndDate().format(formatter);
-
-					WeeklySummaryResponse res = new WeeklySummaryResponse();
-					res.setWeekId(summary.getWeekId());
-					res.setWeekRange(range);
-					res.setWeekStartDate(summary.getWeekStartDate());
-					res.setWeekEndDate(summary.getWeekEndDate());
-
-					System.out.println("Mapped: " + res); // Debug
-					return res;
-				}).toList();
+	    return summaries.map(summary -> {
+	        WeeklySummaryResponse response = new WeeklySummaryResponse();
+	        response.setWeekId(summary.getWeekId());
+	        response.setWeekStartDate(summary.getWeekStartDate());
+	        response.setWeekEndDate(summary.getWeekEndDate());
+	        response.setUpcomingTasks(summary.getUpcomingTasks());
+	        response.setProjectNames(summary.getListProject().stream()
+	            .map(Project::getProjectName).toList());
+	        response.setWeekRange("WEEK: " + summary.getWeekStartDate() + " To " + summary.getWeekEndDate());
+	        return response;
+	    });
 	}
 	
 	// Get by start and end date	

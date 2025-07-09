@@ -2,11 +2,16 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +47,7 @@ public class WeeklySummaryController {
                 RequestProcessStatus.SUCCESS,
                 "Weekly summary created successfully"
         );
-        authResponse.setData(response);
+       
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 
@@ -64,23 +69,6 @@ public class WeeklySummaryController {
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<AuthResponse<List<WeeklySummaryResponse>>> getAllWeeklySummaries() {
-        logger.info("Fetching all weekly summaries");
-        List<WeeklySummaryResponse> responseList = weeklySummaryService.getAllSummaries();
-
-        logger.info("Weekly summaries found: {}", responseList.size());
-
-        AuthResponse<List<WeeklySummaryResponse>> authResponse = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "All weekly summaries fetched successfully",
-                responseList
-        );
-        return new ResponseEntity<>(authResponse, HttpStatus.OK);
-    }
-
     @PutMapping("/update-summary")
     public ResponseEntity<AuthResponse<WeeklySummaryResponse>> updateWeeklySummary(
           @Valid  @RequestBody WeeklySummaryRequest request) {
@@ -96,7 +84,7 @@ public class WeeklySummaryController {
                 RequestProcessStatus.SUCCESS,
                 "Weekly summary updated successfully"
         );
-        authResponse.setData(response);
+       
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
@@ -132,20 +120,26 @@ public class WeeklySummaryController {
         return new ResponseEntity<>(authResponse, HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/week-ranges")
-    public ResponseEntity<AuthResponse<List<WeeklySummaryResponse>>> getWeekRanges() {
-        logger.info("Fetching week ranges");
+    @GetMapping("/all")
+    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllWeeklySummariesPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<WeeklySummaryResponse> responseList = weeklySummaryService.getFormattedWeekRanges();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("weekStartDate").descending());
+        Page<WeeklySummaryResponse> pageResult = weeklySummaryService.getAllSummariesPaginated(pageable);
 
-        logger.info("Week ranges found: {}", responseList.size());
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("content", pageResult.getContent());
+        responseBody.put("currentPage", pageResult.getNumber());
+        responseBody.put("totalItems", pageResult.getTotalElements());
+        responseBody.put("totalPages", pageResult.getTotalPages());
 
-        AuthResponse<List<WeeklySummaryResponse>> authResponse = new AuthResponse<>(
+        AuthResponse<Map<String, Object>> authResponse = new AuthResponse<>(
                 HttpStatus.OK.value(),
                 RequestProcessStatus.SUCCESS,
                 LocalDateTime.now(),
-                "Weekly summary week ranges fetched successfully",
-                responseList
+                "Paginated weekly summaries fetched successfully",
+                responseBody
         );
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
