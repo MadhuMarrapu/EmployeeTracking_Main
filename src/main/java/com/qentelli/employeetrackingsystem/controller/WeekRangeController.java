@@ -62,6 +62,8 @@ public class WeekRangeController {
 		Map<String, Object> data = new HashMap<>();
 		data.put("content", report.getContent());
 		data.put("pageable", Map.of("pageNumber", report.getNumber(), "pageSize", report.getSize()));
+		data.put("totalElements", report.getTotalElements());
+		data.put("totalPages", report.getTotalPages());
 
 		logger.info("Weekly report generated successfully with {} records", report.getNumberOfElements());
 
