@@ -15,5 +15,5 @@ public class UserDtoRequest {
 	private String confirmPassword;
 	private String roles;
 	private String techStack;
-	private List<ProjectDTO> projects;
+	private List<ProjectRequest> projects;
 }

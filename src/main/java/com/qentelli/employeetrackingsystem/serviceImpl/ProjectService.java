@@ -16,7 +16,7 @@ import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.DuplicateProjectException;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
-import com.qentelli.employeetrackingsystem.models.client.request.ProjectDTO;
+import com.qentelli.employeetrackingsystem.models.client.request.ProjectRequest;
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
 import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
@@ -35,7 +35,7 @@ public class ProjectService {
 	private final PersonRepository personRepository;
 	private final ModelMapper modelMapper;
 
-	public ProjectDTO create(ProjectDTO dto) throws DuplicateProjectException {
+	public ProjectRequest create(ProjectRequest dto) throws DuplicateProjectException {
 		if (projectRepo.existsByProjectName(dto.getProjectName())) {
 			throw new DuplicateProjectException("A project with this name already exists.");
 		}
@@ -46,16 +46,16 @@ public class ProjectService {
 		project.setAccount(account);
 
 		Project saved = projectRepo.save(project);
-		return modelMapper.map(saved, ProjectDTO.class);
+		return modelMapper.map(saved, ProjectRequest.class);
 	}
 
 	
 	
-	public ProjectDTO getById(Integer id) {
+	public ProjectRequest getById(Integer id) {
 	    Project project = projectRepo.findById(id)
 	        .orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND));
 
-	    ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
+	    ProjectRequest dto = modelMapper.map(project, ProjectRequest.class);
 	    if (project.getAccount() != null) {
 	        dto.setAccountName(project.getAccount().getAccountName());
 	    }
@@ -64,18 +64,18 @@ public class ProjectService {
 	}
 
 	
-	public List<ProjectDTO> getAll() {
+	public List<ProjectRequest> getAll() {
 	    List<Project> projects = projectRepo.findAll();
 
 	    return projects.stream().map(project -> {
-	        ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
+	        ProjectRequest dto = modelMapper.map(project, ProjectRequest.class);
 	        dto.setAccountName(project.getAccount().getAccountName());
 	        return dto;
 	    }).toList();
 	}
 
 	@Transactional
-	public ProjectDTO update(Integer id, ProjectDTO dto) {
+	public ProjectRequest update(Integer id, ProjectRequest dto) {
 		Project project = projectRepo.findById(id).orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND));
 
 		project.setProjectName(dto.getProjectName());
@@ -83,11 +83,11 @@ public class ProjectService {
 		project.setUpdatedAt(LocalDateTime.now());
 		project.setUpdatedBy(getAuthenticatedUserFullName());
 
-		return modelMapper.map(project, ProjectDTO.class);
+		return modelMapper.map(project, ProjectRequest.class);
 	}
 
 	@Transactional
-	public ProjectDTO partialUpdateProject(int id, ProjectDTO dto) {
+	public ProjectRequest partialUpdateProject(int id, ProjectRequest dto) {
 		Project project = projectRepo.findById(id)
 				.orElseThrow(() -> new ProjectNotFoundException(PROJECT_NOT_FOUND + " with id: " + id));
 
@@ -109,7 +109,7 @@ public class ProjectService {
 		}
 
 		Project saved = projectRepo.save(project);
-		return modelMapper.map(saved, ProjectDTO.class);
+		return modelMapper.map(saved, ProjectRequest.class);
 	}
 
 	@Transactional

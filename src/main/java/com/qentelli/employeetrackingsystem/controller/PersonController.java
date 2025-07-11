@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qentelli.employeetrackingsystem.entity.Roles;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
-import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
+import com.qentelli.employeetrackingsystem.models.client.request.PersonRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.PersonService;
 
@@ -38,45 +38,45 @@ public class PersonController {
 	private final PersonService personService;
 
 	@PostMapping
-	public ResponseEntity<AuthResponse<PersonDTO>> createPerson(@Valid @RequestBody PersonDTO personDto) {
+	public ResponseEntity<AuthResponse<PersonRequest>> createPerson(@Valid @RequestBody PersonRequest personDto) {
 		logger.info("Creating new person: {}", personDto.getFirstName());
-		PersonDTO responseDto = personService.create(personDto);
+		PersonRequest responseDto = personService.create(personDto);
 
 		logger.debug("Person created: {}", responseDto);
-		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
+		AuthResponse<PersonRequest> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
 				"Person created successfully");
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping
-	public ResponseEntity<AuthResponse<List<PersonDTO>>> getAllPersons() {
+	public ResponseEntity<AuthResponse<List<PersonRequest>>> getAllPersons() {
 		logger.info("Fetching all persons");
 
-		List<PersonDTO> persons = personService.getAllResponses();
+		List<PersonRequest> persons = personService.getAllResponses();
 
 		logger.debug("Persons fetched: {}", persons.size());
-		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+		AuthResponse<List<PersonRequest>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), "Persons fetched successfully", persons);
 
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<AuthResponse<PersonDTO>> getPersonById(@PathVariable int id) {
+	public ResponseEntity<AuthResponse<PersonRequest>> getPersonById(@PathVariable int id) {
 		logger.info("Fetching person by ID: {}", id);
 
-		PersonDTO dto = personService.getByIdResponse(id);
+		PersonRequest dto = personService.getByIdResponse(id);
 
 		logger.debug("Person fetched: {}", dto);
-		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+		AuthResponse<PersonRequest> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), "Person fetched successfully", dto);
 
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/role/{role}")
-	public ResponseEntity<AuthResponse<List<PersonDTO>>> getPersonsByRole(@PathVariable String role) {
+	public ResponseEntity<AuthResponse<List<PersonRequest>>> getPersonsByRole(@PathVariable String role) {
 		logger.info("Fetching persons with role: {}", role);
 
 		Roles parsedRole;
@@ -87,24 +87,24 @@ public class PersonController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse<>(HttpStatus.BAD_REQUEST.value(),
 					RequestProcessStatus.FAILURE, LocalDateTime.now(), "Invalid role: " + role, null));
 		}
-		List<PersonDTO> persons = personService.getByRoleResponse(parsedRole);
+		List<PersonRequest> persons = personService.getByRoleResponse(parsedRole);
 
 
 		logger.debug("Persons with role {} fetched: {}", role, persons.size());
-		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+		AuthResponse<List<PersonRequest>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), "Persons fetched successfully", persons);
 
 		return ResponseEntity.ok(response);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<AuthResponse<PersonDTO>> updatePerson(@PathVariable int id,
-			@RequestBody PersonDTO updatedDto) {
+	public ResponseEntity<AuthResponse<PersonRequest>> updatePerson(@PathVariable int id,
+			@RequestBody PersonRequest updatedDto) {
 		logger.info("Updating person with ID: {}", id);
-		PersonDTO responseDto = personService.update(id, updatedDto);
+		PersonRequest responseDto = personService.update(id, updatedDto);
 
 		logger.debug("Person updated: {}", responseDto);
-		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+		AuthResponse<PersonRequest> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				"Person updated successfully");
 
 		return ResponseEntity.ok(response);

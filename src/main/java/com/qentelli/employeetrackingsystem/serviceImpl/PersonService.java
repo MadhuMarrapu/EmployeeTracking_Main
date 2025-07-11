@@ -11,7 +11,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Roles;
 import com.qentelli.employeetrackingsystem.exception.DuplicatePersonException;
 import com.qentelli.employeetrackingsystem.exception.PersonNotFoundException;
-import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
+import com.qentelli.employeetrackingsystem.models.client.request.PersonRequest;
 import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 
@@ -27,7 +27,7 @@ public class PersonService {
 	private final ProjectRepository projectRepo;
 	private final ModelMapper modelMapper;
 
-	public PersonDTO create(PersonDTO dto) {
+	public PersonRequest create(PersonRequest dto) {
 
 	    boolean exists = personRepo.existsByEmail(dto.getEmail())
 	            || personRepo.existsByEmployeeCode(dto.getEmployeeCode());
@@ -65,26 +65,26 @@ public class PersonService {
 	    Person saved = personRepo.save(person);
 	    return convertToDTO(saved);
 	}
-	public List<PersonDTO> getAllResponses() {
+	public List<PersonRequest> getAllResponses() {
 	    return personRepo.findAll().stream()
 	        .map(this::convertToDTO)
 	        .toList();
 	}
 
-	public PersonDTO getByIdResponse(Integer id) {
+	public PersonRequest getByIdResponse(Integer id) {
 	    return personRepo.findById(id)
 	        .map(this::convertToDTO)
 	        .orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND));
 	}
 
-	public List<PersonDTO> getByRoleResponse(Roles role) {
+	public List<PersonRequest> getByRoleResponse(Roles role) {
 	    return personRepo.findByRole(role).stream()
 	        .map(this::convertToDTO)
 	        .toList();
 	}
 
 	@Transactional
-	public PersonDTO update(Integer id, PersonDTO dto) {
+	public PersonRequest update(Integer id, PersonRequest dto) {
 		Person person = personRepo.findById(id).orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND + "with id : "+id));
 
 		person.setFirstName(dto.getFirstName());
@@ -122,8 +122,8 @@ public class PersonService {
 		personRepo.delete(person);
 	}
 
-	private PersonDTO convertToDTO(Person person) {
-		PersonDTO dto = modelMapper.map(person, PersonDTO.class);
+	private PersonRequest convertToDTO(Person person) {
+		PersonRequest dto = modelMapper.map(person, PersonRequest.class);
 
 		List<Project> projects = person.getProjects();
 		if (projects != null) {

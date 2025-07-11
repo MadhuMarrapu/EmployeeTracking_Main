@@ -16,18 +16,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class PersonDTO {
-    private Integer personId;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String employeeCode;
-    private String password;
-    private String confirmPassword;
-    private Roles role;
-    @JsonDeserialize(using = FlexibleTechStackDeserializer.class)
-    private TechStack techStack;
-    
-    private List<Integer> projectIds;   // Existing mapping by ID
-    private List<String> projectNames;  // New field for project name mapping
+public class PersonRequest {
+	private Integer personId;
+	private String firstName;
+	private String lastName;
+	private String email;
+	private String employeeCode;
+	private String password;
+	private String confirmPassword;
+	private Roles role;
+	@JsonDeserialize(using = FlexibleTechStackDeserializer.class)
+	private TechStack techStack;
+
+	private List<Integer> projectIds; // Existing mapping by ID
+	private List<String> projectNames; // New field for project name mapping
+	private ResourceRequest resource; // Assuming ResourceRequest is defined similarly to PersonRequest
 }
