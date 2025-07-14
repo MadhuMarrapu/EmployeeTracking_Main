@@ -40,7 +40,7 @@ public class Person {
     
     @Enumerated(EnumType.STRING)
     private Roles role;
-
+    private Boolean personStatus=true; // true for active, false for inactive;
     @ManyToMany
     @JoinTable(
         name = "person_project",

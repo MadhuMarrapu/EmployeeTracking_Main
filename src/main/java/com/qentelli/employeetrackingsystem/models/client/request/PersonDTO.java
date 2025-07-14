@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class PersonRequest {
+public class PersonDTO {
     private Integer personId;
     private String firstName;
     private String lastName;
