@@ -14,4 +14,5 @@ import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
 public interface WeeklySummaryRepository extends JpaRepository<WeeklySummary, Integer> {
 	Optional<WeeklySummary> findByWeekStartDateAndWeekEndDate(LocalDate startDate, LocalDate endDate);
 	Page<WeeklySummary> findAllBySoftDeleteFalse(Pageable pageable);
+	Page<WeeklySummary> findByWeekStartDateBetweenAndSoftDeleteFalse(LocalDate start, LocalDate end, Pageable pageable);
 }
