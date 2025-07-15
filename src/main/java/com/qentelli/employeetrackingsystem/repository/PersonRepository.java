@@ -24,6 +24,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	Page<Person> findByRoleAndPersonStatusTrue(Roles role, Pageable pageable);
 	
 	List<Person> findByProjectsContaining(Project project);
+
 	
 	Optional<Person> findByPersonId(Integer personId);
 		 
@@ -33,5 +34,6 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	 
 	Page<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
 			    String firstName, String lastName, Pageable pageable);
+
 
 }

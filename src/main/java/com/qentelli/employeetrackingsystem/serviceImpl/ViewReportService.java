@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Person;
@@ -31,16 +33,19 @@ public class ViewReportService {
 	private static final String PERSON_NOT_FOUND = "Person not found";
 	// private static final String USER_NOT_FOUND = "User not found";
 
+	@Autowired
 	private ViewreportRepository viewReportRepository;
 
+	@Autowired
 	private WeeklySummaryRepository weeklySummaryRepository;
 
+	@Autowired
 	private ProjectRepository projectRepository;
 
 //    @Autowired
 //    private UserRepository userRepository;
 
-	
+	@Autowired
 	private PersonRepository personRepository;
 
 	public ViewReportResponse saveReport(ViewReportRequest request) {
@@ -154,29 +159,25 @@ public class ViewReportService {
 		response.setCreatedBy(report.getCreatedBy());
 		return response;
 	}
-
-	public List<ViewReportResponse> getAllReports() {
-		List<ViewReports> reports = viewReportRepository.findAll();
-		List<ViewReportResponse> responses = new ArrayList<>();
-		for (ViewReports report : reports) {
-			ViewReportResponse response = new ViewReportResponse();
-			response.setViewReportId(report.getViewReportId());
-			response.setTaskName(report.getTaskName());
-			response.setTaskStatus(report.getTaskStatus());
-			response.setSummary(report.getTask().getSummary());
-			response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
-			response.setComments(report.getComments());
-			response.setProjectName(report.getProject().getProjectName());
-			// response.setEmployeeName(report.getUser().getFirstName() + " " +
-			// report.getUser().getLastName());
-			response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
-			response.setTaskStartDate(report.getTaskStartDate());
-			response.setTaskEndDate(report.getTaskEndDate());
-			response.setCreatedAt(report.getCreatedAt());
-			response.setCreatedBy(report.getCreatedBy());
-			responses.add(response);
-		}
-		return responses;
+	
+	public Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable) {
+	    Page<ViewReports> page = viewReportRepository.findAll(pageable);
+	    return page.map(report -> {
+	        ViewReportResponse response = new ViewReportResponse();
+	        response.setViewReportId(report.getViewReportId());
+	        response.setTaskName(report.getTaskName());
+	        response.setTaskStatus(report.getTaskStatus());
+	        response.setSummary(report.getTask().getSummary());
+	        response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
+	        response.setComments(report.getComments());
+	        response.setProjectName(report.getProject().getProjectName());
+	        response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
+	        response.setTaskStartDate(report.getTaskStartDate());
+	        response.setTaskEndDate(report.getTaskEndDate());
+	        response.setCreatedAt(report.getCreatedAt());
+	        response.setCreatedBy(report.getCreatedBy());
+	        return response;
+	    });
 	}
 
 	// SOFT DELETE

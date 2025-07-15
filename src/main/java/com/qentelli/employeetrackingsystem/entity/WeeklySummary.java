@@ -60,7 +60,6 @@ public class WeeklySummary {
 	@LastModifiedBy
 	private String updatedBy;
 	
-	
 	private String weekRange;
 
 	@ManyToMany

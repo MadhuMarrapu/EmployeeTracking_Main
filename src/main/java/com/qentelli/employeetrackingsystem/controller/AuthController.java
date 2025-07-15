@@ -2,6 +2,7 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +19,15 @@ import com.qentelli.employeetrackingsystem.serviceImpl.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
-	private final UserService userService;
-
+	@Autowired
+	private UserService userService;
+	
+	
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse<LoginUserResponse>> loginByUser(@Valid @RequestBody LoginUserRequest loginUserRequest) {
 		LoginUserResponse loginuser = userService.loginByEmail(loginUserRequest);
@@ -40,3 +43,4 @@ public class AuthController {
 		return new ResponseEntity<>(authResponse, HttpStatus.OK);
 	}
 }
+

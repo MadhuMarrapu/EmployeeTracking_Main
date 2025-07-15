@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -163,4 +164,56 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<AuthResponse<Void>> handleMissingParams(MissingServletRequestParameterException ex) {
+        String message = String.format("Missing required request parameter: '%s'", ex.getParameterName());
+
+        AuthResponse<Void> response = new AuthResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                RequestProcessStatus.FAILURE,
+                message
+        );
+        response.setTimestamp(LocalDateTime.now());
+        response.setErrorCode(HttpStatus.BAD_REQUEST);
+        response.setErrorDescription(ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<AuthResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String paramName = ex.getName(); // Parameter name, like 'weekToDate'
+        String invalidValue = String.valueOf(ex.getValue()); // The actual invalid value
+
+        String message = String.format(
+            "Invalid format for parameter '%s': value '%s' is not valid. Expected format: yyyy-MM-dd",
+            paramName,
+            invalidValue
+        );
+
+        AuthResponse<Void> response = new AuthResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                RequestProcessStatus.FAILURE,
+                message
+        );
+        response.setTimestamp(LocalDateTime.now());
+        response.setErrorCode(HttpStatus.BAD_REQUEST);
+        response.setErrorDescription(ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(MissingRequestDateException.class)
+    public ResponseEntity<AuthResponse<Void>> handleMissingDateParam(MissingRequestDateException ex) {
+        AuthResponse<Void> response = new AuthResponse<>(
+            HttpStatus.BAD_REQUEST.value(),
+            RequestProcessStatus.FAILURE,
+            LocalDateTime.now(),
+            String.format("Missing required parameter: '%s'", ex.getParameterName()),
+            null
+        );
+        response.setErrorCode(HttpStatus.BAD_REQUEST);
+        response.setErrorDescription(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }
