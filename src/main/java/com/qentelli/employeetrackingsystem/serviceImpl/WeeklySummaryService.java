@@ -112,12 +112,15 @@ public class WeeklySummaryService {
         return mapToResponse(updated);
     }
 
-    // 5. Get All Summaries (non-paginated)
-    public List<WeeklySummaryResponse> getAllSummaries() {
-        return weeklySummaryRepository.findAll().stream()
+    public Page<WeeklySummaryResponse> getAllSummaries(Pageable pageable) {
+        Page<WeeklySummary> page = weeklySummaryRepository.findAll(pageable);
+        List<WeeklySummaryResponse> responses = page.getContent().stream()
                 .map(this::mapToResponse)
                 .toList();
+
+        return new PageImpl<>(responses, pageable, page.getTotalElements());
     }
+
 
     // 6. Manual Paginated Report
     public Page<WeeklySummaryResponse> generateReport(LocalDate from, LocalDate to, Pageable pageable) {
