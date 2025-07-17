@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,10 +13,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class WeekRangeRequest {
-	
-	@NotNull(message = "WeekFromDate must not be null")
+
+	private int weekId;
 	private LocalDate weekFromDate;
-	
-	@NotNull(message = "WeekToDate must not be null")
 	private LocalDate weekToDate;
+	private boolean softDelete=false;
+
+	// You can either expose Sprint ID or a nested SprintDto
+	private Long sprintId;
+
 }
