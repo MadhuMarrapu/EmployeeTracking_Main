@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,16 @@ public class ReleaseService {
                 .collect(Collectors.toList());
         logger.info("Total releases found: {}", list.size());
         return list;
+    }
+
+    // ✅ Paginated Read
+    public Page<ReleaseResponseDTO> getPaginatedReleases(Pageable pageable) {
+        logger.info("Fetching paginated release entries");
+        Page<Release> releasePage = releaseRepository.findAll(pageable);
+        Page<ReleaseResponseDTO> dtoPage = releasePage.map(this::mapToResponseDTO);
+        logger.info("Paginated releases: page={}, size={}, totalElements={}",
+                dtoPage.getNumber(), dtoPage.getSize(), dtoPage.getTotalElements());
+        return dtoPage;
     }
 
     // ✅ Read by ID
