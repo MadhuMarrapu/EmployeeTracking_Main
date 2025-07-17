@@ -36,7 +36,7 @@ public class WeekRangeController {
 	@PostMapping("/save")
 	public ResponseEntity<AuthResponse<String>> saveWeeklyData(@Valid @RequestBody WeekRangeRequest request) {
 		logger.info("Saving weekly data from {} to {}", request.getWeekFromDate(), request.getWeekToDate());
-		service.saveWeeklyData(request.getWeekFromDate(), request.getWeekToDate());
+		service.saveWeeklyData(request);
 		logger.info("Weekly data saved successfully");
 
 		AuthResponse<String> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
