@@ -1,10 +1,15 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
@@ -21,132 +26,156 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WeeklySummaryService {
 
-	private WeeklySummaryRepository weeklySummaryRepository;
+    private static final String WEEK = "WEEK";
+    private static final String WEEKLY_SUMMARY_NOT_FOUND = "Weekly summary not found with id: ";
+    private static final String NO_PROJECTS_FOUND = "No projects found for given IDs";
 
-	private ProjectRepository projectRepository;
+    private final WeeklySummaryRepository weeklySummaryRepository;
+    private final ProjectRepository projectRepository;
 
-	public WeeklySummaryResponse createSummary(WeeklySummaryRequest request) {
-		List<Project> projects = projectRepository.findAllById(request.getProjectIds());
-		if (projects.isEmpty()) {
-			throw new ResourceNotFoundException("No projects found for given IDs");
-		}
+    // 1. Save Weekly Summaries (Mon-Fri only)
+    public void saveWeeklyData(LocalDate from, LocalDate to) {
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("weekFromDate/weekToDate must be provided.");
+        }
+        if (from.isAfter(to)) {
+            throw new IllegalArgumentException("weekFromDate must be before or equal to weekToDate.");
+        }
 
-		WeeklySummary summary = new WeeklySummary();
-		summary.setWeekStartDate(request.getWeekStartDate());
-		summary.setWeekEndDate(request.getWeekEndDate());
-		summary.setUpcomingTasks(request.getUpcomingTasks());
-		summary.setListProject(projects);
-		summary.setCreatedAt(LocalDateTime.now());
+        LocalDate current = from.with(DayOfWeek.MONDAY);
+        while (!current.isAfter(to)) {
+            LocalDate weekStart = current;
+            LocalDate weekEnd = weekStart.plusDays(4); // Mon to Fri
 
-		WeeklySummary savedSummary = weeklySummaryRepository.save(summary);
+            WeeklySummary summary = new WeeklySummary();
+            summary.setWeekStartDate(weekStart);
+            summary.setWeekEndDate(weekEnd);
+            summary.setSoftDelete(false);
+            summary.setCreatedAt(LocalDateTime.now());
+            summary.setWeekRange(WEEK + ": " + weekStart + " To " + weekEnd);
+            summary.setUpcomingTasks(new ArrayList<>());
+            summary.setListProject(new ArrayList<>());
 
-		WeeklySummaryResponse response = new WeeklySummaryResponse();
-		response.setWeekId(savedSummary.getWeekId());
-		response.setWeekStartDate(savedSummary.getWeekStartDate());
-		response.setWeekEndDate(savedSummary.getWeekEndDate());
-		response.setUpcomingTasks(savedSummary.getUpcomingTasks());
-		response.setProjectNames(savedSummary.getListProject().stream().map(Project::getProjectName).toList());
+            weeklySummaryRepository.save(summary);
+            current = current.plusWeeks(1);
+        }
+    }
 
-		return response;
-	}
+    // 2. Create Weekly Summary
+    public WeeklySummaryResponse createSummary(WeeklySummaryRequest request) {
+        List<Project> projects = projectRepository.findAllById(request.getProjectIds());
+        if (projects.isEmpty()) {
+            throw new ResourceNotFoundException(NO_PROJECTS_FOUND);
+        }
 
-	public WeeklySummaryResponse getSummaryById(Integer weekId) {
-		WeeklySummary summary = weeklySummaryRepository.findById(weekId)
-				.orElseThrow(() -> new ResourceNotFoundException("Weekly summary not found with id: " + weekId));
+        WeeklySummary summary = new WeeklySummary();
+        summary.setWeekStartDate(request.getWeekStartDate());
+        summary.setWeekEndDate(request.getWeekEndDate());
+        summary.setUpcomingTasks(request.getUpcomingTasks());
+        summary.setListProject(projects);
+        summary.setSoftDelete(false);
+        summary.setCreatedAt(LocalDateTime.now());
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
-		String weekRange = "WEEK: " + summary.getWeekStartDate().format(formatter) + " To "
-				+ summary.getWeekEndDate().format(formatter);
+        String weekRange = WEEK + ": " + request.getWeekStartDate().format(DateTimeFormatter.ofPattern("dd-MMMM-yyyy"))
+                + " To " + request.getWeekEndDate().format(DateTimeFormatter.ofPattern("dd-MMMM-yyyy"));
+        summary.setWeekRange(weekRange);
 
-		WeeklySummaryResponse response = new WeeklySummaryResponse();
-		response.setWeekId(summary.getWeekId());
-		response.setWeekStartDate(summary.getWeekStartDate());
-		response.setWeekEndDate(summary.getWeekEndDate());
-		response.setUpcomingTasks(summary.getUpcomingTasks());
-		response.setWeekRange(weekRange);
-		response.setProjectNames(summary.getListProject().stream().map(Project::getProjectName).toList());
-		return response;
-	}
+        WeeklySummary saved = weeklySummaryRepository.save(summary);
+        return mapToResponse(saved);
+    }
 
-	public List<WeeklySummaryResponse> getAllSummaries() {
-		List<WeeklySummary> summaries = weeklySummaryRepository.findAll();
-		System.out.println("Raw summaries from DB: " + summaries);
+    // 3. Get Summary by ID
+    public WeeklySummaryResponse getSummaryById(Integer weekId) {
+        WeeklySummary summary = weeklySummaryRepository.findById(weekId)
+                .orElseThrow(() -> new ResourceNotFoundException(WEEKLY_SUMMARY_NOT_FOUND + weekId));
+        return mapToResponse(summary);
+    }
 
-		return summaries.stream().map(summary -> {
-			WeeklySummaryResponse response = new WeeklySummaryResponse();
-			response.setWeekId(summary.getWeekId());
-			response.setWeekStartDate(summary.getWeekStartDate());
-			response.setWeekEndDate(summary.getWeekEndDate());
-			response.setUpcomingTasks(summary.getUpcomingTasks());
-			response.setProjectNames(summary.getListProject().stream().map(Project::getProjectName).toList());
-			response.setWeekRange("WEEK: " + summary.getWeekStartDate() + " To " + summary.getWeekEndDate());
-			return response;
-		}).toList();
-	}
+    // 4. Update Summary
+    public WeeklySummaryResponse updateSummary(WeeklySummaryRequest request) {
+        WeeklySummary summary = weeklySummaryRepository.findById(request.getWeekId())
+                .orElseThrow(() -> new ResourceNotFoundException(WEEKLY_SUMMARY_NOT_FOUND + request.getWeekId()));
 
-	public WeeklySummaryResponse updateSummary(WeeklySummaryRequest request) {
-		Integer weekId = request.getWeekId();
-		WeeklySummary summary = weeklySummaryRepository.findById(weekId)
-				.orElseThrow(() -> new ResourceNotFoundException("Weekly summary not found with id: " + weekId));
+        List<Project> projects = projectRepository.findAllById(request.getProjectIds());
+        if (projects.isEmpty()) {
+            throw new ResourceNotFoundException(NO_PROJECTS_FOUND);
+        }
 
-		List<Project> projects = projectRepository.findAllById(request.getProjectIds());
-		if (projects.isEmpty()) {
-			throw new ResourceNotFoundException("No projects found for given IDs");
-		}
+        summary.setWeekStartDate(request.getWeekStartDate());
+        summary.setWeekEndDate(request.getWeekEndDate());
+        summary.setUpcomingTasks(request.getUpcomingTasks());
+        summary.setListProject(projects);
+        summary.setWeekRange(WEEK + ": " + request.getWeekStartDate().format(DateTimeFormatter.ofPattern("dd-MMMM-yyyy"))
+                + " To " + request.getWeekEndDate().format(DateTimeFormatter.ofPattern("dd-MMMM-yyyy")));
 
-		summary.setWeekStartDate(request.getWeekStartDate());
-		summary.setWeekEndDate(request.getWeekEndDate());
-		summary.setUpcomingTasks(request.getUpcomingTasks());
-		summary.setListProject(projects);
+        WeeklySummary updated = weeklySummaryRepository.save(summary);
+        return mapToResponse(updated);
+    }
 
-		WeeklySummary updatedSummary = weeklySummaryRepository.save(summary);
+    // 5. Get All Summaries (non-paginated)
+    public List<WeeklySummaryResponse> getAllSummaries() {
+        return weeklySummaryRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 
-		WeeklySummaryResponse response = new WeeklySummaryResponse();
-		response.setWeekId(updatedSummary.getWeekId());
-		response.setWeekStartDate(updatedSummary.getWeekStartDate());
-		response.setWeekEndDate(updatedSummary.getWeekEndDate());
-		response.setUpcomingTasks(updatedSummary.getUpcomingTasks());
-		response.setProjectNames(
-				updatedSummary.getListProject().stream().map(Project::getProjectName).collect(Collectors.toList()));
-		return response;
-	}
+    // 6. Manual Paginated Report
+    public Page<WeeklySummaryResponse> generateReport(LocalDate from, LocalDate to, Pageable pageable) {
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("Both weekFromDate and weekToDate must be provided.");
+        }
+        if (from.isAfter(to)) {
+            throw new IllegalArgumentException("weekFromDate must be before or equal to weekToDate.");
+        }
 
-	// SOFT DELETE
-	public WeeklySummary softDeleteSummery(Integer weekId) {
-		WeeklySummary weeklySummary = weeklySummaryRepository.findById(weekId)
-				.orElseThrow(() -> new ResourceNotFoundException("Weekly summary not found"));
-		weeklySummary.setSoftDelete(true);
-		return weeklySummaryRepository.save(weeklySummary);
-	}
+        LocalDate adjustedFrom = from.with(DayOfWeek.MONDAY);
+        Page<WeeklySummary> resultPage = weeklySummaryRepository
+                .findByWeekStartDateBetweenAndSoftDeleteFalse(adjustedFrom, to, Pageable.unpaged());
 
-	// HARD DELETE
-	public void deleteSummary(Integer weekId) {
-		WeeklySummary summary = weeklySummaryRepository.findById(weekId)
-				.orElseThrow(() -> new ResourceNotFoundException("Weekly summary not found with id: " + weekId));
-		weeklySummaryRepository.delete(summary);
-	}
+        List<WeeklySummaryResponse> responseList = resultPage.getContent().stream()
+                .map(this::mapToResponse)
+                .toList();
 
-	public List<WeeklySummaryResponse> getFormattedWeekRanges() {
-		List<WeeklySummary> summaries = weeklySummaryRepository.findAll();
-		System.out.println("Summaries: " + summaries); // Debug
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
+        return new PageImpl<>(responseList, pageable, responseList.size());
+    }
 
-		return summaries.stream()
-				// .filter(summary -> !Boolean.TRUE.equals(summary.getSoftDelete())) //
-				// optionally add back
-				.map(summary -> {
-					String range = "WEEK: " + summary.getWeekStartDate().format(formatter) + " To "
-							+ summary.getWeekEndDate().format(formatter);
+    // 7. Soft Delete
+    public WeeklySummary softDelete(int id) {
+        WeeklySummary summary = weeklySummaryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(WEEKLY_SUMMARY_NOT_FOUND + id));
+        summary.setSoftDelete(true);
+        return  weeklySummaryRepository.save(summary);
+    }
 
-					WeeklySummaryResponse res = new WeeklySummaryResponse();
-					res.setWeekId(summary.getWeekId());
-					res.setWeekRange(range);
-					res.setWeekStartDate(summary.getWeekStartDate());
-					res.setWeekEndDate(summary.getWeekEndDate());
+    // 8. Hard Delete
+    public void deleteSummary(Integer weekId) {
+        WeeklySummary summary = weeklySummaryRepository.findById(weekId)
+                .orElseThrow(() -> new ResourceNotFoundException(WEEKLY_SUMMARY_NOT_FOUND + weekId));
+        weeklySummaryRepository.delete(summary);
+    }
 
-					System.out.println("Mapped: " + res); // Debug
-					return res;
-				}).toList();
-	}
+    // 9. Get Only Week Ranges (Formatted)
+    public List<WeeklySummaryResponse> getFormattedWeekRanges() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
+        return weeklySummaryRepository.findAll().stream().map(summary -> {
+            WeeklySummaryResponse res = new WeeklySummaryResponse();
+            res.setWeekId(summary.getWeekId());
+            res.setWeekStartDate(summary.getWeekStartDate());
+            res.setWeekEndDate(summary.getWeekEndDate());
+            res.setWeekRange(WEEK + ": " + summary.getWeekStartDate().format(formatter) + " To " + summary.getWeekEndDate().format(formatter));
+            return res;
+        }).toList();
+    }
 
+    // 🔁 Helper Method for Mapping Entity → Response
+    private WeeklySummaryResponse mapToResponse(WeeklySummary summary) {
+        WeeklySummaryResponse response = new WeeklySummaryResponse();
+        response.setWeekId(summary.getWeekId());
+        response.setWeekStartDate(summary.getWeekStartDate());
+        response.setWeekEndDate(summary.getWeekEndDate());
+        response.setUpcomingTasks(summary.getUpcomingTasks());
+        response.setProjectNames(summary.getListProject().stream().map(Project::getProjectName).toList());
+        response.setWeekRange(summary.getWeekRange());
+        return response;
+    }
 }

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ProjectDTO {
+public class ProjectRequest {
 	private Integer projectId;
 
 	@NotBlank(message = "Project name is required")

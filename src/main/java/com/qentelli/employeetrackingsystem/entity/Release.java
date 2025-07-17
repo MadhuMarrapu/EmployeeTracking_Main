@@ -1,7 +1,5 @@
 package com.qentelli.employeetrackingsystem.entity;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,16 +14,23 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WeekRange {
+public class Release {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int weekId;
-	private LocalDate weekFromDate;
-	private LocalDate weekToDate;
-	private boolean softDelete = false;
-	
+	private Long releaseId;
+
 	@ManyToOne
-	@JoinColumn(name = "sprint_id")
-	private Sprint sprint;
+	@JoinColumn(name = "weekId")
+	private WeekRange week;
+
+	@ManyToOne
+	@JoinColumn(name = "projectId")
+	private Project project;
+
+	private int major;
+	private int minor;
+	private int incidentCreated;
+	private String releaseInformation;
+
 }

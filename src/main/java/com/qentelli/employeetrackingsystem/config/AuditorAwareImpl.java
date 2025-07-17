@@ -12,14 +12,12 @@ import com.qentelli.employeetrackingsystem.entity.User;
 
 @Component
 public class AuditorAwareImpl implements AuditorAware<String> {
-
     @Override
     public Optional<String> getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
             return Optional.of("System");
         }
-
         Object principal = auth.getPrincipal();
         if (principal instanceof User user) {
             return Optional.of(user.getFirstName() + " " + user.getLastName());

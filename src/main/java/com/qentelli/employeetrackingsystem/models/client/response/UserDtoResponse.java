@@ -16,6 +16,8 @@ public class UserDtoResponse {
 	private String lastName;
 	private String employeeId;
 	private String email;
+	private String password;
+	private String confirmPassword;
 	private String roles;
 	private String techStack;
 	private List<ProjectDtoResponse> projects;

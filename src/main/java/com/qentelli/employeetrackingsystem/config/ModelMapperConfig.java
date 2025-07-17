@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import com.qentelli.employeetrackingsystem.entity.Account;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
-import com.qentelli.employeetrackingsystem.models.client.request.ProjectDTO;
+import com.qentelli.employeetrackingsystem.models.client.request.ProjectRequest;
 
 @Configuration
 public class ModelMapperConfig {
@@ -31,7 +31,7 @@ public class ModelMapperConfig {
               });
 
         // Skip audit and ID fields for Project mapping
-        mapper.typeMap(ProjectDTO.class, Project.class)
+        mapper.typeMap(ProjectRequest.class, Project.class)
               .addMappings(m -> {
                   m.skip(Project::setProjectId);
                   m.skip(Project::setCreatedAt);

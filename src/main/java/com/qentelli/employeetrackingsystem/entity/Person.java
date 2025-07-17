@@ -3,8 +3,8 @@ package com.qentelli.employeetrackingsystem.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,7 @@ public class Person {
     
     @Enumerated(EnumType.STRING)
     private Roles role;
-
+    private Boolean personStatus=true; // true for active, false for inactive;
     @ManyToMany
     @JoinTable(
         name = "person_project",
@@ -50,4 +51,8 @@ public class Person {
 
     @Enumerated(EnumType.STRING)
     private TechStack techStack;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "resource_id", referencedColumnName = "resourceId")
+    private Resource resource;
 }

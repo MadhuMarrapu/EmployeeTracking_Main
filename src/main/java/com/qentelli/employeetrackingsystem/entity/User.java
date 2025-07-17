@@ -56,9 +56,6 @@ public class User implements UserDetails {
 	private String confirmPassword;
 	@Enumerated(EnumType.STRING)
 	private Roles roles;
-
-
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roles.name()));

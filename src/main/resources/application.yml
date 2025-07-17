@@ -6,9 +6,9 @@ spring:
     name: Employee-Tracking-System
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/employee_db
-    username: postgres
-    password: 162002
+    url: psql 'postgresql://neondb_owner:npg_huze47QcRasm@ep-royal-art-adx5q10k-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+    username: neondb_owner
+    password: npg_huze47QcRasm
 
   jpa:
     hibernate:
