@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qentelli.employeetrackingsystem.entity.Roles;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
-import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
 import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
@@ -82,40 +81,6 @@ public class PersonController {
 	
 
 	
-	@GetMapping("/active")
-	public ResponseEntity<AuthResponse<PaginatedResponse<PersonDTO>>> getAllPersonsPaginated(
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size,
-	        @RequestParam(defaultValue = "personId") String sortBy
-	) {
-	    logger.info("Fetching paginated list of active persons: page={}, size={}, sortBy={}", page, size, sortBy);
-
-	    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-	    Page<PersonDTO> personPage = personService.getAllActivePersons(pageable);
-
-	    PaginatedResponse<PersonDTO> paginated = new PaginatedResponse<>(
-	            personPage.getContent(),
-	            personPage.getNumber(),
-	            personPage.getSize(),
-	            personPage.getTotalElements(),
-	            personPage.getTotalPages(),
-	            personPage.isLast()
-	    );
-
-	    logger.debug("Paginated persons fetched: count={}, totalPages={}", 
-	                 personPage.getNumberOfElements(), personPage.getTotalPages());
-
-	    AuthResponse<PaginatedResponse<PersonDTO>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Paginated persons fetched successfully",
-	            paginated
-	    );
-
-	    return ResponseEntity.ok(response);
-	}
-
 	@GetMapping("/{id}")
 	public ResponseEntity<AuthResponse<PersonDTO>> getPersonById(@PathVariable int id) {
 		logger.info("Fetching person by ID: {}", id);

@@ -43,9 +43,13 @@ public class WeeklySprintUpdate{
     private int blockedStoriesCount;
     private double completePercentage;
     private String estimationHealth;
-    private String groomingHealth;
+    private String groomingHealth;//
+    //grpoomingHealth status is a string that can be used to store the health of grooming, such as "Healthy", "Needs Attention", etc.
     private int difficultCount1;
     private int difficultCount2;
+    //estination status-red ember,green-constants
+    //privtae String riskpoints,riskstorycounts
+    //notes-string
     
     private boolean weeklySprintUpdateStatus=true; // true means active, false means inactive;
 }

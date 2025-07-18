@@ -31,8 +31,16 @@ public class SprintController {
 
 	@Autowired
 	private SprintService sprintService;
-	
-    @PostMapping("/createSprint")
+
+/*
+	@PostMapping("/createSprint")
+	public ResponseEntity<AuthResponse<SprintResponse>> create(@Valid @RequestBody SprintRequest request) {
+		SprintResponse response = sprintService.createSprint(request);
+		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
+				"Sprint created successfully", response));
+	}
+	*/
+	@PostMapping("/createSprint")
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
 	    sprintService.createSprint(request); // call service, ignore returned SprintResponse
 	    return ResponseEntity.ok(new AuthResponse<>(

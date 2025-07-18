@@ -48,18 +48,22 @@ public class ReleaseController {
     }
 
     // ✅ Read All (Non-paginated)
-	@GetMapping("/list")
-	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getAllReleases() {
-		logger.info("Fetching all release entries");
-		List<ReleaseResponseDTO> releaseList = service.getAllReleases();
+    @GetMapping("/list")
+    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllReleases() {
+        logger.info("Fetching all release entries");
+        List<ReleaseResponseDTO> releaseList = service.getAllReleases();
 
-		logger.info("Fetched {} release records", releaseList.size());
+        Map<String, Object> data = new HashMap<>();
+        data.put("content", releaseList);
+        data.put("totalRecords", releaseList.size());
 
-		AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release data retrieved successfully", releaseList);
+        logger.info("Fetched {} release records", releaseList.size());
 
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+        AuthResponse<Map<String, Object>> response = new AuthResponse<>(HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release data retrieved successfully", data);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     // ✅ Read All (Paginated)
     @GetMapping("/paginated")
