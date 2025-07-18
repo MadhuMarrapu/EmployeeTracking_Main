@@ -80,10 +80,7 @@ public class PersonService {
 		personRepo.save(person);
 	}
 
-//	public List<PersonDTO> searchByName(String name) {
-//		List<Person> people = personRepo.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name);
-//		return people.stream().map(this::convertToDTO).toList();
-//	}
+
 	
 	public Page<PersonDTO> searchPersonsByName(String name, Pageable pageable) {
 	    Page<Person> page = personRepo
