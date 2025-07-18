@@ -27,12 +27,12 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 
 	
 	Optional<Person> findByPersonId(Integer personId);
+		 
+	Page<Person> findByProjects_ProjectId(Integer projectId, Pageable pageable);
 	
-	//List<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
+	Page<Person> findByPersonStatusTrue(Pageable pageable);
 	 
-	Page<Person> findByProjects_ProjectId(Integer projectId, Pageable pageable);	 
-	 Page<Person> findByPersonStatusTrue(Pageable pageable);
-	 Page<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+	Page<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
 			    String firstName, String lastName, Pageable pageable);
 
 
