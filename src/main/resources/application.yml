@@ -6,11 +6,9 @@ spring:
     name: Employee-Tracking-System
 
   datasource:
-
-    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}?sslmode=require
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
+    url: jdbc:postgresql://ep-little-base-a83tfhl9-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require
+    username: neondb_owner
+    password: npg_eP7OdxXmFh1s
 
   jpa:
     hibernate:
@@ -26,4 +24,12 @@ spring:
 
   main:
     allow-circular-references: true
-    
+
+logging:
+  level:
+    root: INFO
+    com.qentelli.employeetrackingsystem: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
