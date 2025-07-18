@@ -11,7 +11,7 @@ public class WeeklySprintUpdateDto {
     private Integer weekSprintId;
 
     // Using IDs to keep DTO lightweight and avoid deep entity references
-    private int weeekRangeId; // ✅ clear and camelCase; // Week Range ID;
+    private int weeekRangeId; // 
     private int projectId;
 
     private int assignedPoints;
