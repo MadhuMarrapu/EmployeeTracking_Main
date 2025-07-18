@@ -1,14 +1,14 @@
 package com.qentelli.employeetrackingsystem.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ViewReportResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.ViewReportService;
 
@@ -28,7 +29,7 @@ public class ViewReportController {
     @Autowired
     private ViewReportService viewReportService;
 
-    @PostMapping("/create")
+    @PostMapping("/createStatus")
     public ResponseEntity<AuthResponse<ViewReportResponse>> createReport(@RequestBody ViewReportRequest request) {
         logger.info("Creating report for personId: {}", request.getPersonId());
         ViewReportResponse response = viewReportService.saveReport(request);
@@ -41,6 +42,57 @@ public class ViewReportController {
         );
        // authResponse.setData(response);
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
+    }
+    
+    @GetMapping("/task-view")
+    public ResponseEntity<AuthResponse<PaginatedResponse<ViewReportResponse>>> getTaskTableView(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        logger.info("Received request to fetch task view from {} to {}, page: {}, size: {}", fromDate, toDate, page, size);
+
+        PaginatedResponse<ViewReportResponse> paginatedTasks = viewReportService.getTasksByWeek(fromDate, toDate, page, size);
+
+        logger.debug("Fetched {} tasks for the given date range", paginatedTasks.getContent().size());
+
+        return ResponseEntity.ok(new AuthResponse<>(
+            200,
+            RequestProcessStatus.SUCCESS,
+            LocalDateTime.now(),
+            "Task table view fetched successfully",
+            paginatedTasks
+        ));
+    }
+
+    @GetMapping("/AllReports")
+    public ResponseEntity<AuthResponse<PaginatedResponse<ViewReportResponse>>> getAllReportsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        logger.info("Fetching paginated reports - Page: {}, Size: {}", page, size);
+
+        Page<ViewReportResponse> pagedResult = viewReportService.getAllReportsPaginated(PageRequest.of(page, size));
+
+        PaginatedResponse<ViewReportResponse> paginatedResponse = new PaginatedResponse<>(
+                pagedResult.getContent(),
+                pagedResult.getNumber(),
+                pagedResult.getSize(),
+                pagedResult.getTotalElements(),
+                pagedResult.getTotalPages(),
+                pagedResult.isLast()
+        );
+
+        AuthResponse<PaginatedResponse<ViewReportResponse>> authResponse = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "Paginated reports fetched successfully",
+                paginatedResponse
+        );
+
+        return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping("/{id}")
@@ -58,31 +110,6 @@ public class ViewReportController {
         );
         return ResponseEntity.ok(authResponse);
     }
-    @GetMapping("/all")
-    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllReportsPaginated(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        logger.info("Fetching paginated reports - Page: {}, Size: {}", page, size);
-
-        Page<ViewReportResponse> pagedResult = viewReportService.getAllReportsPaginated(PageRequest.of(page, size));
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("content", pagedResult.getContent());
-        responseData.put("currentPage", pagedResult.getNumber());
-        responseData.put("totalItems", pagedResult.getTotalElements());
-        responseData.put("totalPages", pagedResult.getTotalPages());
-
-        AuthResponse<Map<String, Object>> authResponse = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Paginated reports fetched successfully",
-                responseData
-        );
-
-        return ResponseEntity.ok(authResponse);
-    }
-
 
     @PutMapping("/update")
     public ResponseEntity<AuthResponse<ViewReportResponse>> updateReport(@RequestBody ViewReportRequest request) {
