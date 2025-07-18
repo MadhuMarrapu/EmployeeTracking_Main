@@ -2,7 +2,9 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +32,7 @@ import com.qentelli.employeetrackingsystem.serviceImpl.WeeklySummaryService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/weekly-summary")
 @RequiredArgsConstructor
@@ -74,18 +77,30 @@ public class WeeklySummaryController {
         return ResponseEntity.ok(authResponse);
     }
 
-    // 4. Get All Weekly Summaries (non-paginated)
+ // 4. Get All Weekly Summaries (paginated)
     @GetMapping("/all")
-    public ResponseEntity<AuthResponse<List<WeeklySummaryResponse>>> getAllSummaries() {
-        List<WeeklySummaryResponse> allSummaries = weeklySummaryService.getAllSummaries();
-        AuthResponse<List<WeeklySummaryResponse>> authResponse = new AuthResponse<>(
-				HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(),
-				"All weekly summaries fetched successfully",
-				allSummaries
-		);
-		return ResponseEntity.ok(authResponse);
+    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllSummaries(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<WeeklySummaryResponse> pageData = weeklySummaryService.getAllSummaries(pageable);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("content", pageData.getContent());
+        data.put("pageNumber", pageData.getNumber());
+        data.put("pageSize", pageData.getSize());
+        data.put("totalElements", pageData.getTotalElements());
+        data.put("totalPages", pageData.getTotalPages());
+
+        AuthResponse<Map<String, Object>> authResponse = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "Paginated weekly summaries fetched successfully",
+                data
+        );
+        return ResponseEntity.ok(authResponse);
     }
 
     // 5. Update Weekly Summary

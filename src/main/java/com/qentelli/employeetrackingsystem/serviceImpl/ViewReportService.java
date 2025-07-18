@@ -1,25 +1,28 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-import java.util.ArrayList;
+
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Task;
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
-import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
+import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
+import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ViewReportResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.WeekRangeResponse;
 import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ViewreportRepository;
-import com.qentelli.employeetrackingsystem.repository.WeeklySummaryRepository;
+import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,8 +39,10 @@ public class ViewReportService {
 	@Autowired
 	private ViewreportRepository viewReportRepository;
 
+	
+	
 	@Autowired
-	private WeeklySummaryRepository weeklySummaryRepository;
+	private WeekRangeRepository weekRangeRepository;
 
 	@Autowired
 	private ProjectRepository projectRepository;
@@ -49,7 +54,8 @@ public class ViewReportService {
 	private PersonRepository personRepository;
 
 	public ViewReportResponse saveReport(ViewReportRequest request) {
-		WeeklySummary summary = weeklySummaryRepository.findById(request.getWeekId())
+		
+		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
 				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + " with id: " + request.getWeekId()));
 
 		Project project = projectRepository.findById(request.getProjectId())
@@ -70,13 +76,14 @@ public class ViewReportService {
 		report.setProject(project);
 		// report.setUser(user);
 		report.setPerson(person);
-		report.setWeeklySummary(summary);
-		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment()));
+		report.setWeekRange(weekRange);
+		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(),request.getComments()));
 
 		ViewReports saved = viewReportRepository.save(report);
 
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(saved.getViewReportId());
+		
 		response.setTaskName(saved.getTaskName());
 		response.setTaskStatus(saved.getTaskStatus());
 		response.setSummary(saved.getTask().getSummary());
@@ -96,8 +103,7 @@ public class ViewReportService {
 	public ViewReportResponse updateReport(ViewReportRequest request) {
 		ViewReports report = viewReportRepository.findById(request.getViewReportId())
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND));
-
-		WeeklySummary summary = weeklySummaryRepository.findById(request.getWeekId())
+		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
 				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + " with id: " + request.getWeekId()));
 		Project project = projectRepository.findById(request.getProjectId())
 				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + " with id: " + request.getProjectId()));
@@ -115,8 +121,8 @@ public class ViewReportService {
 		report.setProject(project);
 		// report.setUser(user);
 		report.setPerson(person);
-		report.setWeeklySummary(summary);
-		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment()));
+		report.setWeekRange(weekRange);
+		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(),request.getComments()));
 
 		ViewReports updated = viewReportRepository.save(report);
 
@@ -144,6 +150,11 @@ public class ViewReportService {
 		// Map to response (reuse mapping logic)
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(report.getViewReportId());
+		response.setWeekRange(new WeekRangeResponse(
+				report.getWeekRange().getWeekId(),
+				report.getWeekRange().getWeekFromDate(),
+				report.getWeekRange().getWeekToDate()
+		));
 		response.setTaskName(report.getTaskName());
 		response.setTaskStatus(report.getTaskStatus());
 		response.setSummary(report.getTask().getSummary());
@@ -164,6 +175,11 @@ public class ViewReportService {
 	    Page<ViewReports> page = viewReportRepository.findAll(pageable);
 	    return page.map(report -> {
 	        ViewReportResponse response = new ViewReportResponse();
+	        response.setWeekRange(new WeekRangeResponse(
+	            report.getWeekRange().getWeekId(),
+	            report.getWeekRange().getWeekFromDate(),
+	            report.getWeekRange().getWeekToDate()
+	        ));
 	        response.setViewReportId(report.getViewReportId());
 	        response.setTaskName(report.getTaskName());
 	        response.setTaskStatus(report.getTaskStatus());
@@ -193,5 +209,47 @@ public class ViewReportService {
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + " with id: " + id));
 		viewReportRepository.delete(report);
 	}
+
+	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page, int size) {
+	    List<ViewReports> reports = viewReportRepository.findByWeekRange(fromDate, toDate);
+
+	    List<ViewReportResponse> allResponses = reports.stream().map(report -> {
+	        Task task = report.getTask();
+	        return new ViewReportResponse(
+	            report.getViewReportId(),
+	            new WeekRangeResponse(
+	                report.getWeekRange().getWeekId(),
+	                report.getWeekRange().getWeekFromDate(),
+	                report.getWeekRange().getWeekToDate()
+	            ),
+	            report.getTaskName(),
+	            report.getTaskStatus(),
+	            task.getSummary(),
+	            task.getKeyAccomplishment(),
+	            report.getComments(),
+	            task.getUpcomingTasks(),
+	            report.getProject().getProjectName(),
+	            report.getPerson().getFirstName() + " " + report.getPerson().getLastName(),
+	            report.getTaskStartDate(),
+	            report.getTaskEndDate(),
+	            report.getCreatedAt(),
+	            report.getCreatedBy()
+	        );
+	    }).collect(Collectors.toList());
+
+	    int start = Math.min(page * size, allResponses.size());
+	    int end = Math.min(start + size, allResponses.size());
+	    List<ViewReportResponse> pagedResponses = allResponses.subList(start, end);
+
+	    return new PaginatedResponse<>(
+	        pagedResponses,
+	        page,
+	        size,
+	        allResponses.size(),
+	       (int) Math.ceil((double) allResponses.size() / size),
+	        end == allResponses.size()
+	    );
+	}
+
 
 }
