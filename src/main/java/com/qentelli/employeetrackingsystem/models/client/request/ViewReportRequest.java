@@ -23,6 +23,7 @@ public class ViewReportRequest {
 	private TaskStatus taskStatus;
 	private List<String> summary;
 	private List<String> keyAccomplishment;
+	private List<String> upcomingTasks;
 	private List<String> comments;
 	private LocalDate taskStartDate;
 	private LocalDate taskEndDate;
