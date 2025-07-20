@@ -158,6 +158,7 @@ public class ViewReportController {
         return new ResponseEntity<>(authResponse, HttpStatus.NO_CONTENT);
     }
   
+ /*
     @GetMapping("/search")
     public ResponseEntity<AuthResponse<List<ViewReportResponse>>> searchReports(
             @RequestParam(required = false) String personName,
@@ -165,13 +166,30 @@ public class ViewReportController {
 
         List<ViewReportResponse> results = viewReportService.searchByPersonOrProject(personName, projectName);
 
-        AuthResponse<List<ViewReportResponse>> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Search results fetched successfully",
-                results
-        );
+        AuthResponse<List<ViewReportResponse>> response = new AuthResponse<>();
+        response.setCode(String.valueOf(HttpStatus.OK.value()));
+        response.setStatusType(RequestProcessStatus.SUCCESS);
+        response.setTimestamp(LocalDateTime.now());
+        response.setMessage("Search results fetched successfully");
+        response.setData(results); // 
+
+        return ResponseEntity.ok(response);
+    }
+    */
+
+    @GetMapping("/search")
+    public ResponseEntity<AuthResponse<List<ViewReportResponse>>> searchReports(
+            @RequestParam(required = false) String personName,
+            @RequestParam(required = false) String projectName) {
+
+    	List<ViewReportResponse> result = viewReportService.searchByPersonOrProject(personName, projectName);
+
+        AuthResponse<List<ViewReportResponse>> response = new AuthResponse<>();
+        response.setCode(String.valueOf(HttpStatus.OK.value()));
+        response.setStatusType(RequestProcessStatus.SUCCESS);
+        response.setTimestamp(LocalDateTime.now());
+        response.setMessage("Search results fetched successfully");
+        response.setData(result); // Wraps `content` under `data`
 
         return ResponseEntity.ok(response);
     }
