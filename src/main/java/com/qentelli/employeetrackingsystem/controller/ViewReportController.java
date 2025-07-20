@@ -2,6 +2,7 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,4 +157,24 @@ public class ViewReportController {
         );
         return new ResponseEntity<>(authResponse, HttpStatus.NO_CONTENT);
     }
+  
+    @GetMapping("/search")
+    public ResponseEntity<AuthResponse<List<ViewReportResponse>>> searchReports(
+            @RequestParam(required = false) String personName,
+            @RequestParam(required = false) String projectName) {
+
+        List<ViewReportResponse> results = viewReportService.searchByPersonOrProject(personName, projectName);
+
+        AuthResponse<List<ViewReportResponse>> response = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "Search results fetched successfully",
+                results
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+
 }

@@ -34,8 +34,7 @@ public class SprintService {
 
         // Generate valid weekday-only weeks
         List<WeekRange> generatedWeeks = generateWeekRanges(
-                request.getFromDate(), request.getToDate(), sprint
-        );
+                request.getFromDate(), request.getToDate(), sprint);
         sprint.setWeeks(generatedWeeks);
 
         Sprint savedSprint = sprintRepository.save(sprint);
@@ -91,35 +90,23 @@ public class SprintService {
         sprintRepository.deleteById(id);
     }
 
-    // ✅ Generate weekday-only week ranges (no weekends in start or end dates)
     private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
         List<WeekRange> weekRanges = new ArrayList<>();
+
+        // Align start date to Wednesday
         LocalDate current = start;
+        if (current.getDayOfWeek() != DayOfWeek.WEDNESDAY) {
+            int daysUntilWednesday = (DayOfWeek.WEDNESDAY.getValue() - current.getDayOfWeek().getValue() + 7) % 7;
+            current = current.plusDays(daysUntilWednesday);
+        }
 
-        while (!current.isAfter(end)) {
-            // Skip weekends for week start
-            while (current.getDayOfWeek() == DayOfWeek.SATURDAY || current.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                current = current.plusDays(1);
-                if (current.isAfter(end)) return weekRanges;
-            }
+        for (int i = 0; i < 3; i++) {
+            LocalDate weekStart = current.plusWeeks(i);
+            LocalDate weekEnd = weekStart.plusDays(6); // Tuesday
 
-            LocalDate weekStart = current;
-            LocalDate weekEnd = weekStart;
-            int workingDays = 1;
-
-            // Accumulate up to 5 working days (Mon–Fri)
-            while (workingDays < 5) {
-                weekEnd = weekEnd.plusDays(1);
-                if (weekEnd.isAfter(end)) break;
-
-                if (weekEnd.getDayOfWeek() != DayOfWeek.SATURDAY && weekEnd.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                    workingDays++;
-                }
-            }
-
-            // Ensure weekEnd does not fall on weekend
-            while (weekEnd.getDayOfWeek() == DayOfWeek.SATURDAY || weekEnd.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                weekEnd = weekEnd.minusDays(1);
+            // Ensure weekEnd does not exceed sprint end date
+            if (weekEnd.isAfter(end)) {
+                weekEnd = end;
             }
 
             WeekRange week = new WeekRange();
@@ -129,14 +116,10 @@ public class SprintService {
             week.setSprint(sprint);
 
             weekRanges.add(week);
-
-            // Move to next day after this week
-            current = weekEnd.plusDays(1);
         }
 
         return weekRanges;
     }
-
     // Helper to convert Sprint to SprintResponse
     private SprintResponse mapToResponse(Sprint sprint) {
         List<WeekRangeResponse> weekResponses = new ArrayList<>();

@@ -23,6 +23,7 @@ public class WeekRange {
 	private int weekId;
 	private LocalDate weekFromDate;
 	private LocalDate weekToDate;
+//	private boolean isActive = true;
 	private boolean softDelete = false;
 	
 	@ManyToOne
