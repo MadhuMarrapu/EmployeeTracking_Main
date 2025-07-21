@@ -24,10 +24,7 @@ import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ViewreportRepository;
 import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class ViewReportService {
 
 	private static final String REPORT_NOT_FOUND = "Report not found";
@@ -226,18 +223,19 @@ public class ViewReportService {
 	}
 
 	public List<ViewReportResponse> searchByPersonOrProject(String personName, String projectName) {
-		List<ViewReports> reports;
+		List<ViewReports> reports = null;
 
 		if (personName != null && projectName != null) {
-			reports = viewReportRepository.searchByPersonAndProject(personName, projectName);
+		//	reports = viewReportRepository.searchByPersonAndProject(personName, projectName);
 		} else if (personName != null) {
-			reports = viewReportRepository.searchByPersonName(personName);
+		//	reports = viewReportRepository.searchByPersonName(personName);
 		} else if (projectName != null) {
 			reports = viewReportRepository.searchByProjectName(projectName);
 		} else {
 			return Collections.emptyList();
 		}
-
+		System.out.println("Reports found: " + reports.size());
+		
 		return reports.stream().map(this::mapToResponse).collect(Collectors.toList());
 	}
 

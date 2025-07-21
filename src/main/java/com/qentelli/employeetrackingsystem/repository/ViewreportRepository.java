@@ -15,7 +15,7 @@ public interface ViewreportRepository extends JpaRepository<ViewReports, Integer
 
 	@Query("SELECT v FROM ViewReports v WHERE v.softDelete = false AND v.weekRange.weekFromDate = :fromDate AND v.weekRange.weekToDate = :toDate")
 	List<ViewReports> findByWeekRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
-
+	
 	@Query("SELECT v FROM ViewReports v WHERE v.softDelete = false AND "
 			+ "(LOWER(v.person.firstName) LIKE LOWER(CONCAT('%', :personName, '%')) "
 			+ "OR LOWER(v.person.lastName) LIKE LOWER(CONCAT('%', :personName, '%')))")
@@ -31,4 +31,7 @@ public interface ViewreportRepository extends JpaRepository<ViewReports, Integer
 			+ "AND LOWER(v.project.projectName) LIKE LOWER(CONCAT('%', :projectName, '%'))")
 	List<ViewReports> searchByPersonAndProject(@Param("personName") String personName,
 			@Param("projectName") String projectName);
+			
+	
+	//List<ViewReports> findByProject_ProjectName(String projectName);
 }
