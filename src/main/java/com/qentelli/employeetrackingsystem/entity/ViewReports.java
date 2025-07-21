@@ -75,8 +75,4 @@ public class ViewReports {
 	private LocalDateTime updatedAt;
 	@LastModifiedBy
 	private String updatedBy;
-	
-	
-	
-	
 }

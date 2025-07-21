@@ -248,4 +248,30 @@ public class ViewReportService {
 	       (int) Math.ceil((double) allResponses.size() / size),
 	        end == allResponses.size()
 	    );
-	}}
+	}
+	
+	public List<ViewReportResponse> getAllReports() {
+	    List<ViewReports> reports = viewReportRepository.findBySoftDeleteFalse(); // no pagination
+	    return reports.stream().map(report -> {
+	        ViewReportResponse response = new ViewReportResponse();
+	        response.setWeekRange(new WeekRangeResponse(
+	                report.getWeekRange().getWeekId(),
+	                report.getWeekRange().getWeekFromDate(),
+	                report.getWeekRange().getWeekToDate()
+	        ));
+	        response.setViewReportId(report.getViewReportId());
+	        response.setTaskName(report.getTaskName());
+	        response.setTaskStatus(report.getTaskStatus());
+	        response.setSummary(report.getTask().getSummary());
+	        response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
+	        response.setComments(report.getComments());
+	        response.setProjectName(report.getProject().getProjectName());
+	        response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
+	        response.setTaskStartDate(report.getTaskStartDate());
+	        response.setTaskEndDate(report.getTaskEndDate());
+	        response.setCreatedAt(report.getCreatedAt());
+	        response.setCreatedBy(report.getCreatedBy());
+	        return response;
+	    }).collect(Collectors.toList());
+	}
+}
