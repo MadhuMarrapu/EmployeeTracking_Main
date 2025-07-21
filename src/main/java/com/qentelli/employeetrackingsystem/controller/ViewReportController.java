@@ -2,6 +2,10 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +98,30 @@ public class ViewReportController {
         return ResponseEntity.ok(authResponse);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllReports() {
+        logger.info("Fetching all reports without pagination");
+
+        List<ViewReportResponse> reports = viewReportService.getAllReports(); // Fetch all reports
+
+        // Wrap the list inside a map with "content" key
+        Map<String, Object> data = new HashMap<>();
+        data.put("content", reports);
+
+        // Prepare the AuthResponse with status, message, and data
+        AuthResponse<Map<String, Object>> authResponse = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "All reports fetched successfully",
+                data
+        );
+
+        return ResponseEntity.ok(authResponse);
+    }
+
+
+    
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<ViewReportResponse>> getReportById(@PathVariable Integer id) {
         logger.info("Fetching report by ID: {}", id);
