@@ -18,5 +18,7 @@ public class Task {
 	private List<String> summary;
 	@ElementCollection
 	private List<String> keyAccomplishment;
+	@ElementCollection
+	private List<String> upcomingTasks;
 
 }

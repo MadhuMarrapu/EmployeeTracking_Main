@@ -1,28 +1,32 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
-import java.util.*;
+
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Task;
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
-import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
+import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
+import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ViewReportResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.WeekRangeResponse;
 import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ViewreportRepository;
-import com.qentelli.employeetrackingsystem.repository.WeeklySummaryRepository;
+import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ViewReportService {
 
 	private static final String REPORT_NOT_FOUND = "Report not found";
@@ -34,8 +38,10 @@ public class ViewReportService {
 	@Autowired
 	private ViewreportRepository viewReportRepository;
 
+	
+	
 	@Autowired
-	private WeeklySummaryRepository weeklySummaryRepository;
+	private WeekRangeRepository weekRangeRepository;
 
 	@Autowired
 	private ProjectRepository projectRepository;
@@ -47,10 +53,8 @@ public class ViewReportService {
 	private PersonRepository personRepository;
 
 	public ViewReportResponse saveReport(ViewReportRequest request) {
-
-
+		
 		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
-
 				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + " with id: " + request.getWeekId()));
 
 		Project project = projectRepository.findById(request.getProjectId())
@@ -71,16 +75,14 @@ public class ViewReportService {
 		report.setProject(project);
 		// report.setUser(user);
 		report.setPerson(person);
-
 		report.setWeekRange(weekRange);
-		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));
-
+		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(),request.getComments()));
 
 		ViewReports saved = viewReportRepository.save(report);
 
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(saved.getViewReportId());
-
+		
 		response.setTaskName(saved.getTaskName());
 		response.setTaskStatus(saved.getTaskStatus());
 		response.setSummary(saved.getTask().getSummary());
@@ -100,8 +102,7 @@ public class ViewReportService {
 	public ViewReportResponse updateReport(ViewReportRequest request) {
 		ViewReports report = viewReportRepository.findById(request.getViewReportId())
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND));
-
-		WeeklySummary summary = weeklySummaryRepository.findById(request.getWeekId())
+		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
 				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + " with id: " + request.getWeekId()));
 		Project project = projectRepository.findById(request.getProjectId())
 				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + " with id: " + request.getProjectId()));
@@ -115,14 +116,12 @@ public class ViewReportService {
 		report.setTaskStatus(request.getTaskStatus());
 		report.setTaskStartDate(request.getTaskStartDate());
 		report.setTaskEndDate(request.getTaskEndDate());
-		report.setComments(request.getComments());
+	//	report.setComments(request.getComments());
 		report.setProject(project);
 		// report.setUser(user);
 		report.setPerson(person);
-
 		report.setWeekRange(weekRange);
-		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));
-
+		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(),request.getComments()));
 
 		ViewReports updated = viewReportRepository.save(report);
 
@@ -150,10 +149,11 @@ public class ViewReportService {
 		// Map to response (reuse mapping logic)
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(report.getViewReportId());
-
-		response.setWeekRange(new WeekRangeResponse(report.getWeekRange().getWeekId(),
-				report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate()));
-
+		response.setWeekRange(new WeekRangeResponse(
+				report.getWeekRange().getWeekId(),
+				report.getWeekRange().getWeekFromDate(),
+				report.getWeekRange().getWeekToDate()
+		));
 		response.setTaskName(report.getTaskName());
 		response.setTaskStatus(report.getTaskStatus());
 		response.setSummary(report.getTask().getSummary());
@@ -169,38 +169,22 @@ public class ViewReportService {
 		response.setCreatedBy(report.getCreatedBy());
 		return response;
 	}
-
+	
 	public Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable) {
-
-		Page<ViewReports> page = viewReportRepository.findAll(pageable);
-		return page.map(report -> {
-			ViewReportResponse response = new ViewReportResponse();
-			response.setWeekRange(new WeekRangeResponse(report.getWeekRange().getWeekId(),
-					report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate()));
-			response.setViewReportId(report.getViewReportId());
-			response.setTaskName(report.getTaskName());
-			response.setTaskStatus(report.getTaskStatus());
-			response.setSummary(report.getTask().getSummary());
-			response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
-			response.setComments(report.getComments());
-			response.setProjectName(report.getProject().getProjectName());
-			response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
-			response.setTaskStartDate(report.getTaskStartDate());
-			response.setTaskEndDate(report.getTaskEndDate());
-			response.setCreatedAt(report.getCreatedAt());
-			response.setCreatedBy(report.getCreatedBy());
-			return response;
-		});
-
 	    Page<ViewReports> page = viewReportRepository.findAll(pageable);
 	    return page.map(report -> {
 	        ViewReportResponse response = new ViewReportResponse();
+	        response.setWeekRange(new WeekRangeResponse(
+	            report.getWeekRange().getWeekId(),
+	            report.getWeekRange().getWeekFromDate(),
+	            report.getWeekRange().getWeekToDate()
+	        ));
 	        response.setViewReportId(report.getViewReportId());
 	        response.setTaskName(report.getTaskName());
 	        response.setTaskStatus(report.getTaskStatus());
 	        response.setSummary(report.getTask().getSummary());
 	        response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
-	        response.setComments(report.getComments());
+	       response.setComments(report.getComments());
 	        response.setProjectName(report.getProject().getProjectName());
 	        response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
 	        response.setTaskStartDate(report.getTaskStartDate());
@@ -209,7 +193,6 @@ public class ViewReportService {
 	        response.setCreatedBy(report.getCreatedBy());
 	        return response;
 	    });
-
 	}
 
 	// SOFT DELETE
@@ -226,65 +209,43 @@ public class ViewReportService {
 		viewReportRepository.delete(report);
 	}
 
-	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page,
-			int size) {
-		List<ViewReports> reports = viewReportRepository.findByWeekRange(fromDate, toDate);
+	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page, int size) {
+	    List<ViewReports> reports = viewReportRepository.findByWeekRange(fromDate, toDate);
 
-		List<ViewReportResponse> allResponses = reports.stream().map(report -> {
-			Task task = report.getTask();
-			return new ViewReportResponse(report.getViewReportId(),
-					new WeekRangeResponse(report.getWeekRange().getWeekId(), report.getWeekRange().getWeekFromDate(),
-							report.getWeekRange().getWeekToDate()),
-					report.getTaskName(), report.getTaskStatus(), task.getSummary(), task.getKeyAccomplishment(),
-					report.getComments(), task.getUpcomingTasks(), report.getProject().getProjectName(),
-					report.getPerson().getFirstName() + " " + report.getPerson().getLastName(),
-					report.getTaskStartDate(), report.getTaskEndDate(), report.getCreatedAt(), report.getCreatedBy());
-		}).collect(Collectors.toList());
+	    List<ViewReportResponse> allResponses = reports.stream().map(report -> {
+	        Task task = report.getTask();
+	        return new ViewReportResponse(
+	            report.getViewReportId(),
+	            new WeekRangeResponse(
+	                report.getWeekRange().getWeekId(),
+	                report.getWeekRange().getWeekFromDate(),
+	                report.getWeekRange().getWeekToDate()
+	            ),
+	            report.getTaskName(),
+	            report.getTaskStatus(),
+	            task.getSummary(),
+	            task.getKeyAccomplishment(),
+	            report.getComments(),
+	            task.getUpcomingTasks(),
+	            report.getProject().getProjectName(),
+	            report.getPerson().getFirstName() + " " + report.getPerson().getLastName(),
+	            report.getTaskStartDate(),
+	            report.getTaskEndDate(),
+	            report.getCreatedAt(),
+	            report.getCreatedBy()
+	        );
+	    }).collect(Collectors.toList());
 
-		int start = Math.min(page * size, allResponses.size());
-		int end = Math.min(start + size, allResponses.size());
-		List<ViewReportResponse> pagedResponses = allResponses.subList(start, end);
+	    int start = Math.min(page * size, allResponses.size());
+	    int end = Math.min(start + size, allResponses.size());
+	    List<ViewReportResponse> pagedResponses = allResponses.subList(start, end);
 
-		return new PaginatedResponse<>(pagedResponses, page, size, allResponses.size(),
-				(int) Math.ceil((double) allResponses.size() / size), end == allResponses.size());
-	}
-
-	public List<ViewReportResponse> searchByPersonOrProject(String personName, String projectName) {
-		List<ViewReports> reports = null;
-
-		if (personName != null && projectName != null) {
-		//	reports = viewReportRepository.searchByPersonAndProject(personName, projectName);
-		} else if (personName != null) {
-		//	reports = viewReportRepository.searchByPersonName(personName);
-		} else if (projectName != null) {
-			reports = viewReportRepository.searchByProjectName(projectName);
-		} else {
-			return Collections.emptyList();
-		}
-		System.out.println("Reports found: " + reports.size());
-		
-		return reports.stream().map(this::mapToResponse).collect(Collectors.toList());
-	}
-
-	private ViewReportResponse mapToResponse(ViewReports report) {
-		ViewReportResponse response = new ViewReportResponse();
-		response.setViewReportId(report.getViewReportId());
-
-		if (report.getPerson() != null) {
-			response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
-		}
-
-		if (report.getProject() != null) {
-			response.setProjectName(report.getProject().getProjectName());
-		}
-
-		if (report.getWeekRange() != null) {
-			WeekRangeResponse weekRangeResponse = new WeekRangeResponse(report.getWeekRange().getWeekId(),
-					report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate());
-			response.setWeekRange(weekRangeResponse);
-		}
-
-		return response;
-	}
-
-}
+	    return new PaginatedResponse<>(
+	        pagedResponses,
+	        page,
+	        size,
+	        allResponses.size(),
+	       (int) Math.ceil((double) allResponses.size() / size),
+	        end == allResponses.size()
+	    );
+	}}
