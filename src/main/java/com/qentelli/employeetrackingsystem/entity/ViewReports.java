@@ -44,13 +44,14 @@ public class ViewReports {
 
 	@Enumerated(EnumType.STRING)
 	private TaskStatus taskStatus;
+	
 
 	@ElementCollection
 	private List<String> comments;
 
 	@ManyToOne
 	@JoinColumn(name = "week_id")
-	private WeeklySummary weeklySummary;
+	private WeekRange weekRange;
 
 	@ManyToOne
 	@JoinColumn(name = "project_id")
@@ -74,4 +75,8 @@ public class ViewReports {
 	private LocalDateTime updatedAt;
 	@LastModifiedBy
 	private String updatedBy;
+	
+	
+	
+	
 }
