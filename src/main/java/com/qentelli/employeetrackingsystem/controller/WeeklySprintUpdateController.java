@@ -74,6 +74,18 @@ public class WeeklySprintUpdateController {
 		return ResponseEntity.ok(response);
 	}
 
+	@GetMapping("/active")
+	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getAllActiveSprintUpdates() {
+		List<WeeklySprintUpdate> updates = service.getAllActiveUpdates();
+		List<WeeklySprintUpdateDto> dtoList = updates.stream()
+				.map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class)).toList();
+
+		AuthResponse<List<WeeklySprintUpdateDto>> authResponse = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Active WeeklySprintUpdates fetched successfully",
+				dtoList);
+		return ResponseEntity.ok(authResponse);
+	}
+
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<WeeklySprintUpdateDto>> update(@PathVariable Integer id,
 			@Valid @RequestBody WeeklySprintUpdateDto dto) {
