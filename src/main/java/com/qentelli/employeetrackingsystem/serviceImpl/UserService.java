@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,9 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.config.JwtUtil;
+import com.qentelli.employeetrackingsystem.entity.AuthUserDetails;
+import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.models.client.request.LoginUserRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.LoginUserResponse;
+import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.UserRepository;
 
 @Service
@@ -25,6 +30,8 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
+	private PersonRepository personRepository;
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -32,42 +39,56 @@ public class UserService implements UserDetailsService {
 	private JwtUtil jwtUtil;
 
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		return userRepository.findByUserName(email)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	    return userRepository.findByUserName(username)
+	        .map(UserDetails.class::cast)
+	        .orElseGet(() -> personRepository.findByEmail(username)
+	            .map(person -> new AuthUserDetails(person.getEmail(), person.getPassword(), person.getRole().name()))
+	            .orElseThrow(() -> new UsernameNotFoundException("No User or Person found for username: " + username))
+	        );
 	}
 
 	public LoginUserResponse loginByEmail(LoginUserRequest loginUser) {
-		try {
-			String userName = loginUser.getUserName();
-			String password = loginUser.getPassword();
-			// 1. Authenticate
-			Authentication authentication = authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
-			// 2. Set authenticated user in the context
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			// 3. Get authenticated User object
-			User user = (User) authentication.getPrincipal();
-			// 4. Generate JWT token
-			String accessToken = jwtUtil.generateToken(userName);
+	    String userName = loginUser.getUserName();
+	    String password = loginUser.getPassword();
 
-			// 5. Prepare and return DTO (customize as needed)
-			LoginUserResponse loginUserData = new LoginUserResponse();
-			// password check
-			user = userRepository.findByUserName(userName)
-					.orElseThrow(() -> new UsernameNotFoundException("User not found wih userName " + userName));
-			if (!passwordEncoder.matches(password, user.getPassword())) {
-				throw new BadCredentialsException("Invalid user email or password");
-			}
-			
-			loginUserData.setFirstName(user.getFirstName());
-			loginUserData.setLastName(user.getLastName());
-			loginUserData.setUserName(user.getUsername());
-			loginUserData.setRole(user.getRoles().name());
-			loginUserData.setAcessToken(accessToken);
-			return loginUserData;
-		} catch (AuthenticationException e) {
-			throw new BadCredentialsException("Invalid user email or password");
-		}
-	}	
+	    try {
+	        Authentication authentication = authenticationManager.authenticate(
+	            new UsernamePasswordAuthenticationToken(userName, password)
+	        );
+	        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+	        String accessToken = jwtUtil.generateToken(userName);
+
+	        Optional<User> optionalUser = userRepository.findByUserName(userName);
+	        if (optionalUser.isPresent()) {
+	            User user = optionalUser.get();
+	            return buildResponse(user.getFirstName(), user.getLastName(), user.getUsername(), user.getRoles().name(), accessToken);
+	        }
+
+	        Optional<Person> optionalPerson = personRepository.findByEmail(userName);
+	        if (optionalPerson.isPresent()) {
+	            Person person = optionalPerson.get();
+	            if (!Boolean.TRUE.equals(person.getPersonStatus())) {
+	                throw new BadCredentialsException("Person account is inactive");
+	            }
+	            return buildResponse(person.getFirstName(), person.getLastName(), person.getEmail(), person.getRole().name(), accessToken);
+	        }
+
+	        throw new BadCredentialsException("No User or Person found for: " + userName);
+
+	    } catch (AuthenticationException e) {
+	        throw new BadCredentialsException("Authentication failed for: " + userName);
+	    }
+	}
+
+	private LoginUserResponse buildResponse(String firstName, String lastName, String userName, String role, String token) {
+	    LoginUserResponse response = new LoginUserResponse();
+	    response.setFirstName(firstName);
+	    response.setLastName(lastName);
+	    response.setUserName(userName);
+	    response.setRole(role);
+	    response.setAcessToken(token);
+	    return response;
+	}
 }

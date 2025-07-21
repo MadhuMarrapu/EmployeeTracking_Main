@@ -50,7 +50,7 @@ public class ViewReports {
 
 	@ManyToOne
 	@JoinColumn(name = "week_id")
-	private WeekRange weekRange;
+	private WeeklySummary weeklySummary;
 
 	@ManyToOne
 	@JoinColumn(name = "project_id")

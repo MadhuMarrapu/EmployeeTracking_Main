@@ -67,80 +67,33 @@ public class PersonController {
 		return ResponseEntity.ok(response);
 	}
 
-//	@GetMapping
-//	public ResponseEntity<AuthResponse<List<PersonDTO>>> getAllPersons() {
-//		logger.info("Fetching all persons");
-//		List<PersonDTO> persons = personService.getAllResponses();
-//
-//		logger.debug("Persons fetched: {}", persons.size());
-//		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-//				LocalDateTime.now(), "Persons fetched successfully", persons);
-//
-//		return ResponseEntity.ok(response);
-//	}
+	@GetMapping
+	public ResponseEntity<AuthResponse<List<PersonDTO>>> getAllPersons() {
+		logger.info("Fetching all persons");
+		List<PersonDTO> persons = personService.getAllResponses();
+
+		logger.debug("Persons fetched: {}", persons.size());
+		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Persons fetched successfully", persons);
+
+		return ResponseEntity.ok(response);
+	}
 	
-	@GetMapping("/active")
-	public ResponseEntity<AuthResponse<PaginatedResponse<PersonDTO>>> getAllPersonsPaginated(
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size,
-	        @RequestParam(defaultValue = "personId") String sortBy
-	) {
-	    logger.info("Fetching paginated list of active persons: page={}, size={}, sortBy={}", page, size, sortBy);
 
-	    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-	    Page<PersonDTO> personPage = personService.getAllActivePersons(pageable);
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<AuthResponse<PersonDTO>> getPersonById(@PathVariable int id) {
+		logger.info("Fetching person by ID: {}", id);
+		PersonDTO dto = personService.getByIdResponse(id);
 
-	    PaginatedResponse<PersonDTO> paginated = new PaginatedResponse<>(
-	            personPage.getContent(),
-	            personPage.getNumber(),
-	            personPage.getSize(),
-	            personPage.getTotalElements(),
-	            personPage.getTotalPages(),
-	            personPage.isLast()
-	    );
+		logger.debug("Person fetched: {}", dto);
+		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Person fetched successfully", dto);
 
-	    logger.debug("Paginated persons fetched: count={}, totalPages={}", 
-	                 personPage.getNumberOfElements(), personPage.getTotalPages());
-
-	    AuthResponse<PaginatedResponse<PersonDTO>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Paginated persons fetched successfully",
-	            paginated
-	    );
-
-	    return ResponseEntity.ok(response);
+		return ResponseEntity.ok(response);
 	}
 
-//	@GetMapping("/{id}")
-//	public ResponseEntity<AuthResponse<PersonDTO>> getPersonById(@PathVariable int id) {
-//		logger.info("Fetching person by ID: {}", id);
-//		PersonDTO dto = personService.getByIdResponse(id);
-//
-//		logger.debug("Person fetched: {}", dto);
-//		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-//				LocalDateTime.now(), "Person fetched successfully", dto);
-//
-//		return ResponseEntity.ok(response);
-//	}
 
-//	@GetMapping("/search/name")
-//	public ResponseEntity<AuthResponse<List<PersonDTO>>> searchByName(@RequestParam String name) {
-//		logger.info("Searching for person(s) by name: {}", name);
-//		List<PersonDTO> results = personService.searchByName(name);
-//
-//		HttpStatus status = results.isEmpty() ? HttpStatus.NOT_FOUND : HttpStatus.OK;
-//		RequestProcessStatus processStatus = results.isEmpty() ? RequestProcessStatus.FAILURE
-//				: RequestProcessStatus.SUCCESS;
-//		String message = results.isEmpty() ? "No matching persons found" : "Persons fetched successfully";
-//
-//		logger.debug("Search result count: {}", results.size());
-//		AuthResponse<List<PersonDTO>> response = new AuthResponse<>(status.value(), processStatus, LocalDateTime.now(),
-//				message, results);
-//
-//		return ResponseEntity.status(status).body(response);
-//	}
 	
 	@GetMapping("/search")
 	public ResponseEntity<AuthResponse<PaginatedResponse<PersonDTO>>> searchPersonsByName(
