@@ -108,5 +108,10 @@ public class WeeklySprintUpdateService {
     public List<WeeklySprintUpdate> getAllActiveUpdates() {
         return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue();
     }
+    
+    public List<WeeklySprintUpdate> getActiveUpdatesBySprint(String sprintNumber) {
+        return  weeklySprintUpdateRepository.findActiveBySprintNumber(sprintNumber);
+        
+    }
 
 }
