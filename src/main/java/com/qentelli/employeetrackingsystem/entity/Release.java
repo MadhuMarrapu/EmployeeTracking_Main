@@ -23,7 +23,11 @@ public class Release {
 	@ManyToOne
 	@JoinColumn(name = "weekId")
 	private WeekRange week;
-
+	
+	@ManyToOne
+	@JoinColumn(name = "sprintId")
+	private Sprint sprint;
+	
 	@ManyToOne
 	@JoinColumn(name = "projectId")
 	private Project project;

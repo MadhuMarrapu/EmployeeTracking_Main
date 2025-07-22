@@ -18,6 +18,9 @@ public class ReleaseRequestDTO {
 	@NotNull(message = "Project ID is required")
     private Integer projectId;
 	
+	@NotNull(message = "Sprint ID is required")
+	private long sprintId;
+	
 	@NotNull(message = "Major count is required")
     private int major;
     
