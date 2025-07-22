@@ -74,28 +74,49 @@ public class WeeklySprintUpdateController {
 		return ResponseEntity.ok(response);
 	}
 
-//	@GetMapping("/active")
-//	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getAllActiveSprintUpdates() {
-//		List<WeeklySprintUpdate> updates = service.getAllActiveUpdates();
-//		List<WeeklySprintUpdateDto> dtoList = updates.stream()
-//				.map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class)).toList();
-//
-//		AuthResponse<List<WeeklySprintUpdateDto>> authResponse = new AuthResponse<>(HttpStatus.OK.value(),
-//				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Active WeeklySprintUpdates fetched successfully",
-//				dtoList);
-//		return ResponseEntity.ok(authResponse);
-//	}
 	
-	@GetMapping("/active/sprint/{sprintNumber}")
-	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getBySprintNumber(@PathVariable String sprintNumber) {
-		List<WeeklySprintUpdate> activeUpdatesBySprint = service.getActiveUpdatesBySprint(sprintNumber);
-		List<WeeklySprintUpdateDto> dtoList = activeUpdatesBySprint.stream()
-				.map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class)).toList();
+	@GetMapping("/by-sprint-number")
+	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getUpdatesBySprintNumber(
+	        @RequestParam String sprintNumber) {
 
-		AuthResponse<List<WeeklySprintUpdateDto>> authResponse = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Active WeeklySprintUpdates fetched successfully",
-				dtoList);
-		return ResponseEntity.ok(authResponse);
+	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", sprintNumber);
+
+	    List<WeeklySprintUpdate> updates = service.getAllBySprintNumber(sprintNumber);
+
+	    List<WeeklySprintUpdateDto> dtoList = updates.stream()
+	            .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
+	            .toList();
+	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", dtoList);
+
+	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
+	            HttpStatus.OK.value(),
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Weekly sprint updates fetched for sprintNumber: " + sprintNumber,
+	            dtoList);
+
+	    return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/active/week/{weekId}")
+	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getByWeekId(@PathVariable int weekId) {
+	    logger.info("Fetching active WeeklySprintUpdates for weekId: {}", weekId);
+
+	    List<WeeklySprintUpdate> updates = service.getActiveUpdatesByWeekId(weekId);
+
+	    List<WeeklySprintUpdateDto> dtoList = updates.stream()
+	        .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
+	        .toList();
+
+	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        "Active WeeklySprintUpdates fetched successfully for weekId: " + weekId,
+	        dtoList
+	    );
+
+	    return ResponseEntity.ok(response);
 	}
 
 	@PutMapping("/{id}")
