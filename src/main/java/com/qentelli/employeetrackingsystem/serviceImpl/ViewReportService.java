@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
@@ -272,6 +274,40 @@ public class ViewReportService {
 	        response.setCreatedAt(report.getCreatedAt());
 	        response.setCreatedBy(report.getCreatedBy());
 	        return response;
-	    }).collect(Collectors.toList());
+	    }).collect(Collectors.toList()); 
 	}
+		private ViewReportResponse mapToResponse(ViewReports report) {
+	    return new ViewReportResponse(
+	        report.getViewReportId(),
+	        report.getWeekRange() != null ? new WeekRangeResponse(
+	            report.getWeekRange().getWeekId(),
+	            report.getWeekRange().getWeekFromDate(),
+	            report.getWeekRange().getWeekToDate()) : null,
+	        report.getTaskName(),
+	        report.getTaskStatus(),
+	        report.getTask() != null ? report.getTask().getSummary() : null,
+	        report.getTask() != null ? report.getTask().getKeyAccomplishment() : null,
+	        report.getComments(),
+	        report.getTask() != null ? report.getTask().getUpcomingTasks() : null,
+	        report.getProject() != null ? report.getProject().getProjectName() : null,
+	        report.getPerson() != null ? report.getPerson().getFirstName()+" "+report.getPerson().getLastName() : null,
+	        report.getTaskStartDate(),
+	        report.getTaskEndDate(),
+	        report.getCreatedAt(),
+	        report.getCreatedBy()
+	    );
+	}
+		public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, int page, int size) {
+		    Pageable pageable = PageRequest.of(page, size, Sort.by("viewReportId").descending());
+
+		    if (personId != null && projectId != null) {
+		        return viewReportRepository.findBySoftDeleteFalseAndPerson_PersonIdAndProject_ProjectId(personId, projectId, pageable);
+		    } else if (personId != null) {
+		        return viewReportRepository.findBySoftDeleteFalseAndPerson_PersonId(personId, pageable);
+		    } else if (projectId != null) {
+		        return viewReportRepository.findBySoftDeleteFalseAndProject_ProjectId(projectId, pageable);
+		    } else {
+		        return viewReportRepository.findBySoftDeleteFalse(pageable);
+		    }
+		}
 }
