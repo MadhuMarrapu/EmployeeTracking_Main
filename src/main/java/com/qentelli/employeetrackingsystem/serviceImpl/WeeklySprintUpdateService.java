@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -102,4 +104,16 @@ public class WeeklySprintUpdateService {
 	public Page<WeeklySprintUpdate> getAllUpdates(Pageable pageable) {
 		return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue(pageable);
 	}
+	
+    public List<WeeklySprintUpdate> getAllActiveUpdates() {
+        return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue();
+    }
+    
+    public List<WeeklySprintUpdate> getAllBySprintNumber(String sprintNumber) {
+        return weeklySprintUpdateRepository.findActiveBySprintNumber(sprintNumber);
+    }
+    
+    public List<WeeklySprintUpdate> getActiveUpdatesByWeekId(int weekId) {
+        return weeklySprintUpdateRepository.findActiveByWeekId(weekId);
+    }
 }

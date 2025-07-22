@@ -74,6 +74,51 @@ public class WeeklySprintUpdateController {
 		return ResponseEntity.ok(response);
 	}
 
+	
+	@GetMapping("/by-sprint-number")
+	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getUpdatesBySprintNumber(
+	        @RequestParam String sprintNumber) {
+
+	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", sprintNumber);
+
+	    List<WeeklySprintUpdate> updates = service.getAllBySprintNumber(sprintNumber);
+
+	    List<WeeklySprintUpdateDto> dtoList = updates.stream()
+	            .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
+	            .toList();
+	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", dtoList);
+
+	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
+	            HttpStatus.OK.value(),
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Weekly sprint updates fetched for sprintNumber: " + sprintNumber,
+	            dtoList);
+
+	    return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/active/week/{weekId}")
+	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getByWeekId(@PathVariable int weekId) {
+	    logger.info("Fetching active WeeklySprintUpdates for weekId: {}", weekId);
+
+	    List<WeeklySprintUpdate> updates = service.getActiveUpdatesByWeekId(weekId);
+
+	    List<WeeklySprintUpdateDto> dtoList = updates.stream()
+	        .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
+	        .toList();
+
+	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        "Active WeeklySprintUpdates fetched successfully for weekId: " + weekId,
+	        dtoList
+	    );
+
+	    return ResponseEntity.ok(response);
+	}
+
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<WeeklySprintUpdateDto>> update(@PathVariable Integer id,
 			@Valid @RequestBody WeeklySprintUpdateDto dto) {

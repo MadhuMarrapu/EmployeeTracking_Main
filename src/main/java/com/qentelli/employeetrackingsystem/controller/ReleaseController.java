@@ -25,116 +25,144 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/releases")
 @RequiredArgsConstructor
 public class ReleaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
 
-    private final ReleaseService service;
+	private final ReleaseService service;
 
-    // ✅ Create
-    @PostMapping("/save")
-    public ResponseEntity<AuthResponse<String>> createRelease(@Valid @RequestBody ReleaseRequestDTO dto) {
-        logger.info("Creating new release for project ID {}", dto.getProjectId());
-        service.createRelease(dto);
-        logger.info("Release created successfully");
+	// ✅ Create
+	@PostMapping("/save")
+	public ResponseEntity<AuthResponse<String>> createRelease(@Valid @RequestBody ReleaseRequestDTO dto) {
+		logger.info("Creating new release for project ID {}", dto.getProjectId());
+		service.createRelease(dto);
+		logger.info("Release created successfully");
 
-        AuthResponse<String> response = new AuthResponse<>(HttpStatus.CREATED.value(),
-                RequestProcessStatus.SUCCESS, "Release created successfully.");
+		AuthResponse<String> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
+				"Release created successfully.");
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
 
-    // ✅ Read All (Non-paginated)
-    @GetMapping("/list")
-    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllReleases() {
-        logger.info("Fetching all release entries");
-        List<ReleaseResponseDTO> releaseList = service.getAllReleases();
+	// ✅ Read All (Non-paginated)
+	@GetMapping("/list")
+	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getAllReleases() {
+		logger.info("Fetching all release entries");
+		List<ReleaseResponseDTO> releaseList = service.getAllReleases();
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("content", releaseList);
-        data.put("totalRecords", releaseList.size());
+		logger.info("Fetched {} release records", releaseList.size());
 
-        logger.info("Fetched {} release records", releaseList.size());
+		AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release data retrieved successfully", releaseList);
 
-        AuthResponse<Map<String, Object>> response = new AuthResponse<>(HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release data retrieved successfully", data);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+	// ✅ Read All (Paginated)
+	@GetMapping("/paginated")
+	public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
+			@RequestParam(defaultValue = "releaseInformation") String sortBy) {
+		logger.info("Fetching paginated releases: page={}, size={}, sortBy={}", page, size, sortBy);
+		Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+		Page<ReleaseResponseDTO> releasePage = service.getPaginatedReleases(pageable);
 
-    // ✅ Read All (Paginated)
-    @GetMapping("/paginated")
-    public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "releaseInformation") String sortBy
-    ) {
-        logger.info("Fetching paginated releases: page={}, size={}, sortBy={}", page, size, sortBy);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
-        Page<ReleaseResponseDTO> releasePage = service.getPaginatedReleases(pageable);
+		PaginatedResponse<ReleaseResponseDTO> paginated = new PaginatedResponse<>(releasePage.getContent(),
+				releasePage.getNumber(), releasePage.getSize(), releasePage.getTotalElements(),
+				releasePage.getTotalPages(), releasePage.isLast());
 
-        PaginatedResponse<ReleaseResponseDTO> paginated = new PaginatedResponse<>(
-                releasePage.getContent(),
-                releasePage.getNumber(),
-                releasePage.getSize(),
-                releasePage.getTotalElements(),
-                releasePage.getTotalPages(),
-                releasePage.isLast()
-        );
+		logger.debug("Paginated releases fetched: count={}, totalPages={}", releasePage.getNumberOfElements(),
+				releasePage.getTotalPages());
 
-        logger.debug("Paginated releases fetched: count={}, totalPages={}",
-                releasePage.getNumberOfElements(), releasePage.getTotalPages());
+		AuthResponse<PaginatedResponse<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Paginated releases fetched successfully",
+				paginated);
 
-        AuthResponse<PaginatedResponse<ReleaseResponseDTO>> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Paginated releases fetched successfully",
-                paginated
-        );
+		return ResponseEntity.ok(response);
+	}
 
-        return ResponseEntity.ok(response);
-    }
+	// ✅ Read by ID
+//	@GetMapping("/{releaseId}/week/{weekId}")
+//	public ResponseEntity<AuthResponse<ReleaseResponseDTO>> getReleaseByIdAndWeekId(
+//	        @PathVariable Long releaseId,
+//	        @PathVariable int weekId) {
+//
+//	    logger.info("Fetching release with ID {} and week ID {}", releaseId, weekId);
+//
+//	    ReleaseResponseDTO release = service.getReleaseByIdAndWeekId(releaseId, weekId);
+//
+//	    AuthResponse<ReleaseResponseDTO> response = new AuthResponse<>(
+//	            HttpStatus.OK.value(),
+//	            RequestProcessStatus.SUCCESS,
+//	            LocalDateTime.now(),
+//	            "Release fetched successfully",
+//	            release
+//	    );
+//
+//	    return new ResponseEntity<>(response, HttpStatus.OK);
+//	}
+	
+	// ✅ Read by weekId only
+	@GetMapping("/week/{weekId}")
+	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getReleasesByWeekId(@PathVariable int weekId) {
 
-    // ✅ Read by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<AuthResponse<ReleaseResponseDTO>> getReleaseById(@PathVariable Long id) {
-        logger.info("Fetching release with ID {}", id);
-        ReleaseResponseDTO release = service.getReleaseById(id);
+	    logger.info("Fetching releases for week ID {}", weekId);
 
-        AuthResponse<ReleaseResponseDTO> response = new AuthResponse<>(HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release fetched successfully", release);
+	    List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+	    AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(
+	            HttpStatus.OK.value(),
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Releases fetched successfully",
+	            releases
+	    );
 
-    // ✅ Update
-    @PutMapping("/update/{id}")
-    public ResponseEntity<AuthResponse<String>> updateRelease(@PathVariable Long id,
-                                                              @Valid @RequestBody ReleaseRequestDTO dto) {
-        logger.info("Updating release with ID {}", id);
-        service.updateRelease(id, dto);
-        logger.info("Release updated successfully");
+	    return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 
-        AuthResponse<String> response = new AuthResponse<>(HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS, "Release updated successfully.");
+	// ✅ Read by sprintId only	
+	@GetMapping("/sprint/{sprintId}")
+	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getReleasesBySprintId(@PathVariable int sprintId) {
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+		logger.info("Fetching releases for sprint ID {}", sprintId);
 
-    // ✅ Delete
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
-        logger.info("Deleting release with ID {}", id);
-        service.deleteRelease(id);
-        logger.info("Release deleted successfully");
+		List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
 
-        AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release deleted successfully", null);
+		AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", releases);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	// ✅ Update
+	@PutMapping("/update/{id}")
+	public ResponseEntity<AuthResponse<String>> updateRelease(@PathVariable Long id,
+			@Valid @RequestBody ReleaseRequestDTO dto) {
+		logger.info("Updating release with ID {}", id);
+		service.updateRelease(id, dto);
+		logger.info("Release updated successfully");
+
+		AuthResponse<String> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				"Release updated successfully.");
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	// ✅ Delete
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
+		logger.info("Deleting release with ID {}", id);
+		service.deleteRelease(id);
+		logger.info("Release deleted successfully");
+
+		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Release deleted successfully", null);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }
