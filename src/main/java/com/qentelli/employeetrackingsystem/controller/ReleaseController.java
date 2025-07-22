@@ -21,9 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 //@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -35,7 +33,6 @@ public class ReleaseController {
 
 	private final ReleaseService service;
 
-	// ✅ Create
 	@PostMapping("/save")
 	public ResponseEntity<AuthResponse<String>> createRelease(@Valid @RequestBody ReleaseRequestDTO dto) {
 		logger.info("Creating new release for project ID {}", dto.getProjectId());
@@ -48,7 +45,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-	// ✅ Read All (Non-paginated)
+	
 	@GetMapping("/list")
 	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getAllReleases() {
 		logger.info("Fetching all release entries");
@@ -62,7 +59,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// ✅ Read All (Paginated)
+	
 	@GetMapping("/paginated")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
@@ -106,7 +103,7 @@ public class ReleaseController {
 //	    return new ResponseEntity<>(response, HttpStatus.OK);
 //	}
 	
-	// ✅ Read by weekId only
+	// Read by weekId only
 	@GetMapping("/week/{weekId}")
 	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getReleasesByWeekId(@PathVariable int weekId) {
 
@@ -125,7 +122,7 @@ public class ReleaseController {
 	    return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// ✅ Read by sprintId only	
+	// Read by sprintId only	
 	@GetMapping("/sprint/{sprintId}")
 	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getReleasesBySprintId(@PathVariable int sprintId) {
 
@@ -139,7 +136,6 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// ✅ Update
 	@PutMapping("/update/{id}")
 	public ResponseEntity<AuthResponse<String>> updateRelease(@PathVariable Long id,
 			@Valid @RequestBody ReleaseRequestDTO dto) {
@@ -153,7 +149,6 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// ✅ Delete
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
 		logger.info("Deleting release with ID {}", id);
