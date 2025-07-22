@@ -12,12 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Release;
+import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ReleaseRepository;
+import com.qentelli.employeetrackingsystem.repository.SprintRepository;
 import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class ReleaseService {
     private final ReleaseRepository releaseRepository;
     private final ProjectRepository projectRepository;
     private final WeekRangeRepository weekRangeRepository;
+    private final SprintRepository sprintRepository;
 
     // ✅ Create
     public Release createRelease(ReleaseRequestDTO dto) {
@@ -41,6 +44,9 @@ public class ReleaseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         WeekRange week = weekRangeRepository.findById(dto.getWeekId())
                 .orElseThrow(() -> new ResourceNotFoundException("WeekRange not found"));
+        Sprint sprint = sprintRepository.findById(dto.getSprintId())
+                .orElseThrow(() -> new ResourceNotFoundException("Sprint not found"));
+        
 
         Release release = new Release();
         release.setProject(project);
@@ -49,6 +55,7 @@ public class ReleaseService {
         release.setMinor(dto.getMinor());
         release.setIncidentCreated(dto.getIncidentCreated());
         release.setReleaseInformation(dto.getReleaseInformation());
+        release.setSprint(sprint) ;
 
         Release savedRelease = releaseRepository.save(release);
         logger.info("Release created with ID: {}", savedRelease.getReleaseId());
@@ -77,12 +84,44 @@ public class ReleaseService {
     }
 
     // ✅ Read by ID
-    public ReleaseResponseDTO getReleaseById(Long id) {
-        logger.info("Fetching release by ID: {}", id);
-        Release release = releaseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Release not found"));
-        return mapToResponseDTO(release);
+//    public ReleaseResponseDTO getReleaseByIdAndWeekId(Long releaseId, int weekId) {
+//        logger.info("Fetching release by ID: {} and weekId: {}", releaseId, weekId);
+//
+//        Release release = releaseRepository.findByReleaseIdAndWeek_WeekId(releaseId, weekId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Release not found for the given ID and week"));
+//
+//        return mapToResponseDTO(release);
+//    }
+    
+    // ✅ Read by Week ID
+    public List<ReleaseResponseDTO> getReleasesByWeekId(int weekId) {
+        logger.info("Fetching releases for weekId: {}", weekId);
+
+        List<Release> releases = releaseRepository.findByWeek_WeekId(weekId);
+
+        if (releases.isEmpty()) {
+            throw new ResourceNotFoundException("No releases found for the given weekId");
+        }
+
+        return releases.stream()
+                       .map(this::mapToResponseDTO)
+                       .toList();
     }
+
+    // ✅ Read by Sprint ID
+    
+	public List<ReleaseResponseDTO> getReleasesBySprintId(int sprintId) {
+		logger.info("Fetching releases for sprintId: {}", sprintId);
+
+		List<Release> releases = releaseRepository.findBySprint_SprintId(sprintId);
+
+		if (releases.isEmpty()) {
+			throw new ResourceNotFoundException("No releases found for the given sprintId");
+		}
+
+		return releases.stream().map(this::mapToResponseDTO).toList();
+	}
+
 
     // ✅ Update
     public Release updateRelease(Long id, ReleaseRequestDTO dto) {
@@ -95,6 +134,9 @@ public class ReleaseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         WeekRange week = weekRangeRepository.findById(dto.getWeekId())
                 .orElseThrow(() -> new ResourceNotFoundException("WeekRange not found"));
+        
+        Sprint sprint = sprintRepository.findById(dto.getSprintId())
+        		.orElseThrow(() -> new ResourceNotFoundException("Sprint not found"));
 
         release.setProject(project);
         release.setWeek(week);
@@ -102,6 +144,8 @@ public class ReleaseService {
         release.setMinor(dto.getMinor());
         release.setIncidentCreated(dto.getIncidentCreated());
         release.setReleaseInformation(dto.getReleaseInformation());
+        release.setSprint(sprint);
+        
 
         Release updatedRelease = releaseRepository.save(release);
         logger.info("Release updated successfully. ID: {}", updatedRelease.getReleaseId());
@@ -120,14 +164,16 @@ public class ReleaseService {
         logger.info("Release deleted. ID: {}", id);
     }
 
-    // 🧭 Mapper
+    // Mapper
     private ReleaseResponseDTO mapToResponseDTO(Release release) {
         return new ReleaseResponseDTO(
                 release.getProject().getProjectName(),
                 release.getMajor(),
                 release.getMinor(),
                 release.getIncidentCreated(),
-                release.getReleaseInformation()
+                release.getReleaseInformation(),
+                release.getWeek() != null ? release.getWeek().getWeekId() : 0 ,
+                release.getSprint() != null ? release.getSprint().getSprintId() : 0
         );
     }
 }
