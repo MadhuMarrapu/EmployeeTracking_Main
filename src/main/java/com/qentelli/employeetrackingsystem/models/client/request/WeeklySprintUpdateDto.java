@@ -16,7 +16,8 @@ public class WeeklySprintUpdateDto {
     // Using IDs to keep DTO lightweight
     private int weeekRangeId; // consider renaming to weekRangeId
     private int projectId;
-
+    
+    private String projectName; // ✅ Added field to hold project name
     private int assignedPoints;
     private int assignedStoriesCount;
     private int inDevPoints;
@@ -44,7 +45,7 @@ public class WeeklySprintUpdateDto {
     private int riskStoryCounts;
 
     private String comments; // backend-side comment from frontend
-
+    private Integer injectionPercentage;
     private boolean weeklySprintUpdateStatus = true; // true means active, false means inactive;
 
 }
