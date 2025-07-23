@@ -93,6 +93,6 @@ public class WeekRangeService {
         range.setSoftDelete(true); // Set soft delete flag to true
         weekRangeRepository.save(range);
     }
-
+    
 }
  

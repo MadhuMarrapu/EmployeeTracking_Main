@@ -75,25 +75,45 @@ public class WeeklySprintUpdateController {
 	}
 
 	
-	@GetMapping("/by-sprint-number")
-	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getUpdatesBySprintNumber(
-	        @RequestParam String sprintNumber) {
+//	@GetMapping("/by-sprint-number")
+//	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getUpdatesBySprintNumber(
+//	        @RequestParam String sprintNumber) {
+//
+//	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", sprintNumber);
+//
+//	    List<WeeklySprintUpdate> updates = service.getAllBySprintNumber(sprintNumber);
+//
+//	    List<WeeklySprintUpdateDto> dtoList = updates.stream()
+//	            .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
+//	            .toList();
+//	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", dtoList);
+//
+//	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
+//	            HttpStatus.OK.value(),
+//	            RequestProcessStatus.SUCCESS,
+//	            LocalDateTime.now(),
+//	            "Weekly sprint updates fetched for sprintNumber: " + sprintNumber,
+//	            dtoList);
+//
+//	    return ResponseEntity.ok(response);
+//	}
+	
+	@GetMapping("/by-sprint-id")
+	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getUpdatesBySprintId(@RequestParam Long sprintId) {
+	    logger.info("Fetching WeeklySprintUpdates for sprintId: {}", sprintId);
 
-	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", sprintNumber);
-
-	    List<WeeklySprintUpdate> updates = service.getAllBySprintNumber(sprintNumber);
+	    List<WeeklySprintUpdate> updates = service.getAllBySprintId(sprintId);
 
 	    List<WeeklySprintUpdateDto> dtoList = updates.stream()
-	            .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
-	            .toList();
-	    logger.info("Fetching WeeklySprintUpdates for sprintNumber: {}", dtoList);
+	        .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
+	        .toList();
 
 	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Weekly sprint updates fetched for sprintNumber: " + sprintNumber,
-	            dtoList);
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        "Weekly sprint updates fetched successfully for sprintId: " + sprintId,
+	        dtoList);
 
 	    return ResponseEntity.ok(response);
 	}

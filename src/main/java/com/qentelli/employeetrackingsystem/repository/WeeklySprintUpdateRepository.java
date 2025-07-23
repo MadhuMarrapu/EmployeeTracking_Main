@@ -16,18 +16,25 @@ public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprint
 	Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue(Pageable pageable);
 
 	List<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue();
-	
-	@Query("""
-		    SELECT wsu FROM WeeklySprintUpdate wsu
-		    WHERE wsu.week.weekId = :weekId
-		    AND wsu.weeklySprintUpdateStatus = true
-		""")
-		List<WeeklySprintUpdate> findActiveByWeekId(@Param("weekId") int weekId);
 
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
-			    WHERE wsu.week.sprint.sprintNumber = :sprintNumber
+			    WHERE wsu.week.weekId = :weekId
 			    AND wsu.weeklySprintUpdateStatus = true
 			""")
-	List<WeeklySprintUpdate> findActiveBySprintNumber(@Param("sprintNumber") String sprintNumber);
+	List<WeeklySprintUpdate> findActiveByWeekId(@Param("weekId") int weekId);
+
+	@Query("""
+			    SELECT wsu FROM WeeklySprintUpdate wsu
+			    WHERE wsu.week.sprint.sprintId = :sprintId
+			    AND wsu.weeklySprintUpdateStatus = true
+			""")
+	List<WeeklySprintUpdate> findActiveBySprintId(@Param("sprintId") Long sprintId);
+
+//	@Query("""
+//			    SELECT wsu FROM WeeklySprintUpdate wsu
+//			    WHERE wsu.week.sprint.sprintNumber = :sprintNumber
+//			    AND wsu.weeklySprintUpdateStatus = true
+//			""")
+//	List<WeeklySprintUpdate> findActiveBySprintNumber(@Param("sprintNumber") String sprintNumber);
 }

@@ -21,12 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-<<<<<<< Updated upstream
+
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-=======
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -37,7 +35,6 @@ import com.qentelli.employeetrackingsystem.serviceImpl.ReleaseService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
->>>>>>> Stashed changes
 
 @RestController
 @RequestMapping("/api/releases")
@@ -48,7 +45,6 @@ public class ReleaseController {
 
 	private final ReleaseService service;
 
-	// ✅ Create
 	@PostMapping("/save")
 	public ResponseEntity<AuthResponse<String>> createRelease(@Valid @RequestBody ReleaseRequestDTO dto) {
 		logger.info("Creating new release for project ID {}", dto.getProjectId());
@@ -61,11 +57,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-<<<<<<< Updated upstream
-	// ✅ Read All (Non-paginated)
-=======
-	// ✅ Read all releases
->>>>>>> Stashed changes
+	// Read all releases
 	@GetMapping("/list")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getAllReleases() {
 		logger.info("Fetching all release entries");
@@ -79,11 +71,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-<<<<<<< Updated upstream
-	// ✅ Read All (Paginated)
-=======
-	// ✅ Read paginated releases
->>>>>>> Stashed changes
+	// Read paginated releases
 	@GetMapping("/paginated")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
@@ -106,32 +94,7 @@ public class ReleaseController {
 		return ResponseEntity.ok(response);
 	}
 
-<<<<<<< Updated upstream
-	// ✅ Read by ID
-//	@GetMapping("/{releaseId}/week/{weekId}")
-//	public ResponseEntity<AuthResponse<ReleaseResponseDTO>> getReleaseByIdAndWeekId(
-//	        @PathVariable Long releaseId,
-//	        @PathVariable int weekId) {
-//
-//	    logger.info("Fetching release with ID {} and week ID {}", releaseId, weekId);
-//
-//	    ReleaseResponseDTO release = service.getReleaseByIdAndWeekId(releaseId, weekId);
-//
-//	    AuthResponse<ReleaseResponseDTO> response = new AuthResponse<>(
-//	            HttpStatus.OK.value(),
-//	            RequestProcessStatus.SUCCESS,
-//	            LocalDateTime.now(),
-//	            "Release fetched successfully",
-//	            release
-//	    );
-//
-//	    return new ResponseEntity<>(response, HttpStatus.OK);
-//	}
-	
-	// ✅ Read by weekId only
-=======
 	// Read by weekId only
->>>>>>> Stashed changes
 	@GetMapping("/week/{weekId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesByWeekId(
 			@PathVariable int weekId) {
@@ -146,11 +109,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-<<<<<<< Updated upstream
-	// ✅ Read by sprintId only	
-=======
-	// Read by sprintId only
->>>>>>> Stashed changes
+	// Read by sprintId only	
 	@GetMapping("/sprint/{sprintId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesBySprintId(
 			@PathVariable int sprintId) {
@@ -165,11 +124,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-<<<<<<< Updated upstream
-	// ✅ Update
-=======
 	// Update by ID
->>>>>>> Stashed changes
 	@PutMapping("/update/{id}")
 	public ResponseEntity<AuthResponse<String>> updateRelease(@PathVariable Long id,
 			@Valid @RequestBody ReleaseRequestDTO dto) {
@@ -183,11 +138,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-<<<<<<< Updated upstream
-	// ✅ Delete
-=======
 	// Delete by ID
->>>>>>> Stashed changes
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
 		logger.info("Deleting release with ID {}", id);

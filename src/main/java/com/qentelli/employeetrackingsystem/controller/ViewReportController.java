@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.qentelli.employeetrackingsystem.entity.ViewReports;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -120,8 +121,6 @@ public class ViewReportController {
         return ResponseEntity.ok(authResponse);
     }
 
-
-    
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<ViewReportResponse>> getReportById(@PathVariable Integer id) {
         logger.info("Fetching report by ID: {}", id);
@@ -183,4 +182,16 @@ public class ViewReportController {
         );
         return new ResponseEntity<>(authResponse, HttpStatus.NO_CONTENT);
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<Page<ViewReports>> searchReports(
+            @RequestParam(required = false) Integer personId,
+            @RequestParam(required = false) Integer projectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ViewReports> result = viewReportService.searchViewReports(personId, projectId, page, size);
+        return ResponseEntity.ok(result);
+    }
+
 }
