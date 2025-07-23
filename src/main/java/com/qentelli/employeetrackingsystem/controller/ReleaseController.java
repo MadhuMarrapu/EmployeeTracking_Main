@@ -1,14 +1,7 @@
 package com.qentelli.employeetrackingsystem.controller;
 
-import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
-import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
-import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
-import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
-import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
-import com.qentelli.employeetrackingsystem.serviceImpl.ReleaseService;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +11,31 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
+import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
+import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
+import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
+import com.qentelli.employeetrackingsystem.serviceImpl.ReleaseService;
 
-//@CrossOrigin(origins = "*", maxAge = 3600)
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/releases")
 @RequiredArgsConstructor
@@ -45,21 +57,21 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-	
+	// Read all releases
 	@GetMapping("/list")
-	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getAllReleases() {
+	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getAllReleases() {
 		logger.info("Fetching all release entries");
 		List<ReleaseResponseDTO> releaseList = service.getAllReleases();
 
-		logger.info("Fetched {} release records", releaseList.size());
+		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releaseList.size(), releaseList);
 
-		AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release data retrieved successfully", releaseList);
+		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Release data retrieved successfully", wrapped);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	
+	// Read paginated releases
 	@GetMapping("/paginated")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
@@ -82,60 +94,37 @@ public class ReleaseController {
 		return ResponseEntity.ok(response);
 	}
 
-	// ✅ Read by ID
-//	@GetMapping("/{releaseId}/week/{weekId}")
-//	public ResponseEntity<AuthResponse<ReleaseResponseDTO>> getReleaseByIdAndWeekId(
-//	        @PathVariable Long releaseId,
-//	        @PathVariable int weekId) {
-//
-//	    logger.info("Fetching release with ID {} and week ID {}", releaseId, weekId);
-//
-//	    ReleaseResponseDTO release = service.getReleaseByIdAndWeekId(releaseId, weekId);
-//
-//	    AuthResponse<ReleaseResponseDTO> response = new AuthResponse<>(
-//	            HttpStatus.OK.value(),
-//	            RequestProcessStatus.SUCCESS,
-//	            LocalDateTime.now(),
-//	            "Release fetched successfully",
-//	            release
-//	    );
-//
-//	    return new ResponseEntity<>(response, HttpStatus.OK);
-//	}
-	
 	// Read by weekId only
 	@GetMapping("/week/{weekId}")
-	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getReleasesByWeekId(@PathVariable int weekId) {
+	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesByWeekId(
+			@PathVariable int weekId) {
+		logger.info("Fetching releases for week ID {}", weekId);
+		List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
 
-	    logger.info("Fetching releases for week ID {}", weekId);
+		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releases.size(), releases);
 
-	    List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
-
-	    AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Releases fetched successfully",
-	            releases
-	    );
-
-	    return new ResponseEntity<>(response, HttpStatus.OK);
-	}
-
-	// Read by sprintId only	
-	@GetMapping("/sprint/{sprintId}")
-	public ResponseEntity<AuthResponse<List<ReleaseResponseDTO>>> getReleasesBySprintId(@PathVariable int sprintId) {
-
-		logger.info("Fetching releases for sprint ID {}", sprintId);
-
-		List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
-
-		AuthResponse<List<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", releases);
+		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", wrapped);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	// Read by sprintId only	
+	@GetMapping("/sprint/{sprintId}")
+	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesBySprintId(
+			@PathVariable int sprintId) {
+		logger.info("Fetching releases for sprint ID {}", sprintId);
+		List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
+
+		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releases.size(), releases);
+
+		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", wrapped);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	// Update by ID
 	@PutMapping("/update/{id}")
 	public ResponseEntity<AuthResponse<String>> updateRelease(@PathVariable Long id,
 			@Valid @RequestBody ReleaseRequestDTO dto) {
@@ -149,6 +138,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	// Delete by ID
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
 		logger.info("Deleting release with ID {}", id);

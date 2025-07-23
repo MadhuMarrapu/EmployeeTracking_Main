@@ -7,9 +7,9 @@ spring:
 
   datasource:
 
-    url: jdbc:postgresql://ep-little-base-a83tfhl9-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require&channelBinding=require
-    username: neondb_owner
-    password: npg_eP7OdxXmFh1s
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: postgres
+    password: root
 
 
   jpa:
