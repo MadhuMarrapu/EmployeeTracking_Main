@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
 import com.qentelli.employeetrackingsystem.entity.Project;
+import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
 import com.qentelli.employeetrackingsystem.models.client.request.ProjectRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.WeeklySprintUpdateDto;
 
 @Configuration
 public class ModelMapperConfig {
@@ -39,6 +41,13 @@ public class ModelMapperConfig {
                   m.skip(Project::setUpdatedAt);
                   m.skip(Project::setUpdatedBy);
               });
+
+        // 🔁 Map WeeklySprintUpdate.week.weekId → WeeklySprintUpdateDto.weeekRangeId
+        mapper.typeMap(WeeklySprintUpdate.class, WeeklySprintUpdateDto.class)
+              .addMappings(m -> m.map(
+                  src -> src.getWeek().getWeekId(),
+                  WeeklySprintUpdateDto::setWeeekRangeId
+              ));
 
         return mapper;
     }
