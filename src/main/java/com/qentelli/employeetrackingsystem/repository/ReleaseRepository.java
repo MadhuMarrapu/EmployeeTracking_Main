@@ -1,12 +1,9 @@
 package com.qentelli.employeetrackingsystem.repository;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
 import com.qentelli.employeetrackingsystem.entity.Release;
 import com.qentelli.employeetrackingsystem.entity.ReleaseCountProjection;
 
@@ -22,11 +19,9 @@ public interface ReleaseRepository extends JpaRepository<Release, Long> {
 			GROUP BY p.project_name
 			""", nativeQuery = true)
 	List<ReleaseCountProjection> getAggregatedReleaseCounts();
-	
-	//Optional<Release> findByReleaseIdAndWeek_WeekId(Long releaseId, int weekId);
 
 	List<Release> findByWeek_WeekId(int weekId);
-	
+
 	List<Release> findBySprint_SprintId(int sprintId);
 
 }

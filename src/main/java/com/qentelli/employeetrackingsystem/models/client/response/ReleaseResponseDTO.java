@@ -16,5 +16,6 @@ public class ReleaseResponseDTO {
     private String releaseInformation;
     private int weekId;
     private long sprintId;
+    private long releaseId;
     
 }
