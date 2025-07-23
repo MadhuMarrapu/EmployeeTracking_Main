@@ -26,6 +26,7 @@ import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.WeeklySprintUpdateDto;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.WeeklySprintUpdateService;
 
@@ -99,7 +100,9 @@ public class WeeklySprintUpdateController {
 //	}
 	
 	@GetMapping("/by-sprint-id")
-	public ResponseEntity<AuthResponse<List<WeeklySprintUpdateDto>>> getUpdatesBySprintId(@RequestParam Long sprintId) {
+	public ResponseEntity<AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>>> getUpdatesBySprintId(
+	        @RequestParam Long sprintId) {
+
 	    logger.info("Fetching WeeklySprintUpdates for sprintId: {}", sprintId);
 
 	    List<WeeklySprintUpdate> updates = service.getAllBySprintId(sprintId);
@@ -108,12 +111,14 @@ public class WeeklySprintUpdateController {
 	        .map(update -> modelMapper.map(update, WeeklySprintUpdateDto.class))
 	        .toList();
 
-	    AuthResponse<List<WeeklySprintUpdateDto>> response = new AuthResponse<>(
+	    ListContentWrapper<WeeklySprintUpdateDto> wrapped = new ListContentWrapper<>(dtoList.size(), dtoList);
+
+	    AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>> response = new AuthResponse<>(
 	        HttpStatus.OK.value(),
 	        RequestProcessStatus.SUCCESS,
 	        LocalDateTime.now(),
 	        "Weekly sprint updates fetched successfully for sprintId: " + sprintId,
-	        dtoList);
+	        wrapped);
 
 	    return ResponseEntity.ok(response);
 	}
