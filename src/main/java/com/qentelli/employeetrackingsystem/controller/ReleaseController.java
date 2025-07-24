@@ -41,6 +41,7 @@ public class ReleaseController {
 
 	private final ReleaseService service;
 
+	//Create Releases
 	@PostMapping("/save")
 	public ResponseEntity<AuthResponse<String>> createRelease(@Valid @RequestBody ReleaseRequestDTO dto) {
 		logger.info("Creating new release for project ID {}", dto.getProjectId());
@@ -53,8 +54,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-
-	// ✅ Read all releases
+	// Read all releases
 	@GetMapping("/list")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getAllReleases() {
 		logger.info("Fetching all release entries");
@@ -68,7 +68,7 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// ✅ Read paginated releases
+	// Read paginated releases
 	@GetMapping("/paginated")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
@@ -90,36 +90,53 @@ public class ReleaseController {
 
 		return ResponseEntity.ok(response);
 	}
-
+	
 	// Read by weekId only
 	@GetMapping("/week/{weekId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesByWeekId(
-			@PathVariable int weekId) {
-		logger.info("Fetching releases for week ID {}", weekId);
-		List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
-
-		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releases.size(), releases);
-
-		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", wrapped);
-
-		return new ResponseEntity<>(response, HttpStatus.OK);
+	        @PathVariable int weekId) {
+	 
+	    logger.info("Fetching releases for week ID {}", weekId);
+	 
+	    List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
+	 
+	    String message = releases.isEmpty()
+	        ? "No releases found for week ID "
+	        : "Releases fetched successfully for week ID " + weekId;
+	 
+	    AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        message,
+	        new ListContentWrapper<>(releases.size(), releases)
+	    );
+	 
+	    return ResponseEntity.ok(response);
 	}
 
-
-	// Read by sprintId only
+	// Read by sprintId only	
 	@GetMapping("/sprint/{sprintId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesBySprintId(
-			@PathVariable int sprintId) {
-		logger.info("Fetching releases for sprint ID {}", sprintId);
-		List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
-
-		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releases.size(), releases);
-
-		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", wrapped);
-
-		return new ResponseEntity<>(response, HttpStatus.OK);
+	        @PathVariable int sprintId) {
+	 
+	    logger.info("Fetching releases for sprint ID {}", sprintId);
+	 
+	    List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
+	 
+	    String message = releases.isEmpty()
+	        ? "No releases found for sprint ID " + sprintId
+	        : "Releases fetched successfully for sprint ID " + sprintId;
+	 
+	    AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        message,
+	        new ListContentWrapper<>(releases.size(), releases)
+	    );
+	 
+	    return ResponseEntity.ok(response);
 	}
 
 	// Update by ID
@@ -135,7 +152,7 @@ public class ReleaseController {
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
+	
 	// Delete by ID
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
