@@ -145,17 +145,18 @@ public class ReleaseService {
 		releaseRepository.deleteById(id);
 		logger.info("Release deleted. ID: {}", id);
 	}
-
+	
 	// Mapper
 	private ReleaseResponseDTO mapToResponseDTO(Release release) {
 		return new ReleaseResponseDTO(
-				release.getProject().getProjectName(), 
-				release.getMajor(), 
-				release.getMinor(),
-				release.getIncidentCreated(), 
-				release.getReleaseInformation(),
-				release.getWeek() != null ? release.getWeek().getWeekId() : 0,
-				release.getSprint() != null ? release.getSprint().getSprintId() : 0, 
-			    release.getReleaseId());
+			    release.getProject().getProjectName(),
+			    release.getMajor(), 
+			    release.getMinor(),
+			    release.getIncidentCreated(), 
+			    release.getReleaseInformation(),
+			    release.getWeek() != null ? release.getWeek().getWeekId() : 0,
+			    release.getSprint() != null ? release.getSprint().getSprintId() : 0, 
+			    release.getReleaseId(),
+			    release.getProject().getProjectId()); 
 	}
 }
