@@ -16,4 +16,7 @@ public interface ViewreportRepository extends JpaRepository<ViewReports, Integer
 	@Query("SELECT v FROM ViewReports v WHERE v.softDelete = false AND v.weekRange.weekFromDate = :fromDate AND v.weekRange.weekToDate = :toDate")
 	List<ViewReports> findByWeekRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
+
+
+
 }
