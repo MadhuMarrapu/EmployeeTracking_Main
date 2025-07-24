@@ -5,6 +5,7 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,40 +29,42 @@ public class PersonService {
 	private final PersonRepository personRepo;
 	private final ProjectRepository projectRepo;
 	private final ModelMapper modelMapper;
+	
+	private final PasswordEncoder passwordEncoder;
 
 	public PersonDTO create(PersonDTO dto) {
+	    boolean exists = personRepo.existsByEmail(dto.getEmail()) ||
+	                     personRepo.existsByEmployeeCode(dto.getEmployeeCode());
 
-		boolean exists = personRepo.existsByEmail(dto.getEmail())
-				|| personRepo.existsByEmployeeCode(dto.getEmployeeCode());
+	    if (exists) {
+	        throw new DuplicatePersonException("Person with this email or employee code already exists");
+	    }
 
-		if (exists) {
-			throw new DuplicatePersonException("Person with this email or employee code already exists");
-		}
+	    Person person = modelMapper.map(dto, Person.class);
 
-		Person person = modelMapper.map(dto, Person.class);
+	    // ✅ Encode password before saving
+	    person.setPassword(passwordEncoder.encode(dto.getPassword()));
+	    person.setConfirmPassword(passwordEncoder.encode(dto.getConfirmPassword())); // Optional
 
-		// Strict project ID validation
-		if (dto.getProjectIds() != null && !dto.getProjectIds().isEmpty()) {
-			List<Project> projects = projectRepo.findAllById(dto.getProjectIds());
+	    // Project validation logic
+	    if (dto.getProjectIds() != null && !dto.getProjectIds().isEmpty()) {
+	        List<Project> projects = projectRepo.findAllById(dto.getProjectIds());
+	        List<Integer> foundIds = projects.stream().map(Project::getProjectId).toList();
+	        List<Integer> missingIds = dto.getProjectIds().stream().filter(id -> !foundIds.contains(id)).toList();
 
-			// Find which IDs are missing
-			List<Integer> foundIds = projects.stream().map(Project::getProjectId).toList();
+	        if (!missingIds.isEmpty()) {
+	            throw new IllegalArgumentException("Invalid project IDs: " + missingIds);
+	        }
 
-			List<Integer> missingIds = dto.getProjectIds().stream().filter(id -> !foundIds.contains(id)).toList();
+	        person.setProjects(projects);
+	    }
 
-			if (!missingIds.isEmpty()) {
-				throw new IllegalArgumentException("Invalid project IDs: " + missingIds);
-			}
+	    if (dto.getTechStack() != null) {
+	        person.setTechStack(dto.getTechStack());
+	    }
 
-			person.setProjects(projects);
-		}
-
-		if (dto.getTechStack() != null) {
-			person.setTechStack(dto.getTechStack());
-		}
-
-		Person saved = personRepo.save(person);
-		return convertToDTO(saved);
+	    Person saved = personRepo.save(person);
+	    return convertToDTO(saved);
 	}
 
 	public void tagProjectsToEmployee(Integer personId, List<Integer> projectIds) {
@@ -92,10 +95,7 @@ public class PersonService {
 		return personRepo.findAll().stream().map(this::convertToDTO).toList();
 	}
 	
-	public Page<PersonDTO> getAllActivePersons(Pageable pageable) {
-	    Page<Person> page = personRepo.findByPersonStatusTrue(pageable);
-	    return page.map(this::convertToDTO);
-	}
+
 
 	public PersonDTO getByIdResponse(Integer id) {
 		return personRepo.findById(id).map(this::convertToDTO)

@@ -2,8 +2,11 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,10 +46,18 @@ public class WeeklySprintUpdate{
     private int blockedStoriesCount;
     private double completePercentage;
     private String estimationHealth;
-    private String groomingHealth;
+    private String groomingHealth;//
+    @Enumerated(EnumType.STRING)
+    private HealthStatus estimationHealthStatus;
+    @Enumerated(EnumType.STRING)
+    private HealthStatus groomingHealthStatus;
     private int difficultCount1;
     private int difficultCount2;
-    
+    private int riskPoints;
+    private int riskStoryCounts;
+    @Column(columnDefinition = "TEXT") // for longer content in database
+    private String comments; 
+    private Integer injectionPercentage;
     private boolean weeklySprintUpdateStatus=true; // true means active, false means inactive;
 }
  

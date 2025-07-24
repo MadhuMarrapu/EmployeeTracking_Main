@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.SprintRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.SprintService;
 
@@ -31,8 +34,8 @@ public class SprintController {
 
 	@Autowired
 	private SprintService sprintService;
-	
-    @PostMapping("/createSprint")
+
+	@PostMapping("/createSprint")
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
 	    sprintService.createSprint(request); // call service, ignore returned SprintResponse
 	    return ResponseEntity.ok(new AuthResponse<>(
@@ -44,17 +47,39 @@ public class SprintController {
 	    ));
 	}
 
-
 	@GetMapping("/getAllSprints")
-	public ResponseEntity<AuthResponse<Page<SprintResponse>>> getAll(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-
-		Pageable pageable = PageRequest.of(page, size);
-		Page<SprintResponse> responsePage = sprintService.getAllSprints(pageable);
-		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
-				"Sprints fetched successfully", responsePage));
+	public ResponseEntity<AuthResponse<PaginatedResponse<SprintResponse>>> getAll(
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) {
+	
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by(Sort.Direction.DESC, "fromDate")   // ← key line
+	    );
+	 
+	    Page<SprintResponse> responsePage = sprintService.getAllSprints(pageable);	 
+	    PaginatedResponse<SprintResponse> paginatedResponse = new PaginatedResponse<>(
+	            responsePage.getContent(),
+	            responsePage.getNumber(),
+	            responsePage.getSize(),
+	            responsePage.getTotalElements(),
+	            responsePage.getTotalPages(),
+	            responsePage.isLast()
+	    );
+	 
+	    AuthResponse<PaginatedResponse<SprintResponse>> authResponse = new AuthResponse<>(
+	            HttpStatus.OK.value(),
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Sprints fetched successfully",
+	            paginatedResponse
+	    );
+	 
+	    return ResponseEntity.ok(authResponse);
 	}
-
+	
+    
 	@GetMapping("/{id}")
 	public ResponseEntity<AuthResponse<SprintResponse>> getById(@PathVariable Long id) {
 		SprintResponse response = sprintService.getSprintById(id);

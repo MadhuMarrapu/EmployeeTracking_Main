@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,70 +25,100 @@ import lombok.RequiredArgsConstructor;
 public class WeeklySprintUpdateService {
 
 	private final WeeklySprintUpdateRepository weeklySprintUpdateRepository;
-
 	private final ProjectRepository projectRepository;
-
 	private final WeekRangeRepository weekRangeRepository;
-
 	private final ModelMapper modelMapper;
 
 	public WeeklySprintUpdate createUpdate(WeeklySprintUpdateDto dto) {
 		WeeklySprintUpdate update = modelMapper.map(dto, WeeklySprintUpdate.class);
 
 		Project project = projectRepository.findById(dto.getProjectId())
-				.orElseThrow(() -> new ProjectNotFoundException("Project not found with ID: " + dto.getProjectId()));
+			.orElseThrow(() -> new ProjectNotFoundException("Project not found with ID: " + dto.getProjectId()));
+
 		WeekRange week = weekRangeRepository.findById(dto.getWeeekRangeId())
-				.orElseThrow(() -> new WeekRangeNotFoundException("WeekRange not found with ID: " + dto.getWeeekRangeId()));
+			.orElseThrow(() -> new WeekRangeNotFoundException("WeekRange not found with ID: " + dto.getWeeekRangeId()));
 
 		update.setProject(project);
 		update.setWeek(week);
+
+		// Manually map enum and non-primitive fields missing in model mapper config
+		update.setEstimationHealthStatus(dto.getEstimationHealthStatus());
+		update.setGroomingHealthStatus(dto.getGroomingHealthStatus());
+		update.setRiskPoints(dto.getRiskPoints());
+		update.setRiskStoryCounts(dto.getRiskStoryCounts());
+		update.setComments(dto.getComments());
+		update.setInjectionPercentage(dto.getInjectionPercentage());
 		return weeklySprintUpdateRepository.save(update);
 	}
 
 	public WeeklySprintUpdate updateUpdate(Integer id, WeeklySprintUpdateDto dto) {
-	    WeeklySprintUpdate existing = weeklySprintUpdateRepository.findById(id)
-	        .orElseThrow(() -> new WeeklySprintUpdateNotFoundException("WeeklySprintUpdate not found with ID: " + id));
+		WeeklySprintUpdate existing = weeklySprintUpdateRepository.findById(id)
+			.orElseThrow(() -> new WeeklySprintUpdateNotFoundException("WeeklySprintUpdate not found with ID: " + id));
 
-	    Project project = projectRepository.findById(dto.getProjectId())
-	        .orElseThrow(() -> new ProjectNotFoundException("Project not found with ID: " + dto.getProjectId()));
+		Project project = projectRepository.findById(dto.getProjectId())
+			.orElseThrow(() -> new ProjectNotFoundException("Project not found with ID: " + dto.getProjectId()));
 
-	    WeekRange week = weekRangeRepository.findById(dto.getWeeekRangeId())
-	        .orElseThrow(() -> new WeekRangeNotFoundException("WeekRange not found with ID: " + dto.getWeeekRangeId()));
+		WeekRange week = weekRangeRepository.findById(dto.getWeeekRangeId())
+			.orElseThrow(() -> new WeekRangeNotFoundException("WeekRange not found with ID: " + dto.getWeeekRangeId()));
 
-	    // ✨ Map scalar fields manually
-	    existing.setAssignedPoints(dto.getAssignedPoints());
-	    existing.setAssignedStoriesCount(dto.getAssignedStoriesCount());
-	    existing.setInDevPoints(dto.getInDevPoints());
-	    existing.setInDevStoriesCount(dto.getInDevStoriesCount());
-	    existing.setInQaPoints(dto.getInQaPoints());
-	    existing.setInQaStoriesCount(dto.getInQaStoriesCount());
-	    existing.setCompletePoints(dto.getCompletePoints());
-	    existing.setCompleteStoriesCount(dto.getCompleteStoriesCount());
-	    existing.setBlockedPoints(dto.getBlockedPoints());
-	    existing.setBlockedStoriesCount(dto.getBlockedStoriesCount());
-	    existing.setCompletePercentage(dto.getCompletePercentage());
-	    existing.setEstimationHealth(dto.getEstimationHealth());
-	    existing.setGroomingHealth(dto.getGroomingHealth());
-	    existing.setDifficultCount1(dto.getDifficultCount1());
-	    existing.setDifficultCount2(dto.getDifficultCount2());
-	    existing.setWeeklySprintUpdateStatus(dto.isWeeklySprintUpdateStatus());
+		// 🔄 Update scalar fields
+		existing.setAssignedPoints(dto.getAssignedPoints());
+		existing.setAssignedStoriesCount(dto.getAssignedStoriesCount());
+		existing.setInDevPoints(dto.getInDevPoints());
+		existing.setInDevStoriesCount(dto.getInDevStoriesCount());
+		existing.setInQaPoints(dto.getInQaPoints());
+		existing.setInQaStoriesCount(dto.getInQaStoriesCount());
+		existing.setCompletePoints(dto.getCompletePoints());
+		existing.setCompleteStoriesCount(dto.getCompleteStoriesCount());
+		existing.setBlockedPoints(dto.getBlockedPoints());
+		existing.setBlockedStoriesCount(dto.getBlockedStoriesCount());
+		existing.setCompletePercentage(dto.getCompletePercentage());
+		existing.setEstimationHealth(dto.getEstimationHealth());
+		existing.setGroomingHealth(dto.getGroomingHealth());
+		existing.setDifficultCount1(dto.getDifficultCount1());
+		existing.setDifficultCount2(dto.getDifficultCount2());
+		existing.setWeeklySprintUpdateStatus(dto.isWeeklySprintUpdateStatus());
 
-	    // 🛡️ Explicitly update associations and identifier
-	    existing.setWeekSprintId(id); // optional if your ID strategy allows setting explicitly
-	    existing.setProject(project);
-	    existing.setWeek(week);
+		// 🔄 Update new fields from DTO
+		existing.setEstimationHealthStatus(dto.getEstimationHealthStatus());
+		existing.setGroomingHealthStatus(dto.getGroomingHealthStatus());
+		existing.setRiskPoints(dto.getRiskPoints());
+		existing.setRiskStoryCounts(dto.getRiskStoryCounts());
+		existing.setComments(dto.getComments());
+		existing.setInjectionPercentage(dto.getInjectionPercentage());
+		// 🔁 Update relationships
+		existing.setProject(project);
+		existing.setWeek(week);
 
-	    return weeklySprintUpdateRepository.save(existing);
+		return weeklySprintUpdateRepository.save(existing);
 	}
 
 	public void deleteUpdate(Integer id) {
-		WeeklySprintUpdate existingWeeklySprintUpdate = weeklySprintUpdateRepository.findById(id).orElseThrow(
-				() -> new WeeklySprintUpdateNotFoundException("WeeklySprintUpdate not found with ID: " + id));
-		existingWeeklySprintUpdate.setWeeklySprintUpdateStatus(false);
-		weeklySprintUpdateRepository.save(existingWeeklySprintUpdate);
+		WeeklySprintUpdate update = weeklySprintUpdateRepository.findById(id)
+			.orElseThrow(() -> new WeeklySprintUpdateNotFoundException("WeeklySprintUpdate not found with ID: " + id));
+
+		update.setWeeklySprintUpdateStatus(false);
+		weeklySprintUpdateRepository.save(update);
 	}
 
 	public Page<WeeklySprintUpdate> getAllUpdates(Pageable pageable) {
 		return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue(pageable);
 	}
+	
+    public List<WeeklySprintUpdate> getAllActiveUpdates() {
+        return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue();
+    }
+    
+//    public List<WeeklySprintUpdate> getAllBySprintNumber(String sprintNumber) {
+//        return weeklySprintUpdateRepository.findActiveBySprintNumber(sprintNumber);
+//    }
+    
+    public List<WeeklySprintUpdate> getAllBySprintId(Long sprintId) {
+        return weeklySprintUpdateRepository.findActiveBySprintId(sprintId);
+    }
+
+    
+    public List<WeeklySprintUpdate> getActiveUpdatesByWeekId(int weekId) {
+        return weeklySprintUpdateRepository.findActiveByWeekId(weekId);
+    }
 }

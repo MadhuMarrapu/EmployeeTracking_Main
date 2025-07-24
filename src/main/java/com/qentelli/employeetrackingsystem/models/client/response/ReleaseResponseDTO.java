@@ -14,5 +14,8 @@ public class ReleaseResponseDTO {
     private int minor;
     private int incidentCreated;
     private String releaseInformation;
-
+    private int weekId;
+    private long sprintId;
+    private long releaseId;
+    private Integer projectId;
 }

@@ -1,13 +1,14 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
@@ -117,7 +118,7 @@ public class ViewReportService {
 		report.setTaskStatus(request.getTaskStatus());
 		report.setTaskStartDate(request.getTaskStartDate());
 		report.setTaskEndDate(request.getTaskEndDate());
-		report.setComments(request.getComments());
+	//	report.setComments(request.getComments());
 		report.setProject(project);
 		// report.setUser(user);
 		report.setPerson(person);
@@ -185,7 +186,7 @@ public class ViewReportService {
 	        response.setTaskStatus(report.getTaskStatus());
 	        response.setSummary(report.getTask().getSummary());
 	        response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
-	        response.setComments(report.getComments());
+	       response.setComments(report.getComments());
 	        response.setProjectName(report.getProject().getProjectName());
 	        response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
 	        response.setTaskStartDate(report.getTaskStartDate());
@@ -250,6 +251,63 @@ public class ViewReportService {
 	        end == allResponses.size()
 	    );
 	}
+	
+	public List<ViewReportResponse> getAllReports() {
+	    List<ViewReports> reports = viewReportRepository.findBySoftDeleteFalse(); // no pagination
+	    return reports.stream().map(report -> {
+	        ViewReportResponse response = new ViewReportResponse();
+	        response.setWeekRange(new WeekRangeResponse(
+	                report.getWeekRange().getWeekId(),
+	                report.getWeekRange().getWeekFromDate(),
+	                report.getWeekRange().getWeekToDate()
+	        ));
+	        response.setViewReportId(report.getViewReportId());
+	        response.setTaskName(report.getTaskName());
+	        response.setTaskStatus(report.getTaskStatus());
+	        response.setSummary(report.getTask().getSummary());
+	        response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
+	        response.setComments(report.getComments());
+	        response.setProjectName(report.getProject().getProjectName());
+	        response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
+	        response.setTaskStartDate(report.getTaskStartDate());
+	        response.setTaskEndDate(report.getTaskEndDate());
+	        response.setCreatedAt(report.getCreatedAt());
+	        response.setCreatedBy(report.getCreatedBy());
+	        return response;
+	    }).collect(Collectors.toList()); 
+	}
+		private ViewReportResponse mapToResponse(ViewReports report) {
+	    return new ViewReportResponse(
+	        report.getViewReportId(),
+	        report.getWeekRange() != null ? new WeekRangeResponse(
+	            report.getWeekRange().getWeekId(),
+	            report.getWeekRange().getWeekFromDate(),
+	            report.getWeekRange().getWeekToDate()) : null,
+	        report.getTaskName(),
+	        report.getTaskStatus(),
+	        report.getTask() != null ? report.getTask().getSummary() : null,
+	        report.getTask() != null ? report.getTask().getKeyAccomplishment() : null,
+	        report.getComments(),
+	        report.getTask() != null ? report.getTask().getUpcomingTasks() : null,
+	        report.getProject() != null ? report.getProject().getProjectName() : null,
+	        report.getPerson() != null ? report.getPerson().getFirstName()+" "+report.getPerson().getLastName() : null,
+	        report.getTaskStartDate(),
+	        report.getTaskEndDate(),
+	        report.getCreatedAt(),
+	        report.getCreatedBy()
+	    );
+	}
+		public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, int page, int size) {
+		    Pageable pageable = PageRequest.of(page, size, Sort.by("viewReportId").descending());
 
-
+		    if (personId != null && projectId != null) {
+		        return viewReportRepository.findBySoftDeleteFalseAndPerson_PersonIdAndProject_ProjectId(personId, projectId, pageable);
+		    } else if (personId != null) {
+		        return viewReportRepository.findBySoftDeleteFalseAndPerson_PersonId(personId, pageable);
+		    } else if (projectId != null) {
+		        return viewReportRepository.findBySoftDeleteFalseAndProject_ProjectId(projectId, pageable);
+		    } else {
+		        return viewReportRepository.findBySoftDeleteFalse(pageable);
+		    }
+		}
 }

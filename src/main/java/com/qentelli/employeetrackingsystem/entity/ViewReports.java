@@ -44,6 +44,7 @@ public class ViewReports {
 
 	@Enumerated(EnumType.STRING)
 	private TaskStatus taskStatus;
+	
 
 	@ElementCollection
 	private List<String> comments;

@@ -2,6 +2,9 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.qentelli.employeetrackingsystem.entity.ViewReports;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -95,6 +99,28 @@ public class ViewReportController {
         return ResponseEntity.ok(authResponse);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<AuthResponse<Map<String, Object>>> getAllReports() {
+        logger.info("Fetching all reports without pagination");
+
+        List<ViewReportResponse> reports = viewReportService.getAllReports(); // Fetch all reports
+
+        // Wrap the list inside a map with "content" key
+        Map<String, Object> data = new HashMap<>();
+        data.put("content", reports);
+
+        // Prepare the AuthResponse with status, message, and data
+        AuthResponse<Map<String, Object>> authResponse = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(),
+                "All reports fetched successfully",
+                data
+        );
+
+        return ResponseEntity.ok(authResponse);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<ViewReportResponse>> getReportById(@PathVariable Integer id) {
         logger.info("Fetching report by ID: {}", id);
@@ -156,4 +182,16 @@ public class ViewReportController {
         );
         return new ResponseEntity<>(authResponse, HttpStatus.NO_CONTENT);
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<Page<ViewReports>> searchReports(
+            @RequestParam(required = false) Integer personId,
+            @RequestParam(required = false) Integer projectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ViewReports> result = viewReportService.searchViewReports(personId, projectId, page, size);
+        return ResponseEntity.ok(result);
+    }
+
 }
