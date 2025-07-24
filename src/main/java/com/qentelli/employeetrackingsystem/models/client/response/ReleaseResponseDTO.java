@@ -17,5 +17,5 @@ public class ReleaseResponseDTO {
     private int weekId;
     private long sprintId;
     private long releaseId;
-    
+    private Integer projectId;
 }

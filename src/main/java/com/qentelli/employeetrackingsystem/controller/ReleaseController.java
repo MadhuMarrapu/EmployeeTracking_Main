@@ -2,7 +2,6 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -20,11 +19,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+<<<<<<< HEAD
 
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+=======
+>>>>>>> 9748841 (Resolved merge conflict in ReleaseController after stash apply)
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -32,7 +34,6 @@ import com.qentelli.employeetrackingsystem.models.client.response.ListContentWra
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
 import com.qentelli.employeetrackingsystem.serviceImpl.ReleaseService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -57,7 +58,11 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
+<<<<<<< HEAD
 	// Read all releases
+=======
+	// ✅ Read all releases
+>>>>>>> 9748841 (Resolved merge conflict in ReleaseController after stash apply)
 	@GetMapping("/list")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getAllReleases() {
 		logger.info("Fetching all release entries");
@@ -71,7 +76,11 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+<<<<<<< HEAD
 	// Read paginated releases
+=======
+	// ✅ Read paginated releases
+>>>>>>> 9748841 (Resolved merge conflict in ReleaseController after stash apply)
 	@GetMapping("/paginated")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ReleaseResponseDTO>>> getPaginatedReleases(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
@@ -109,7 +118,11 @@ public class ReleaseController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+<<<<<<< HEAD
 	// Read by sprintId only	
+=======
+	// Read by sprintId only
+>>>>>>> 9748841 (Resolved merge conflict in ReleaseController after stash apply)
 	@GetMapping("/sprint/{sprintId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesBySprintId(
 			@PathVariable int sprintId) {
