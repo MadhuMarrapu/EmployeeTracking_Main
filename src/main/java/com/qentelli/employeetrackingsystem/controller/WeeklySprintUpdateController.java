@@ -86,28 +86,27 @@ public class WeeklySprintUpdateController {
     public ResponseEntity<AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>>> getUpdatesBySprintId(
             @RequestParam Long sprintId) {
 
-        logger.info("Fetching WeeklySprintUpdates for sprintId: {}", sprintId);
+        List<WeeklySprintUpdateDto> dtoList = service.getAllBySprintId(sprintId).stream()
+            .map(update -> {
+                WeeklySprintUpdateDto dto = modelMapper.map(update, WeeklySprintUpdateDto.class);
+                if (update.getProject() != null) dto.setProjectName(update.getProject().getProjectName());
+                if (update.getWeek() != null && update.getWeek().getSprint() != null)
+                    dto.setSprintNumber(update.getWeek().getSprint().getSprintNumber());
+                return dto;
+            })
+            .toList();
 
-        List<WeeklySprintUpdate> updates = service.getAllBySprintId(sprintId);
-
-        List<WeeklySprintUpdateDto> dtoList = updates.stream()
-                .map(update -> {
-                    WeeklySprintUpdateDto dto = modelMapper.map(update, WeeklySprintUpdateDto.class);
-                    if (update.getProject() != null) {
-                        dto.setProjectName(update.getProject().getProjectName()); // 🟢 Inject project name only here
-                    }
-                    return dto;
-                })
-                .toList();
-
-        ListContentWrapper<WeeklySprintUpdateDto> wrapped = new ListContentWrapper<>(dtoList.size(), dtoList);
+        String message = dtoList.isEmpty()
+            ? "No weekly sprint updates available"
+            : "Weekly sprint updates fetched successfully for sprintId: " + sprintId;
 
         AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Weekly sprint updates fetched successfully for sprintId: " + sprintId,
-                wrapped);
+            HttpStatus.OK.value(),
+            RequestProcessStatus.SUCCESS,
+            LocalDateTime.now(),
+            message,
+            new ListContentWrapper<>(dtoList.size(), dtoList)
+        );
 
         return ResponseEntity.ok(response);
     }
