@@ -2,7 +2,6 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -20,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +29,6 @@ import com.qentelli.employeetrackingsystem.models.client.response.ListContentWra
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
 import com.qentelli.employeetrackingsystem.serviceImpl.ReleaseService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +41,7 @@ public class ReleaseController {
 
 	private final ReleaseService service;
 
+	//Create Releases
 	@PostMapping("/save")
 	public ResponseEntity<AuthResponse<String>> createRelease(@Valid @RequestBody ReleaseRequestDTO dto) {
 		logger.info("Creating new release for project ID {}", dto.getProjectId());
@@ -93,35 +90,53 @@ public class ReleaseController {
 
 		return ResponseEntity.ok(response);
 	}
-
+	
 	// Read by weekId only
 	@GetMapping("/week/{weekId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesByWeekId(
-			@PathVariable int weekId) {
-		logger.info("Fetching releases for week ID {}", weekId);
-		List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
-
-		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releases.size(), releases);
-
-		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", wrapped);
-
-		return new ResponseEntity<>(response, HttpStatus.OK);
+	        @PathVariable int weekId) {
+	 
+	    logger.info("Fetching releases for week ID {}", weekId);
+	 
+	    List<ReleaseResponseDTO> releases = service.getReleasesByWeekId(weekId);
+	 
+	    String message = releases.isEmpty()
+	        ? "No releases found for week ID "
+	        : "Releases fetched successfully for week ID " + weekId;
+	 
+	    AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        message,
+	        new ListContentWrapper<>(releases.size(), releases)
+	    );
+	 
+	    return ResponseEntity.ok(response);
 	}
 
 	// Read by sprintId only	
 	@GetMapping("/sprint/{sprintId}")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ReleaseResponseDTO>>> getReleasesBySprintId(
-			@PathVariable int sprintId) {
-		logger.info("Fetching releases for sprint ID {}", sprintId);
-		List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
-
-		ListContentWrapper<ReleaseResponseDTO> wrapped = new ListContentWrapper<>(releases.size(), releases);
-
-		AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Releases fetched successfully", wrapped);
-
-		return new ResponseEntity<>(response, HttpStatus.OK);
+	        @PathVariable int sprintId) {
+	 
+	    logger.info("Fetching releases for sprint ID {}", sprintId);
+	 
+	    List<ReleaseResponseDTO> releases = service.getReleasesBySprintId(sprintId);
+	 
+	    String message = releases.isEmpty()
+	        ? "No releases found for sprint ID " + sprintId
+	        : "Releases fetched successfully for sprint ID " + sprintId;
+	 
+	    AuthResponse<ListContentWrapper<ReleaseResponseDTO>> response = new AuthResponse<>(
+	        HttpStatus.OK.value(),
+	        RequestProcessStatus.SUCCESS,
+	        LocalDateTime.now(),
+	        message,
+	        new ListContentWrapper<>(releases.size(), releases)
+	    );
+	 
+	    return ResponseEntity.ok(response);
 	}
 
 	// Update by ID
@@ -137,7 +152,7 @@ public class ReleaseController {
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
+	
 	// Delete by ID
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteRelease(@PathVariable Long id) {
