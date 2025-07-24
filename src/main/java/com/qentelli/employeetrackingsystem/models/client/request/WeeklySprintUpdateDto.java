@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WeeklySprintUpdateDto {
 	private Integer weekSprintId;
-
+	
+	private String sprintNumber;
     // Using IDs to keep DTO lightweight
     private int weeekRangeId; // consider renaming to weekRangeId
     private int projectId;
