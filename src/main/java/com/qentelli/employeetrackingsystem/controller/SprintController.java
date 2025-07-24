@@ -37,7 +37,7 @@ public class SprintController {
 
 	@PostMapping("/createSprint")
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
-	    sprintService.createSprint(request); // call service, ignore returned SprintResponse
+	    sprintService.createSprint1(request); // call service, ignore returned SprintResponse
 	    return ResponseEntity.ok(new AuthResponse<>(
 	            200,
 	            RequestProcessStatus.SUCCESS,
@@ -49,37 +49,36 @@ public class SprintController {
 
 	@GetMapping("/getAllSprints")
 	public ResponseEntity<AuthResponse<PaginatedResponse<SprintResponse>>> getAll(
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) {
-	
-	    Pageable pageable = PageRequest.of(
-	            page,
-	            size,
-	            Sort.by(Sort.Direction.DESC, "fromDate")   // ← key line
-	    );
-	 
-	    Page<SprintResponse> responsePage = sprintService.getAllSprints(pageable);	 
-	    PaginatedResponse<SprintResponse> paginatedResponse = new PaginatedResponse<>(
-	            responsePage.getContent(),
-	            responsePage.getNumber(),
-	            responsePage.getSize(),
-	            responsePage.getTotalElements(),
-	            responsePage.getTotalPages(),
-	            responsePage.isLast()
-	    );
-	 
-	    AuthResponse<PaginatedResponse<SprintResponse>> authResponse = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Sprints fetched successfully",
-	            paginatedResponse
-	    );
-	 
-	    return ResponseEntity.ok(authResponse);
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(
+				page,
+				size,
+				Sort.by(Sort.Direction.DESC, "sprintId")   // newest (highest id) first
+						.and(Sort.by(Sort.Direction.DESC, "fromDate")) // optional tie-breaker
+
+		);
+ 
+		Page<SprintResponse> responsePage = sprintService.getAllSprints(pageable);
+		PaginatedResponse<SprintResponse> paginatedResponse = new PaginatedResponse<>(
+				responsePage.getContent(),
+				responsePage.getNumber(),
+				responsePage.getSize(),
+				responsePage.getTotalElements(),
+				responsePage.getTotalPages(),
+				responsePage.isLast()
+		);
+ 
+		AuthResponse<PaginatedResponse<SprintResponse>> authResponse = new AuthResponse<>(
+				HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(),
+				"Sprints fetched successfully",
+				paginatedResponse
+		);
+		return ResponseEntity.ok(authResponse);
 	}
-	
-    
+ 
 	@GetMapping("/{id}")
 	public ResponseEntity<AuthResponse<SprintResponse>> getById(@PathVariable Long id) {
 		SprintResponse response = sprintService.getSprintById(id);
