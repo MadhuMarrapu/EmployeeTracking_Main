@@ -216,4 +216,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ReleaseNotFoundException.class)
+    public ResponseEntity<AuthResponse<Object>> handleReleaseNotFoundException(
+            ReleaseNotFoundException ex,
+            HttpServletRequest request) {
+
+        logger.warn("Release not found: {}", ex.getMessage());
+
+        AuthResponse<Object> response = new AuthResponse<>(
+            HttpStatus.OK.value(),  // ✅ Return 200
+            RequestProcessStatus.SUCCESS,  // ✅ Still SUCCESS
+            LocalDateTime.now(),
+            "Release not found for request path: " + request.getRequestURI(),
+            null
+        );
+
+        response.setErrorCode(HttpStatus.NOT_FOUND);  // ✅ Keep consistent
+        response.setErrorDescription(ex.getMessage());
+
+        return ResponseEntity.ok(response);  // ✅ Respond with 200 OK
+    }
 }

@@ -37,14 +37,14 @@ public class SprintController {
 
 	@PostMapping("/createSprint")
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
-	    sprintService.createSprint(request); // call service, ignore returned SprintResponse
-	    return ResponseEntity.ok(new AuthResponse<>(
-	            200,
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Sprint created successfully",
-	            null // no data
-	    ));
+		sprintService.createSprint(request); // call service, ignore returned SprintResponse
+		return ResponseEntity.ok(new AuthResponse<>(
+				200,
+				RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(),
+				"Sprint created successfully",
+				null // no data
+		));
 	}
 
 	@GetMapping("/getAllSprints")
@@ -91,7 +91,7 @@ public class SprintController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<SprintResponse>> update(@PathVariable Long id,
-			@Valid @RequestBody SprintRequest request) {
+															   @Valid @RequestBody SprintRequest request) {
 		SprintResponse response = sprintService.updateSprint(id, request);
 		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
 				"Sprint updated successfully",null));

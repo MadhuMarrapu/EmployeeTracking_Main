@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,10 +23,12 @@ public class SprintRequest {
     @NotBlank(message = "Sprint name is required")
     private String sprintName;
 
-    @NotNull(message = "From date is required")
+    @NotNull
+    @FutureOrPresent(message = "From date must be today or in the future is required")
     private LocalDate fromDate;
 
-    @NotNull(message = "To date is required")
+    @NotNull
+    @FutureOrPresent(message = "To date must be today or in the future is required")
     private LocalDate toDate;
 }
 

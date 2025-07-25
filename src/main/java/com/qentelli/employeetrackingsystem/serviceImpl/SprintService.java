@@ -58,6 +58,55 @@ public class SprintService {
         );
     }
 
+    public SprintResponse createSprint1(SprintRequest request) {
+        LocalDate today = LocalDate.now();
+
+        if (request.getFromDate().isBefore(today)) {
+            throw new IllegalArgumentException("From date must be today or a future date.");
+        }
+
+        if (request.getToDate().isBefore(today)) {
+            throw new IllegalArgumentException("To date must be today or a future date.");
+        }
+
+        if (request.getToDate().isBefore(request.getFromDate())) {
+            throw new IllegalArgumentException("To date must be after or equal to From date.");
+        }
+
+        Sprint sprint = new Sprint();
+        sprint.setSprintNumber(request.getSprintNumber());
+        sprint.setSprintName(request.getSprintName());
+        sprint.setFromDate(request.getFromDate());
+        sprint.setToDate(request.getToDate());
+
+        // Generate valid weekday-only weeks
+        List<WeekRange> generatedWeeks = generateWeekRanges(
+                request.getFromDate(), request.getToDate(), sprint);
+        sprint.setWeeks(generatedWeeks);
+
+        Sprint savedSprint = sprintRepository.save(sprint);
+
+        List<WeekRangeResponse> weekResponses = savedSprint.getWeeks().stream()
+                .filter(week -> !week.isSoftDelete())
+                .map(week -> new WeekRangeResponse(
+                        week.getWeekId(),
+                        week.getWeekFromDate(),
+                        week.getWeekToDate()
+                ))
+                .collect(Collectors.toList());
+
+        return new SprintResponse(
+                savedSprint.getSprintId(),
+                savedSprint.getSprintNumber(),
+                savedSprint.getSprintName(),
+                savedSprint.getFromDate(),
+                savedSprint.getToDate(),
+                weekResponses
+        );
+    }
+
+    
+    
     public Page<SprintResponse> getAllSprints(Pageable pageable) {
         return sprintRepository.findAll(pageable).map(this::mapToResponse);
     }
