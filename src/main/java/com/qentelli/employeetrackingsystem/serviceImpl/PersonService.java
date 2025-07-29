@@ -129,8 +129,8 @@ public class PersonService {
 		person.setLastName(dto.getLastName());
 		person.setEmail(dto.getEmail());
 		person.setEmployeeCode(dto.getEmployeeCode());
-		person.setPassword(dto.getPassword());
-		person.setConfirmPassword(dto.getConfirmPassword());
+		person.setPassword(passwordEncoder.encode(dto.getPassword()));
+	    person.setConfirmPassword(passwordEncoder.encode(dto.getConfirmPassword())); // Optional
 		person.setRole(dto.getRole());
 
 		if (dto.getTechStack() != null) {

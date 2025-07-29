@@ -169,4 +169,18 @@ public class WeeklySprintUpdateController {
 
         return ResponseEntity.ok(response);
     }
+    
+    @PutMapping("/{id}/enable")
+    public ResponseEntity<AuthResponse<Void>> enable(@PathVariable Integer id) {
+        logger.info("Enabling WeeklySprintUpdate ID: {}", id);
+
+        service.setWeeklySprintUpdateEnabled(id);
+
+        AuthResponse<Void> response = new AuthResponse<>(
+                HttpStatus.OK.value(),
+                RequestProcessStatus.SUCCESS,
+                "Weekly sprint update enabled successfully");
+
+        return ResponseEntity.ok(response);
+    }
 }

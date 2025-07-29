@@ -17,4 +17,8 @@ public class SprintResponse {
 	private LocalDate fromDate;
 	private LocalDate toDate;
 	private List<WeekRangeResponse> weeks;
+	private Boolean sprintStatus;
+
+	private Boolean isEnabled;
+
 }
