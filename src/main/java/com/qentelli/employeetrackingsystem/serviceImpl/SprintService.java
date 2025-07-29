@@ -105,8 +105,8 @@ public class SprintService {
         );
     }
 
-    
-    
+
+
     public Page<SprintResponse> getAllSprints(Pageable pageable) {
         return sprintRepository.findAll(pageable).map(this::mapToResponse);
     }
@@ -192,5 +192,13 @@ public class SprintService {
                 sprint.getToDate(),
                 weekResponses
         );
+    }
+    /** Paginated search by sprint number or name */
+    public Page<SprintResponse> search(String name, Pageable pageable) {
+        Page<Sprint> page = sprintRepository
+                .findBySprintNumberContainingIgnoreCaseOrSprintNameContainingIgnoreCase(
+                        name, name, pageable);
+
+        return page.map(this::mapToResponse);
     }
 }

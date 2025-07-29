@@ -103,4 +103,37 @@ public class SprintController {
 		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
 				"Sprint deleted successfully", null));
 	}
+
+	// ⬇️  ADD just above the closing brace of SprintController
+
+	@GetMapping("/search")
+	public ResponseEntity<AuthResponse<PaginatedResponse<SprintResponse>>> search(
+			@RequestParam String name,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+
+		Pageable pageable = PageRequest.of(
+				page,
+				size,
+				Sort.by(Sort.Direction.DESC, "sprintId"));     // newest first
+
+		Page<SprintResponse> resultPage = sprintService.search(name.trim(), pageable);
+
+		PaginatedResponse<SprintResponse> payload = new PaginatedResponse<>(
+				resultPage.getContent(),
+				resultPage.getNumber(),
+				resultPage.getSize(),
+				resultPage.getTotalElements(),
+				resultPage.getTotalPages(),
+				resultPage.isLast());
+
+		AuthResponse<PaginatedResponse<SprintResponse>> body = new AuthResponse<>(
+				HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(),
+				"Sprints matching \"" + name + "\"",
+				payload);
+
+		return ResponseEntity.ok(body);
+	}
 }

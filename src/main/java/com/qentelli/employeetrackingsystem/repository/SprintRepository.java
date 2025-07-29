@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +16,8 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
 	
 	// Or to find all sprints within a date range:
 	// List<Sprint> findByFromDateBetween(LocalDate startDate, LocalDate endDate);
+
+    Page<Sprint> findBySprintNumberContainingIgnoreCaseOrSprintNameContainingIgnoreCase(
+            String sprintNumber, String sprintName, Pageable pageable);
 
 }
