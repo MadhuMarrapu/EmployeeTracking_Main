@@ -1,19 +1,19 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.qentelli.employeetrackingsystem.entity.ProjectResource;
-import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.exception.ProjectResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ProjectResourceRequestDto;
 import com.qentelli.employeetrackingsystem.models.client.response.ProjectResourceResponseDto;
 import com.qentelli.employeetrackingsystem.repository.ProjectResourceRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
