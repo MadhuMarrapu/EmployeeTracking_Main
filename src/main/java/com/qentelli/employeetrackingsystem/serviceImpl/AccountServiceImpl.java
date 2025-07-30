@@ -8,11 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
+import com.qentelli.employeetrackingsystem.entity.CustomUserDetails;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.DuplicateAccountException;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
@@ -148,9 +149,15 @@ public class AccountServiceImpl implements AccountService {
     // Helper: Authenticated user's full name
     private String getAuthenticatedUserFullName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof User user) {
-            return user.getFirstName() + " " + user.getLastName();
+
+        if (auth != null && auth.isAuthenticated()) {
+            Object principal = auth.getPrincipal();
+
+            if (principal instanceof CustomUserDetails custom) {
+                return custom.getFirstName() + " " + custom.getLastName();
+            }
         }
+
         return "System";
     }
 }

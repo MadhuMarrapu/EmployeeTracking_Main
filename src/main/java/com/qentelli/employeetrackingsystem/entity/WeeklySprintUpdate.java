@@ -62,6 +62,6 @@ public class WeeklySprintUpdate{
     
     private boolean isEnabled = false; // default false, indicates not enabled
     
-    private String leadName;
+   
 }
  
