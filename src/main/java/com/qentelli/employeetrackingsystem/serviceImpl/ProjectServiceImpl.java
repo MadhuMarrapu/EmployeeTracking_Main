@@ -8,12 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
+import com.qentelli.employeetrackingsystem.entity.CustomUserDetails;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.DuplicateProjectException;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
@@ -100,9 +101,15 @@ public class ProjectServiceImpl implements ProjectService {
 
     private String getAuthenticatedUserFullName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof User user) {
-            return user.getFirstName() + " " + user.getLastName();
+
+        if (auth != null && auth.isAuthenticated()) {
+            Object principal = auth.getPrincipal();
+
+            if (principal instanceof CustomUserDetails custom) {
+                return custom.getFirstName() + " " + custom.getLastName();
+            }
         }
+
         return "System";
     }
 }

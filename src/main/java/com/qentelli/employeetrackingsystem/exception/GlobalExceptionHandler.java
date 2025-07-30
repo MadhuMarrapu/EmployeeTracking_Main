@@ -320,4 +320,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 
     }
+    
+    @ExceptionHandler(ReportNotFoundException.class)
+    public ResponseEntity<AuthResponse<Object>> handleReportNotFound(ReportNotFoundException ex) {
+        logger.warn("ProgressReport not found: {}", ex.getMessage());
+
+        AuthResponse<Object> response = new AuthResponse<>(
+            HttpStatus.NOT_FOUND.value(),
+            RequestProcessStatus.FAILURE,
+            LocalDateTime.now(),
+            "Progress report lookup failed",
+            null
+        );
+        response.setErrorCode(HttpStatus.NOT_FOUND);
+        response.setErrorDescription(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+
 }
