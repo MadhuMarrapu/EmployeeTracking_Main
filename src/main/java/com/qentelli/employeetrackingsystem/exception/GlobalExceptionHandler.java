@@ -236,4 +236,67 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.ok(response);  // ✅ Respond with 200 OK
     }
+    
+    @ExceptionHandler(TechStackResourceNotFoundException.class)
+    public ResponseEntity<AuthResponse<Object>> handleTechStackResourceNotFound(
+            TechStackResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        logger.warn("TechStack resource not found: {}", ex.getMessage());
+
+        AuthResponse<Object> response = new AuthResponse<>(
+            HttpStatus.OK.value(),                      // ✅ Return 200
+            RequestProcessStatus.SUCCESS,              // ✅ Still SUCCESS
+            LocalDateTime.now(),
+            "TechStack resource not found for path: " + request.getRequestURI(),
+            null
+        );
+
+        response.setErrorCode(HttpStatus.NOT_FOUND);   // ✅ Preserve NOT_FOUND semantics
+        response.setErrorDescription(ex.getMessage());
+
+        return ResponseEntity.ok(response);            // ✅ Respond with 200 OK
+    }
+    
+    @ExceptionHandler(ProjectResourceNotFoundException.class)
+    public ResponseEntity<AuthResponse<Object>> handleProjectResourceNotFound(
+            ProjectResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        logger.warn("Project resource not found: {}", ex.getMessage());
+
+        AuthResponse<Object> response = new AuthResponse<>(
+            HttpStatus.OK.value(),                      // ✅ Return 200
+            RequestProcessStatus.SUCCESS,              // ✅ Still SUCCESS
+            LocalDateTime.now(),
+            "Project resource not found for path: " + request.getRequestURI(),
+            null
+        );
+
+        response.setErrorCode(HttpStatus.NOT_FOUND);   // ✅ Preserve NOT_FOUND semantics
+        response.setErrorDescription(ex.getMessage());
+
+        return ResponseEntity.ok(response);            // ✅ Respond with 200 OK
+    }
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<AuthResponse<Object>> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        logger.warn("Resource not found: {}", ex.getMessage());
+
+        AuthResponse<Object> response = new AuthResponse<>(
+            HttpStatus.OK.value(),                      // ✅ Return 200
+            RequestProcessStatus.SUCCESS,              // ✅ Still SUCCESS
+            LocalDateTime.now(),
+            "Resource not found for path: " + request.getRequestURI(),
+            null
+        );
+
+        response.setErrorCode(HttpStatus.NOT_FOUND);   // ✅ Preserve NOT_FOUND semantics
+        response.setErrorDescription(ex.getMessage());
+
+        return ResponseEntity.ok(response);            // ✅ Respond with 200 OK
+    }
 }
