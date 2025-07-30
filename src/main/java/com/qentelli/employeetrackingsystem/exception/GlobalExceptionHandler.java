@@ -300,6 +300,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.ok(response);            // ✅ Respond with 200 OK
 
+    }
+
     @ExceptionHandler(SprintNotFoundException.class)
     public ResponseEntity<AuthResponse<Object>> handleSprintNotFound(
             SprintNotFoundException ex, HttpServletRequest request) {
