@@ -12,41 +12,44 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WeeklySprintUpdateDto {
 	private Integer weekSprintId;
-	
+
 	private String sprintNumber;
-    // Using IDs to keep DTO lightweight
-    private int weeekRangeId; // consider renaming to weekRangeId
-    private int projectId;
-    
-    private String projectName; // ✅ Added field to hold project name
-    private int assignedPoints;
-    private int assignedStoriesCount;
-    private int inDevPoints;
-    private int inDevStoriesCount;
-    private int inQaPoints;
-    private int inQaStoriesCount;
-    private int completePoints;
-    private int completeStoriesCount;
-    private int blockedPoints;
-    private int blockedStoriesCount;
+	// Using IDs to keep DTO lightweight
+	private int weeekRangeId; // consider renaming to weekRangeId
+	private int projectId;
 
-    private double completePercentage;
+	private String projectName; // ✅ Added field to hold project name
+	private int assignedPoints;
+	private int assignedStoriesCount;
+	private int inDevPoints;
+	private int inDevStoriesCount;
+	private int inQaPoints;
+	private int inQaStoriesCount;
+	private int completePoints;
+	private int completeStoriesCount;
+	private int blockedPoints;
+	private int blockedStoriesCount;
 
-    private String estimationHealth;
-    private String groomingHealth;
-    @JsonProperty("estimationHealthStatus")
-    private HealthStatus estimationHealthStatus;
+	private double completePercentage;
 
-    @JsonProperty("groomingHealthStatus")
-    private HealthStatus groomingHealthStatus;
+	private String estimationHealth;
+	private String groomingHealth;
+	@JsonProperty("estimationHealthStatus")
+	private HealthStatus estimationHealthStatus;
 
-    private int difficultCount1;
-    private int difficultCount2;
-    private int riskPoints;
-    private int riskStoryCounts;
+	@JsonProperty("groomingHealthStatus")
+	private HealthStatus groomingHealthStatus;
 
-    private String comments; // backend-side comment from frontend
-    private Integer injectionPercentage;
-    private boolean weeklySprintUpdateStatus = true; // true means active, false means inactive;
+	private int difficultCount1;
+	private int difficultCount2;
+	private int riskPoints;
+	private int riskStoryCounts;
 
+	private String comments; // backend-side comment from frontend
+	private Integer injectionPercentage;
+	private boolean weeklySprintUpdateStatus = true; // true means active, false means inactive;
+
+	private boolean isEnabled = false; // default false, indicates not enabled
+
+	
 }

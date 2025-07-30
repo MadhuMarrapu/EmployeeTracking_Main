@@ -89,7 +89,7 @@ public class WeeklySprintUpdateService {
 		// 🔁 Update relationships
 		existing.setProject(project);
 		existing.setWeek(week);
-
+		
 		return weeklySprintUpdateRepository.save(existing);
 	}
 
@@ -100,6 +100,16 @@ public class WeeklySprintUpdateService {
 		update.setWeeklySprintUpdateStatus(false);
 		weeklySprintUpdateRepository.save(update);
 	}
+	
+	public boolean setWeeklySprintUpdateEnabled(Integer weeklySprintUpdateId) {
+	    WeeklySprintUpdate update = weeklySprintUpdateRepository.findById(weeklySprintUpdateId)
+	            .orElseThrow(() -> new WeeklySprintUpdateNotFoundException(
+	                "WeeklySprintUpdate not found with id: " + weeklySprintUpdateId));
+
+	    update.setEnabled(true);
+	    weeklySprintUpdateRepository.save(update);
+	    return true;
+	}
 
 	public Page<WeeklySprintUpdate> getAllUpdates(Pageable pageable) {
 		return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue(pageable);
@@ -108,10 +118,7 @@ public class WeeklySprintUpdateService {
     public List<WeeklySprintUpdate> getAllActiveUpdates() {
         return weeklySprintUpdateRepository.findByWeeklySprintUpdateStatusTrue();
     }
-    
-//    public List<WeeklySprintUpdate> getAllBySprintNumber(String sprintNumber) {
-//        return weeklySprintUpdateRepository.findActiveBySprintNumber(sprintNumber);
-//    }
+   
     
     public List<WeeklySprintUpdate> getAllBySprintId(Long sprintId) {
         return weeklySprintUpdateRepository.findActiveBySprintId(sprintId);

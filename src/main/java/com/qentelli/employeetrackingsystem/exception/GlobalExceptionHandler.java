@@ -237,6 +237,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(response);  // ✅ Respond with 200 OK
     }
     
+
     @ExceptionHandler(TechStackResourceNotFoundException.class)
     public ResponseEntity<AuthResponse<Object>> handleTechStackResourceNotFound(
             TechStackResourceNotFoundException ex,
@@ -298,5 +299,25 @@ public class GlobalExceptionHandler {
         response.setErrorDescription(ex.getMessage());
 
         return ResponseEntity.ok(response);            // ✅ Respond with 200 OK
+
+    @ExceptionHandler(SprintNotFoundException.class)
+    public ResponseEntity<AuthResponse<Object>> handleSprintNotFound(
+            SprintNotFoundException ex, HttpServletRequest request) {
+
+        logger.warn("Sprint not found: {}", ex.getMessage());
+
+        AuthResponse<Object> response = new AuthResponse<>(
+            HttpStatus.NOT_FOUND.value(),
+            RequestProcessStatus.FAILURE,
+            LocalDateTime.now(),
+            "Sprint not found for request path: " + request.getRequestURI(),
+            null
+        );
+
+        response.setErrorCode(HttpStatus.NOT_FOUND);
+        response.setErrorDescription(ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
     }
 }
