@@ -48,7 +48,6 @@ public class WeeklySprintUpdateService {
 		update.setRiskStoryCounts(dto.getRiskStoryCounts());
 		update.setComments(dto.getComments());
 		update.setInjectionPercentage(dto.getInjectionPercentage());
-		update.setLeadName(dto.getLeadName()); 
 		return weeklySprintUpdateRepository.save(update);
 	}
 
@@ -87,7 +86,6 @@ public class WeeklySprintUpdateService {
 		existing.setRiskStoryCounts(dto.getRiskStoryCounts());
 		existing.setComments(dto.getComments());
 		existing.setInjectionPercentage(dto.getInjectionPercentage());
-		existing.setLeadName(dto.getLeadName());
 		// 🔁 Update relationships
 		existing.setProject(project);
 		existing.setWeek(week);

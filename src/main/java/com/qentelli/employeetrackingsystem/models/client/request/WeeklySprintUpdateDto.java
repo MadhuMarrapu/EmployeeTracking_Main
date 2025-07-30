@@ -51,5 +51,5 @@ public class WeeklySprintUpdateDto {
 
 	private boolean isEnabled = false; // default false, indicates not enabled
 
-	private String leadName;
+	
 }
