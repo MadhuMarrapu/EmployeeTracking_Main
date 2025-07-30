@@ -37,30 +37,29 @@ public class SprintController {
 
 	@PostMapping("/createSprint")
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
-		sprintService.createSprint(request); // call service, ignore returned SprintResponse
-		return ResponseEntity.ok(new AuthResponse<>(
-				200,
-				RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(),
-				"Sprint created successfully",
-				null // no data
-		));
+	    sprintService.createSprint1(request); // call service, ignore returned SprintResponse
+	    return ResponseEntity.ok(new AuthResponse<>(
+	            200,
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Sprint created successfully",
+	            null // no data
+	    ));
 	}
 
 	@GetMapping("/getAllSprints")
 	public ResponseEntity<AuthResponse<PaginatedResponse<SprintResponse>>> getAll(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
-
 		Pageable pageable = PageRequest.of(
 				page,
 				size,
 				Sort.by(Sort.Direction.DESC, "sprintId")   // newest (highest id) first
 						.and(Sort.by(Sort.Direction.DESC, "fromDate")) // optional tie-breaker
+
 		);
-
+ 
 		Page<SprintResponse> responsePage = sprintService.getAllSprints(pageable);
-
 		PaginatedResponse<SprintResponse> paginatedResponse = new PaginatedResponse<>(
 				responsePage.getContent(),
 				responsePage.getNumber(),
@@ -69,7 +68,7 @@ public class SprintController {
 				responsePage.getTotalPages(),
 				responsePage.isLast()
 		);
-
+ 
 		AuthResponse<PaginatedResponse<SprintResponse>> authResponse = new AuthResponse<>(
 				HttpStatus.OK.value(),
 				RequestProcessStatus.SUCCESS,
@@ -77,11 +76,9 @@ public class SprintController {
 				"Sprints fetched successfully",
 				paginatedResponse
 		);
-
 		return ResponseEntity.ok(authResponse);
 	}
-
-
+ 
 	@GetMapping("/{id}")
 	public ResponseEntity<AuthResponse<SprintResponse>> getById(@PathVariable Long id) {
 		SprintResponse response = sprintService.getSprintById(id);
@@ -91,7 +88,7 @@ public class SprintController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<SprintResponse>> update(@PathVariable Long id,
-															   @Valid @RequestBody SprintRequest request) {
+			@Valid @RequestBody SprintRequest request) {
 		SprintResponse response = sprintService.updateSprint(id, request);
 		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
 				"Sprint updated successfully",null));
@@ -102,38 +99,5 @@ public class SprintController {
 		sprintService.deleteSprint(id);
 		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
 				"Sprint deleted successfully", null));
-	}
-
-	// ⬇️  ADD just above the closing brace of SprintController
-
-	@GetMapping("/search")
-	public ResponseEntity<AuthResponse<PaginatedResponse<SprintResponse>>> search(
-			@RequestParam String name,
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-
-		Pageable pageable = PageRequest.of(
-				page,
-				size,
-				Sort.by(Sort.Direction.DESC, "sprintId"));     // newest first
-
-		Page<SprintResponse> resultPage = sprintService.search(name.trim(), pageable);
-
-		PaginatedResponse<SprintResponse> payload = new PaginatedResponse<>(
-				resultPage.getContent(),
-				resultPage.getNumber(),
-				resultPage.getSize(),
-				resultPage.getTotalElements(),
-				resultPage.getTotalPages(),
-				resultPage.isLast());
-
-		AuthResponse<PaginatedResponse<SprintResponse>> body = new AuthResponse<>(
-				HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(),
-				"Sprints matching \"" + name + "\"",
-				payload);
-
-		return ResponseEntity.ok(body);
 	}
 }
