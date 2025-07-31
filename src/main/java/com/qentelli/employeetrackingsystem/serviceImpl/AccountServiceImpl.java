@@ -1,17 +1,16 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-import org.springframework.data.domain.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
-import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.User;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
@@ -20,119 +19,133 @@ import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsD
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
 import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
+import com.qentelli.employeetrackingsystem.service.AccountService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl {
+public class AccountServiceImpl implements AccountService {
 
-	private static final String ACCOUNT_NOT_FOUND = "Account not found with id: ";
-	private final AccountRepository accountRepository;
-	private final PersonRepository personRepository;
-	private final ProjectRepository projectRepository;
-	private final ModelMapper modelMapper;
 
-	// CREATE
-	public Account createAccount(AccountDetailsDto dto) {
-		if (accountRepository.existsByAccountName(dto.getAccountName())) {
-			throw new DuplicateAccountException("An account with this name already exists.");
-		}
-		Account account = modelMapper.map(dto, Account.class);
+    private static final String ACCOUNT_NOT_FOUND = "Account not found with id: ";
 
-		return accountRepository.save(account);
-	}
+    private final AccountRepository accountRepository;
+    //private final PersonRepository personRepository;
+    private final ProjectRepository projectRepository;
+    private final ModelMapper modelMapper;
 
-	// READ ALL
-	public List<AccountDetailsDto> getAllAccounts() {
-		return accountRepository.findAll().stream().map(account -> modelMapper.map(account, AccountDetailsDto.class))
-				.toList();
-	}
+    // CREATE
+    @Override
+    public Account createAccount(AccountDetailsDto dto) {
+        if (accountRepository.existsByAccountName(dto.getAccountName())) {
+            throw new DuplicateAccountException("An account with this name already exists.");
+        }
+        Account account = modelMapper.map(dto, Account.class);
+        return accountRepository.save(account);
+    }
 
-	public Page<AccountDetailsDto> getAllActiveAccounts(Pageable pageable) {
-		return accountRepository.findByAccountStatusTrue(pageable)
-				.map(account -> modelMapper.map(account, AccountDetailsDto.class));
-	}
+    // READ ALL
+    @Override
+    public List<AccountDetailsDto> getAllAccounts() {
+        return accountRepository.findAll().stream()
+                .map(account -> modelMapper.map(account, AccountDetailsDto.class))
+                .toList();
+    }
 
-	// READ BY ID
-	public AccountDetailsDto getAccountById(Integer id) {
-		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
-		return modelMapper.map(account, AccountDetailsDto.class);
-	}
+    @Override
+    public Page<AccountDetailsDto> getAllActiveAccounts(Pageable pageable) {
+        return accountRepository.findByAccountStatusTrue(pageable)
+                .map(account -> modelMapper.map(account, AccountDetailsDto.class));
+    }
 
-	// FULL UPDATE
-	public Account updateAccount(Integer id, AccountDetailsDto dto) {
-		Account existingAccount = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+    // READ BY ID
+    @Override
+    public AccountDetailsDto getAccountById(Integer id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+        return modelMapper.map(account, AccountDetailsDto.class);
+    }
 
-		modelMapper.map(dto, existingAccount);
-		existingAccount.setAccountName(dto.getAccountName());
-		existingAccount.setAccountStartDate(dto.getAccountStartDate());
-		existingAccount.setAccountEndDate(dto.getAccountEndDate());
-		//existingAccount.setAccountStatus(dto.getAccountStatus());
-		existingAccount.setUpdatedAt(LocalDateTime.now());
-		existingAccount.setUpdatedBy(getAuthenticatedUserFullName());
+    // FULL UPDATE
+    @Override
+    public Account updateAccount(Integer id, AccountDetailsDto dto) {
+        Account existingAccount = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
 
-		return accountRepository.save(existingAccount);
-	}
+        modelMapper.map(dto, existingAccount);
+        existingAccount.setAccountName(dto.getAccountName());
+        existingAccount.setAccountStartDate(dto.getAccountStartDate());
+        existingAccount.setAccountEndDate(dto.getAccountEndDate());
+        // existingAccount.setAccountStatus(dto.getAccountStatus()); // optional
+        existingAccount.setUpdatedAt(LocalDateTime.now());
+        existingAccount.setUpdatedBy(getAuthenticatedUserFullName());
 
-	// PARTIAL UPDATE
-	public Account partialUpdateAccount(Integer id, AccountDetailsDto dto) {
-		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+        return accountRepository.save(existingAccount);
+    }
 
-		if (dto.getAccountName() != null)
-			account.setAccountName(dto.getAccountName());
-		if (dto.getAccountStartDate() != null)
-			account.setAccountStartDate(dto.getAccountStartDate());
-		if (dto.getAccountEndDate() != null)
-			account.setAccountEndDate(dto.getAccountEndDate());
-		if (dto.getAccountStatus() != null)
-			account.setAccountStatus(dto.getAccountStatus());
-		account.setUpdatedAt(LocalDateTime.now());
-		account.setUpdatedBy(getAuthenticatedUserFullName());
+    // PARTIAL UPDATE
+    @Override
+    public Account partialUpdateAccount(Integer id, AccountDetailsDto dto) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
 
-		return accountRepository.save(account);
-	}
+        if (dto.getAccountName() != null)
+            account.setAccountName(dto.getAccountName());
+        if (dto.getAccountStartDate() != null)
+            account.setAccountStartDate(dto.getAccountStartDate());
+        if (dto.getAccountEndDate() != null)
+            account.setAccountEndDate(dto.getAccountEndDate());
+        if (dto.getAccountStatus() != null)
+            account.setAccountStatus(dto.getAccountStatus());
 
-	// SOFT DELETE
-	public Account softDeleteAccount(Integer id) {
-		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
-		account.setAccountStatus(false);// mark as inactive
-		account.setUpdatedAt(LocalDateTime.now());
-		account.setUpdatedBy(getAuthenticatedUserFullName());
-		return accountRepository.save(account);
-	}
+        account.setUpdatedAt(LocalDateTime.now());
+        account.setUpdatedBy(getAuthenticatedUserFullName());
 
-	@Transactional
-	public void deleteAccount(Integer id) {
-	    Account account = accountRepository.findById(id)
-	            .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+        return accountRepository.save(account);
+    }
 
-	    // Soft delete all associated projects
-	    if (account.getProjects() != null) {
-	        for (Project project : account.getProjects()) {
-	            project.setProjectStatus(false);
-	            project.setUpdatedAt(LocalDateTime.now());
-	            project.setUpdatedBy(getAuthenticatedUserFullName());
-	            projectRepository.save(project);
-	        }
-	    }
+    // SOFT DELETE
+    @Override
+    public Account softDeleteAccount(Integer id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
 
-	    // Soft delete the account
-	    account.setAccountStatus(false);
-	    account.setUpdatedAt(LocalDateTime.now());
-	    account.setUpdatedBy(getAuthenticatedUserFullName());
-	    accountRepository.save(account);
-	}
+        account.setAccountStatus(false);
+        account.setUpdatedAt(LocalDateTime.now());
+        account.setUpdatedBy(getAuthenticatedUserFullName());
 
-	public Page<Account> searchAccountsByExactName(String name, Pageable pageable) {
-		return accountRepository.findByAccountNameContainingIgnoreCase(name, pageable);
-	}
+        return accountRepository.save(account);
+    }
 
+    // CASCADE DELETE
+    @Override
+    @Transactional
+    public void deleteAccount(Integer id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
+
+        if (account.getProjects() != null) {
+            for (Project project : account.getProjects()) {
+                project.setProjectStatus(false);
+                project.setUpdatedAt(LocalDateTime.now());
+                project.setUpdatedBy(getAuthenticatedUserFullName());
+                projectRepository.save(project);
+            }
+        }
+
+        account.setAccountStatus(false);
+        account.setUpdatedAt(LocalDateTime.now());
+        account.setUpdatedBy(getAuthenticatedUserFullName());
+        accountRepository.save(account);
+    }
+
+    // SEARCH
+    @Override
+    public Page<Account> searchAccountsByExactName(String name, Pageable pageable) {
+        return accountRepository.findByAccountNameContainingIgnoreCase(name, pageable);
+    }
 	// Extracted method for full name resolution
 	private String getAuthenticatedUserFullName() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
