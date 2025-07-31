@@ -6,9 +6,8 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-
-import com.qentelli.employeetrackingsystem.entity.User;
 
 @Component
 public class AuditorAwareImpl implements AuditorAware<String> {
@@ -20,7 +19,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         }
         Object principal = auth.getPrincipal();
         if (principal instanceof User user) {
-            return Optional.of(user.getFirstName() + " " + user.getLastName());
+           // return Optional.of(user.getFirstName() + " " + user.getLastName());
         }
 
         return Optional.of(auth.getName()); // fallback (username or email)
