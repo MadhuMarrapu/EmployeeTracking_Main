@@ -2,6 +2,8 @@ package com.qentelli.employeetrackingsystem.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,20 +13,19 @@ import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 
 @Repository
-public interface ResourceRepository extends JpaRepository<Resource, Long>{
+public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
-	// Fetch all resources by ResourceType
-    List<Resource> findByResourceType(ResourceType resourceType);
+	// 📦 Fetch resources by type with pagination
+	Page<Resource> findByResourceType(ResourceType resourceType, Pageable pageable);
 
-    // Fetch resources by ResourceType and name match (on TechStack or Project name)
-    @Query("""
-        SELECT r FROM Resource r
-        WHERE r.resourceType = :type AND (
-              (:type = com.qentelli.employeetrackingsystem.entity.ResourceType.TECH_STACK AND LOWER(r.techStack) LIKE LOWER(CONCAT('%', :name, '%')))
-           OR (:type = com.qentelli.employeetrackingsystem.entity.ResourceType.PROJECT AND LOWER(r.project.projectName) LIKE LOWER(CONCAT('%', :name, '%')))
-        )
-    """)
-    List<Resource> findByResourceTypeAndName(@Param("type") ResourceType type, @Param("name") String name);
+	// 🔍 Search resources by ResourceType and name with pagination
+	@Query("""
+			    SELECT r FROM Resource r
+			    WHERE r.resourceType = :type AND (
+			          (:type = com.qentelli.employeetrackingsystem.entity.ResourceType.TECH_STACK AND LOWER(r.techStack) LIKE LOWER(CONCAT('%', :name, '%')))
+			       OR (:type = com.qentelli.employeetrackingsystem.entity.ResourceType.PROJECT AND LOWER(r.project.projectName) LIKE LOWER(CONCAT('%', :name, '%')))
+			    )
+			""")
+	Page<Resource> searchByResourceTypeAndName(@Param("type") ResourceType type, @Param("name") String name,
+			Pageable pageable);
 }
-
-
