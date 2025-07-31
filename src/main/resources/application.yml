@@ -26,3 +26,9 @@ spring:
 
   main:
     allow-circular-references: true
+
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: lazy
+
