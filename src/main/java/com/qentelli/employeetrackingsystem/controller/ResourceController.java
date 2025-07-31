@@ -1,17 +1,13 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,24 +25,23 @@ import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
-import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.ResourceService;
 
 @RestController
-@RequestMapping("/api/resources")
+@RequestMapping("/resources")
 public class ResourceController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
-	
-	private   final ResourceService service;
-	
+
+	private final ResourceService service;
+
 	public ResourceController(@Lazy ResourceService service) {
 		this.service = service;
 	}
 
 	// 🟢 Create Resource
-	@PostMapping("/save")
+	@PostMapping
 	public ResponseEntity<AuthResponse<Void>> createResource(@RequestBody ResourceRequest dto) {
 		service.createResource(dto);
 		return new ResponseEntity<>(
@@ -54,114 +49,48 @@ public class ResourceController {
 				HttpStatus.CREATED);
 	}
 
-	// 📦 Read All Resources
-	@GetMapping("/list")
-	public ResponseEntity<AuthResponse<ListContentWrapper<ResourceResponse>>> getAllResources() {
-		logger.info("Fetching all resources");
-		List<ResourceResponse> resources = service.getAllResources();
-
-		AuthResponse<ListContentWrapper<ResourceResponse>> response = new AuthResponse<>(
-				HttpStatus.OK.value(), RequestProcessStatus.SUCCESS, LocalDateTime.now(),
-				"Resources fetched successfully", new ListContentWrapper<>(resources.size(), resources));
-
-		return ResponseEntity.ok(response);
-	}
-	
-	// 📄 Read all by Paginated Read
-	@GetMapping("/paginated")
-	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getAllResourcesPaginated(
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "5") int size,
-	        @RequestParam(defaultValue = "resourceType") String sortBy
-	) {
-	    logger.info("Fetching paginated resources: page={}, size={}, sortBy={}", page, size, sortBy);
-	    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-	    Page<ResourceResponse> resourcePage = service.getAllResourcesPaginated(pageable);
-
-	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(
-	            resourcePage.getContent(),
-	            resourcePage.getNumber(),
-	            resourcePage.getSize(),
-	            resourcePage.getTotalElements(),
-	            resourcePage.getTotalPages(),
-	            resourcePage.isLast()
-	    );
-
-	    logger.debug("Paginated resources fetched: count={}, totalPages={}", resourcePage.getNumberOfElements(), resourcePage.getTotalPages());
-
-	    AuthResponse<PaginatedResponse<ResourceResponse>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Paginated resources fetched successfully",
-	            paginated
-	    );
-
-	    return ResponseEntity.ok(response);
-	}
-
-	// 🔍 Get Resource by ID
-	@GetMapping("/get/{id}")
-	public ResponseEntity<AuthResponse<ListContentWrapper<ResourceResponse>>> getById(@PathVariable Long id) {
-		logger.info("Fetching resource by ID: {}", id);
-
-		ResourceResponse dto = service.getById(id);
-		List<ResourceResponse> dtoList = Collections.singletonList(dto); // 🔄 Wrap single DTO into List
-
-		String message = "Resource fetched successfully for ID " + id;
-
-		AuthResponse<ListContentWrapper<ResourceResponse>> response = new AuthResponse<>(
-				HttpStatus.OK.value(), RequestProcessStatus.SUCCESS, LocalDateTime.now(), message,
-				new ListContentWrapper<>(dtoList.size(), dtoList));
-
-		return ResponseEntity.ok(response);
-	}
-	
 	// 🔍 Filter by Resource Type (TECH_STACK or PROJECT)
 	@GetMapping("/filter-by-type")
-	public ResponseEntity<AuthResponse<ListContentWrapper<ResourceResponse>>> getByType(
-	        @RequestParam ResourceType type) {
+	public ResponseEntity<AuthResponse<ListContentWrapper<ResourceResponse>>> getByType(@RequestParam ResourceType type,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-	    logger.info("Fetching resources filtered by type: {}", type);
-	    List<ResourceResponse> resources = service.getResourcesByType(type);
+		logger.info("Fetching resources filtered by type: {}", type);
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ResourceResponse> resourcesPage = service.getResourcesByTypePaginated(type, pageable);
 
-	    AuthResponse<ListContentWrapper<ResourceResponse>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(), RequestProcessStatus.SUCCESS, LocalDateTime.now(),
-	            "Resources filtered by type: " + type, new ListContentWrapper<>(resources.size(), resources));
-
-	    return ResponseEntity.ok(response);
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Resources filtered by type: " + type,
+				new ListContentWrapper<>(resourcesPage.getContent().size(), resourcesPage.getContent())));
 	}
-	
+
 	// 🔍 Filter by Type and Name (e.g., TECH_STACK + FULLSTACK or PROJECT + INITIO)
 	@GetMapping("/filter-by-type-and-name")
 	public ResponseEntity<AuthResponse<ListContentWrapper<ResourceResponse>>> getByTypeAndName(
-	        @RequestParam ResourceType type,
-	        @RequestParam String name) {
+			@RequestParam ResourceType type, @RequestParam String name, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "5") int size) {
 
-	    logger.info("Fetching resources by type: {} and name: {}", type, name);
-	    List<ResourceResponse> resources = service.getResourcesByTypeAndName(type, name);
+		logger.info("Fetching resources by type: {} and name: {}", type, name);
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ResourceResponse> resourcesPage = service.searchResourcesByTypeAndName(type, name, pageable);
 
-	    AuthResponse<ListContentWrapper<ResourceResponse>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(), RequestProcessStatus.SUCCESS, LocalDateTime.now(),
-	            "Resources filtered by type: " + type + " and name: " + name,
-	            new ListContentWrapper<>(resources.size(), resources));
-
-	    return ResponseEntity.ok(response);
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Resources filtered by type: " + type + " and name: " + name,
+				new ListContentWrapper<>(resourcesPage.getContent().size(), resourcesPage.getContent())));
 	}
 
 	// 🔄 Update Resource
-	@PutMapping("/update/{id}")
+	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<Void>> updateResource(@PathVariable Long id, @RequestBody ResourceRequest dto) {
 		service.updateResource(id, dto);
-		return ResponseEntity.ok(
-				new AuthResponse<>(200, RequestProcessStatus.SUCCESS, "Resource updated successfully"));
+		return ResponseEntity
+				.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, "Resource updated successfully"));
 	}
 
 	// 🗑️ Delete Resource
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteResource(@PathVariable Long id) {
 		service.deleteResource(id);
-		return ResponseEntity.ok(
-				new AuthResponse<>(200, RequestProcessStatus.SUCCESS, "Resource deleted successfully"));
+		return ResponseEntity
+				.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, "Resource deleted successfully"));
 	}
 }
