@@ -6,9 +6,9 @@ spring:
     name: Employee-Tracking-System
 
   datasource:
-    url: jdbc:postgresql://ep-snowy-bread-aevqesh4-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
     username: neondb_owner
-    password: npg_6K7OBMIlbywA
+    password: npg_JH0dwV2ORjDK
 
   jpa:
     hibernate:
