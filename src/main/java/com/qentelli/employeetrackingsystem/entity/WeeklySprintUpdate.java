@@ -60,7 +60,7 @@ public class WeeklySprintUpdate{
     private Integer injectionPercentage;
     private boolean weeklySprintUpdateStatus=true; // true means active, false means inactive;
     
-    private boolean isEnabled = false; // default false, indicates not enabled
+  //  private boolean isEnabled = false; // default false, indicates not enabled
     
     private String leadName;
 }

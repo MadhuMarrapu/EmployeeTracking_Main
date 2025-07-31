@@ -24,6 +24,8 @@ EXPOSE 8080
  
 # Use dynamic port on Render
 ENV PORT=8080
+
+ENV JAVA_OPTS="-Xms512m -Xmx2048m"
  
 # Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]

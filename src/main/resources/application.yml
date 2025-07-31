@@ -4,10 +4,13 @@ server:
 spring:
   application:
     name: Employee-Tracking-System
+
   datasource:
-    url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
+
+    url: jdbc:postgresql://ep-little-base-a83tfhl9-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require&channelBinding=require
     username: neondb_owner
-    password: npg_JH0dwV2ORjDK
+    password: npg_eP7OdxXmFh1s
+
 
   jpa:
     hibernate:
