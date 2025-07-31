@@ -17,6 +17,8 @@ import com.qentelli.employeetrackingsystem.models.client.response.LoginUserRespo
 import com.qentelli.employeetrackingsystem.serviceImpl.UserService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -24,14 +26,20 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
-
+	
+	
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponse<LoginUserResponse>> loginByUser(
-			@Valid @RequestBody LoginUserRequest loginUserRequest) {
-		LoginUserResponse loginUser = userService.login(loginUserRequest.getUserName(), loginUserRequest.getPassword());
-		AuthResponse<LoginUserResponse> authResponse = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Login successful", loginUser);
-		return ResponseEntity.ok(authResponse);
-	}
+	public ResponseEntity<AuthResponse<LoginUserResponse>> loginByUser(@Valid @RequestBody LoginUserRequest loginUserRequest) {
+		LoginUserResponse loginuser = userService.loginByEmail(loginUserRequest);
 
+		AuthResponse<LoginUserResponse> authResponse = new AuthResponse<>(
+				HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(),
+				"Login successful",
+				loginuser
+		);
+
+		return new ResponseEntity<>(authResponse, HttpStatus.OK);
+	}
 }
