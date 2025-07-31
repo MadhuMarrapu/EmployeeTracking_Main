@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,21 +44,19 @@ public class ResourceService {
 
         if (dto.getResourceType() == ResourceType.TECH_STACK) {
             resource.setTechStack(dto.getTechStack());
-            resource.setProject(null); // No project set
+            resource.setProject(null);
         } else if (dto.getResourceType() == ResourceType.PROJECT) {
             if (dto.getProjectId() == null) {
                 throw new IllegalArgumentException("Project ID must be provided for resource type: PROJECT");
             }
-
             Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
             resource.setProject(project);
-            resource.setTechStack(null); // TechStack not relevant
+            resource.setTechStack(null);
         } else {
             throw new IllegalArgumentException("Unsupported resource type: " + dto.getResourceType());
         }
 
-        // Apply ratio logic
         resource.setOnsite(dto.getOnsite());
         resource.setOffsite(dto.getOffsite());
         resource.setRatio(calculateRatio(dto.getOnsite(), dto.getOffsite()));
@@ -67,6 +66,7 @@ public class ResourceService {
 
         return mapToResponseDto(saved);
     }
+
     // 📦 Get All
     public List<ResourceResponse> getAllResources() {
         logger.info("Fetching all Resource entries");
@@ -76,11 +76,7 @@ public class ResourceService {
                 .toList();
     }
 
-    // 📄 Paginated Read
-    public Page<ResourceResponse> getAllResourcesPaginated(Pageable pageable) {
-        logger.info("Fetching resources with pageable: {}", pageable);
-        return repository.findAll(pageable).map(this::mapToResponseDto);
-    }
+   
 
     // 🔍 Get by ID
     public ResourceResponse getById(Long id) {
@@ -89,35 +85,15 @@ public class ResourceService {
         return mapToResponseDto(resource);
     }
 
-    // 🔍 Get by ResourceType
-    public List<ResourceResponse> getResourcesByType(ResourceType type) {
-        logger.info("Fetching resources filtered by type: {}", type);
-        return repository.findByResourceType(type)
-                .stream()
-                .map(this::mapToResponseDto)
-                .toList();
+ 
+    // 📄 Get by ResourceType with Pagination
+    public Page<ResourceResponse> getResourcesByTypePaginated(ResourceType type, Pageable pageable) {
+        logger.info("Fetching resources by type {} with pagination", type);
+        return repository.findByResourceType(type, pageable)
+                .map(this::mapToResponseDto);
     }
 
-    // 🔍 Get by ResourceType and Name
-    public List<ResourceResponse> getResourcesByTypeAndName(ResourceType type, String name) {
-        logger.info("Searching resources by type: {} and name: {}", type, name);
-
-        String processedName = type == ResourceType.TECH_STACK && name != null
-                ? name.trim().toUpperCase()
-                : name;
-
-        List<Resource> resources = repository.findByResourceTypeAndName(type, processedName);
-
-        if (resources.isEmpty()) {
-            logger.warn("No resources found for type '{}' with name '{}'", type, name);
-            throw new ResourceNotFoundException("No resources found for type '" + type + "' and name '" + name + "'");
-        }
-
-        return resources.stream()
-                .map(this::mapToResponseDto)
-                .toList();
-    }
-
+    
     // 🔄 Update
     public ResourceResponse updateResource(Long id, ResourceRequest dto) {
         logger.info("Updating Resource with ID: {}", id);
@@ -129,16 +105,15 @@ public class ResourceService {
 
         if (dto.getResourceType() == ResourceType.TECH_STACK) {
             resource.setTechStack(dto.getTechStack());
-            resource.setProject(null); // clear project if switching to TECH_STACK
+            resource.setProject(null);
         } else if (dto.getResourceType() == ResourceType.PROJECT) {
             if (dto.getProjectId() == null) {
                 throw new IllegalArgumentException("Project ID must be provided for resource type: PROJECT");
             }
-
             Project project = projectRepository.findById(dto.getProjectId())
                     .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
             resource.setProject(project);
-            resource.setTechStack(null); // clear techStack if switching to PROJECT
+            resource.setTechStack(null);
         }
 
         resource.setOnsite(dto.getOnsite());
@@ -149,6 +124,23 @@ public class ResourceService {
         logger.info("Resource updated successfully with ID: {}", updated.getResourceId());
 
         return mapToResponseDto(updated);
+    }
+ // 🔍 Search by ResourceType and Name with Pagination
+    public Page<ResourceResponse> searchResourcesByTypeAndName(ResourceType type, String name, Pageable pageable) {
+        logger.info("Searching resources by type '{}' and name '{}' with pagination", type, name);
+
+        String processedName = (type == ResourceType.TECH_STACK && name != null)
+                ? name.trim().toUpperCase()
+                : name != null ? name.trim() : "";
+
+        Page<Resource> page = repository.searchByResourceTypeAndName(type, processedName, pageable);
+
+        if (page.isEmpty()) {
+            logger.warn("No resources found for type '{}' with name '{}'", type, name);
+            throw new ResourceNotFoundException("No resources found for type '" + type + "' and name '" + name + "'");
+        }
+
+        return page.map(this::mapToResponseDto);
     }
 
     // 🗑️ Delete
@@ -187,18 +179,18 @@ public class ResourceService {
         }
 
         return new ResourceResponse(
-        	    entity.getResourceId(),
-        	    type,
-        	    techStack,
-        	    projectId != null ? projectId : null,  
-        	    projectName,
-        	    entity.getOnsite(),
-        	    entity.getOffsite(),
-        	    entity.getTotal(),
-        	    entity.getTotalOnsiteCount(),
-        	    entity.getTotalOffsiteCount(),
-        	    entity.getTotalRatio(),
-        	    entity.getRatio()
-        	);
+                entity.getResourceId(),
+                type,
+                techStack,
+                projectId,
+                projectName,
+                entity.getOnsite(),
+                entity.getOffsite(),
+                entity.getTotal(),
+                entity.getTotalOnsiteCount(),
+                entity.getTotalOffsiteCount(),
+                entity.getTotalRatio(),
+                entity.getRatio()
+        );
     }
 }
