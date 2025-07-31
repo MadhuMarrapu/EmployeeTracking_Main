@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
+import com.qentelli.employeetrackingsystem.entity.TechStack;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
@@ -37,13 +38,26 @@ public class ResourceService {
     public ResourceResponse createResource(ResourceRequest dto) {
         logger.info("Creating new Resource with type: {}", dto.getResourceType());
 
-        Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
-
         Resource resource = new Resource();
         resource.setResourceType(dto.getResourceType());
-        resource.setTechStack(dto.getTechStack());
-        resource.setProject(project);
+
+        if (dto.getResourceType() == ResourceType.TECH_STACK) {
+            resource.setTechStack(dto.getTechStack());
+            resource.setProject(null); // No project set
+        } else if (dto.getResourceType() == ResourceType.PROJECT) {
+            if (dto.getProjectId() == null) {
+                throw new IllegalArgumentException("Project ID must be provided for resource type: PROJECT");
+            }
+
+            Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+            resource.setProject(project);
+            resource.setTechStack(null); // TechStack not relevant
+        } else {
+            throw new IllegalArgumentException("Unsupported resource type: " + dto.getResourceType());
+        }
+
+        // Apply ratio logic
         resource.setOnsite(dto.getOnsite());
         resource.setOffsite(dto.getOffsite());
         resource.setRatio(calculateRatio(dto.getOnsite(), dto.getOffsite()));
@@ -53,7 +67,6 @@ public class ResourceService {
 
         return mapToResponseDto(saved);
     }
-
     // 📦 Get All
     public List<ResourceResponse> getAllResources() {
         logger.info("Fetching all Resource entries");
@@ -112,12 +125,22 @@ public class ResourceService {
         Resource resource = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID: " + id));
 
-        Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
-
         resource.setResourceType(dto.getResourceType());
-        resource.setTechStack(dto.getTechStack());
-        resource.setProject(project);
+
+        if (dto.getResourceType() == ResourceType.TECH_STACK) {
+            resource.setTechStack(dto.getTechStack());
+            resource.setProject(null); // clear project if switching to TECH_STACK
+        } else if (dto.getResourceType() == ResourceType.PROJECT) {
+            if (dto.getProjectId() == null) {
+                throw new IllegalArgumentException("Project ID must be provided for resource type: PROJECT");
+            }
+
+            Project project = projectRepository.findById(dto.getProjectId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+            resource.setProject(project);
+            resource.setTechStack(null); // clear techStack if switching to PROJECT
+        }
+
         resource.setOnsite(dto.getOnsite());
         resource.setOffsite(dto.getOffsite());
         resource.setRatio(calculateRatio(dto.getOnsite(), dto.getOffsite()));
@@ -148,19 +171,34 @@ public class ResourceService {
 
     // 🔄 DTO Mapper
     private ResourceResponse mapToResponseDto(Resource entity) {
-        Project project = entity.getProject();
+        ResourceType type = entity.getResourceType();
+
+        Integer projectId = null;
+        String projectName = null;
+        TechStack techStack = null;
+
+        if (type == ResourceType.PROJECT && entity.getProject() != null) {
+            projectId = entity.getProject().getProjectId();
+            projectName = entity.getProject().getProjectName();
+        }
+
+        if (type == ResourceType.TECH_STACK) {
+            techStack = entity.getTechStack();
+        }
+
         return new ResourceResponse(
-                entity.getResourceId(),
-                entity.getResourceType(),
-                entity.getTechStack(),
-                project != null ? project.getProjectId() : null,
-                project != null ? project.getProjectName() : "N/A",
-                entity.getOnsite(),
-                entity.getOffsite(),
-                entity.getTotal(),
-                entity.getTotalOnsiteCount(),
-                entity.getTotalOffsiteCount(),
-                entity.getTotalRatio(),
-                entity.getRatio());
+        	    entity.getResourceId(),
+        	    type,
+        	    techStack,
+        	    projectId != null ? projectId : null,  
+        	    projectName,
+        	    entity.getOnsite(),
+        	    entity.getOffsite(),
+        	    entity.getTotal(),
+        	    entity.getTotalOnsiteCount(),
+        	    entity.getTotalOffsiteCount(),
+        	    entity.getTotalRatio(),
+        	    entity.getRatio()
+        	);
     }
 }
