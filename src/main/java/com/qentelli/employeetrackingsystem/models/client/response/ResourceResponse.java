@@ -1,5 +1,6 @@
 package com.qentelli.employeetrackingsystem.models.client.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResourceResponse {
 
 	private Long resourceId;
