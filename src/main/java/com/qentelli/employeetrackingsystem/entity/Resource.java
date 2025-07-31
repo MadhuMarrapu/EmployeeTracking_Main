@@ -27,7 +27,7 @@ public class Resource {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ResourceType resourceType; 
+    private ResourceType resourceType; //tech stack or project
 
     @Enumerated(EnumType.STRING)
     private TechStack techStack; 
