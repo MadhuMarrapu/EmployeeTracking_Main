@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProgressReportDTO {
+    private Long reportId;  
     private String team;
     private String tcbLead;
     private Integer assignedSP;
