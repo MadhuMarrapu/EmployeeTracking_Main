@@ -17,7 +17,7 @@ public class SprintDependencyRequest {
     private String description;
     private String owner;
     private LocalDate date;
-    private String status;         // e.g., "In Progress"
+    private String status_in;         // e.g., "In Progress"
     private String impact;
     private String actionTaken;
     private Integer projectId;        // Refers to Project entity

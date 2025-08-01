@@ -26,7 +26,7 @@ public class SprintDependency {
     private String description;
     private String owner;
     private LocalDate date;
-    private TaskStatus status; // e.g., "In Progress"
+    private TaskStatus status_in; // e.g., "In Progress"
     private String impact;
     private String actionTaken;
 

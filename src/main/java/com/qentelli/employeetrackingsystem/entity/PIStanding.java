@@ -47,7 +47,7 @@ public class PIStanding {
     private boolean sprint3;
     private boolean sprint4;
     private double completionPercentage;    // 99
-    private String status;                  // Waiting for Release
+    private String statusReport;                  // Waiting for Release
  
     @CreatedDate
     private LocalDateTime createdAt;

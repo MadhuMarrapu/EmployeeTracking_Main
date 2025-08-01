@@ -14,5 +14,5 @@ public class PIStandingRequest {
     private String feature;
     private boolean sprint0, sprint1, sprint2, sprint3, sprint4;
     private double completionPercentage;
-    private String status;
+    private String statusReport;
 }

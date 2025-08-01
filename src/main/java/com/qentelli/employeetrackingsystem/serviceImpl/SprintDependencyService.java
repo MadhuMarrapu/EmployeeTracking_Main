@@ -35,7 +35,7 @@ public class SprintDependencyService {
 
         SprintDependency dependency = new SprintDependency();
         BeanUtils.copyProperties(request, dependency);
-        dependency.setStatus(TaskStatus.valueOf(request.getStatus()));
+        dependency.setStatus_in(TaskStatus.valueOf(request.getStatus_in()));
         dependency.setProject(project);
 
         dependency = sprintDependencyRepository.save(dependency);
@@ -65,7 +65,7 @@ public class SprintDependencyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: "+ request.getProjectId()));
 
         BeanUtils.copyProperties(request, dependency);
-        dependency.setStatus(TaskStatus.valueOf(request.getStatus()));
+        dependency.setStatus_in(TaskStatus.valueOf(request.getStatus_in()));
         dependency.setProject(project);
 
         dependency = sprintDependencyRepository.save(dependency);
@@ -80,7 +80,7 @@ public class SprintDependencyService {
     private SprintDependencyResponse toResponse(SprintDependency entity) {
         SprintDependencyResponse response = new SprintDependencyResponse();
         BeanUtils.copyProperties(entity, response);
-        response.setStatus(entity.getStatus().toString());
+        response.setStatus_in(entity.getStatus_in().toString());    
         if (entity.getProject() != null) {
             response.setProjectId(entity.getProject().getProjectId());
             response.setProjectName(entity.getProject().getProjectName());

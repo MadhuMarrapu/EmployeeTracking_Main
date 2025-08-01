@@ -10,7 +10,7 @@ public class SprintDependencyResponse {
     private String description;
     private String owner;
     private LocalDate date;
-    private String status;
+    private String status_in;
     private String impact;
     private String actionTaken;
     private Integer projectId;

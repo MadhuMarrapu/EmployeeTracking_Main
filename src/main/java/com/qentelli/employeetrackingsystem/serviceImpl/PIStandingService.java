@@ -92,7 +92,7 @@ public class PIStandingService {
         e.setSprint4(dto.isSprint4());
  
         e.setCompletionPercentage(dto.getCompletionPercentage());
-        e.setStatus(dto.getStatus());
+        e.setStatusReport(dto.getStatusReport());
  
         return toResponse(repo.save(e));
     }
@@ -107,7 +107,7 @@ public class PIStandingService {
                 e.getFeature(),
                 e.isSprint0(), e.isSprint1(), e.isSprint2(), e.isSprint3(), e.isSprint4(),
                 e.getCompletionPercentage(),
-                e.getStatus()
+                e.getStatusReport()
         );
     }        
 }
