@@ -43,6 +43,8 @@ public class Resource {
     private int totalOffsiteCount;   
     private String totalRatio;       
     private String ratio;
+    
+    private Boolean resourceStatus = true; // true for active, false for inactive
 
     @Transient
     public int getTotal() {
