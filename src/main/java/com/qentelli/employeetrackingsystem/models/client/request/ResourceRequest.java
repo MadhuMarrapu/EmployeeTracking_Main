@@ -22,4 +22,6 @@ public class ResourceRequest {
 
     private int onsite;
     private int offsite;
+    
+    private Boolean resourceStatus = true; //
 }
