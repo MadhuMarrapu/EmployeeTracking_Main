@@ -77,14 +77,24 @@ public class SprintDependencyService {
         sprintDependencyRepository.deleteById(id);
     }
 
+  
     private SprintDependencyResponse toResponse(SprintDependency entity) {
         SprintDependencyResponse response = new SprintDependencyResponse();
         BeanUtils.copyProperties(entity, response);
-        response.setStatus_in(entity.getStatus_in().toString());    
+
+        // Handle null status_in safely
+        if (entity.getStatus_in() != null) {
+            response.setStatus_in(entity.getStatus_in().toString());
+        } else {
+            response.setStatus_in("NOT_STARTED"); // or "NOT_STARTED" / "UNKNOWN" if you prefer a default
+        }
+
         if (entity.getProject() != null) {
             response.setProjectId(entity.getProject().getProjectId());
             response.setProjectName(entity.getProject().getProjectName());
         }
+
         return response;
     }
+
 }
