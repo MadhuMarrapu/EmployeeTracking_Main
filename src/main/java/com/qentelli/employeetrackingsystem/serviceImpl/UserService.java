@@ -40,7 +40,13 @@ public class UserService {
 
 		LoginUserResponse response = new LoginUserResponse();
 		response.setUserName(userDetails.getUsername());
-		response.setRole(userDetails.getAuthorities().iterator().next().getAuthority());
+		
+		
+		String role = userDetails.getAuthorities().iterator().next().getAuthority();
+	    if (role.startsWith("ROLE_")) {
+	        role = role.substring(5); // remove "ROLE_" prefix
+	    }
+	    response.setRole(role);
 		response.setAcessToken(token);
 
 		if (adminMetadata.containsKey(userDetails.getUsername())) {
@@ -52,6 +58,10 @@ public class UserService {
 			if (person != null) {
 				response.setFirstName(person.getFirstName());
 				response.setLastName(person.getLastName());
+				String rolePerson = userDetails.getAuthorities().iterator().next().getAuthority();
+				rolePerson = rolePerson.replaceFirst("^ROLE_", "").toLowerCase();
+			    response.setRole(rolePerson);
+
 			}
 		}
 
