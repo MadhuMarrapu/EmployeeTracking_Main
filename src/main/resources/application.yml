@@ -2,9 +2,18 @@ server:
    port: ${PORT:8080}
 
 spring:
+<<<<<<< HEAD
    application:
       name: Employee-Tracking-System
    datasource:
+=======
+  application:
+    name: Employee-Tracking-System
+  datasource:
+    url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_JH0dwV2ORjDK
+>>>>>>> 08f60516d4dad808bf242e00041b3f49bb9a122a
 
       url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
       username: neondb_owner
