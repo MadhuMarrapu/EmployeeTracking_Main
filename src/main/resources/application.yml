@@ -4,11 +4,10 @@ server:
 spring:
   application:
     name: Employee-Tracking-System
-
   datasource:
-    url: jdbc:postgresql://localhost:5432/emp-track-test
-    username: postgres
-    password: Postgres1996@@
+    url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_JH0dwV2ORjDK
 
   jpa:
     hibernate:
