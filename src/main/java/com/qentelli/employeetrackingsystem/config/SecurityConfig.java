@@ -40,13 +40,13 @@ public class SecurityConfig {
 	@Bean
 	public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
 		UserDetails admin1 = User.withUsername("admin1@example.com").password(passwordEncoder().encode("admin@123"))
-				.roles("ADMIN").build();
+				.roles("SUPERADMIN").build();
 
 		UserDetails admin2 = User.withUsername("admin2@example.com").password(passwordEncoder().encode("admin#456"))
-				.roles("ADMIN").build();
+				.roles("SUPERADMIN").build();
 
 		UserDetails admin3 = User.withUsername("admin3@example.com").password(passwordEncoder().encode("admin$789"))
-				.roles("ADMIN").build();
+				.roles("SUPERADMIN").build();
 
 		return new InMemoryUserDetailsManager(admin1, admin2, admin3);
 	}
