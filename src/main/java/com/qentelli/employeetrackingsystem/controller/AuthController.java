@@ -17,7 +17,6 @@ import com.qentelli.employeetrackingsystem.models.client.response.LoginUserRespo
 import com.qentelli.employeetrackingsystem.serviceImpl.UserService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 
 @RestController

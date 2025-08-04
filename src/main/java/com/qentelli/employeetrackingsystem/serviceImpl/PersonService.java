@@ -157,6 +157,11 @@ public class PersonService {
 
 		personRepo.save(person); // Persist the change
 	}
+	
+	public Person getPersonEntity(String email) {
+	    return personRepo.findByEmail(email)
+	        .orElseThrow(() -> new PersonNotFoundException("Person not found with email: " + email));
+	}
 
 	private PersonDTO convertToDTO(Person person) {
 		PersonDTO dto = modelMapper.map(person, PersonDTO.class);
