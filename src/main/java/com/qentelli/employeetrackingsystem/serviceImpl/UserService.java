@@ -18,51 +18,57 @@ import com.qentelli.employeetrackingsystem.models.client.response.LoginUserRespo
 @Service
 public class UserService {
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private JwtUtil jwtUtil;
+    @Autowired
+    private JwtUtil jwtUtil;
 
-	@Autowired
-	private PersonService personService;
+    @Autowired
+    private PersonService personService;
 
-	@Autowired
-	private Map<String, Map<String, String>> adminMetadata;
+    @Autowired
+    private Map<String, Map<String, String>> adminMetadata;
 
-	public LoginUserResponse loginByEmail(LoginUserRequest loginUser) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginUser.getUserName(), loginUser.getPassword()));
+    public LoginUserResponse loginByEmail(LoginUserRequest loginUser) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginUser.getUserName(), loginUser.getPassword()
+            )
+        );
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-		String token = jwtUtil.generateToken(userDetails.getUsername());
-		
-		LoginUserResponse response = new LoginUserResponse();
-		response.setUserName(userDetails.getUsername());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-		String rawRole = userDetails.getAuthorities().iterator().next().getAuthority();
-		String role = rawRole.startsWith("ROLE_")
-		    ? rawRole.substring(5) // removes "ROLE_"
-		    : rawRole;
-		response.setRole(role); // optional: "superadmin"
+        String username = userDetails.getUsername();
+        String token = jwtUtil.generateToken(username);
 
+        LoginUserResponse response = new LoginUserResponse();
+        response.setUserName(username);
+        response.setAcessToken(token);
 
-		response.setAcessToken(token);
+        String rawRole = userDetails.getAuthorities().iterator().next().getAuthority();
+        String role = rawRole.startsWith("ROLE_") ? rawRole.substring(5) : rawRole;
+        response.setRole(role);
 
-		if (adminMetadata.containsKey(userDetails.getUsername())) {
-			Map<String, String> meta = adminMetadata.get(userDetails.getUsername());
-			response.setFirstName(meta.get("firstName"));
-			response.setLastName(meta.get("lastName"));
-		} else {
-			Person person = personService.getPersonEntity(userDetails.getUsername());
-			if (person != null) {
-				response.setFirstName(person.getFirstName());
-				response.setLastName(person.getLastName());
+        // ✅ First try admin metadata
+        if (adminMetadata.containsKey(username)) {
+            Map<String, String> meta = adminMetadata.get(username);
+            response.setFirstName(meta.get("firstName"));
+            response.setLastName(meta.get("lastName"));
+        } else {
+            // 🔁 Fallback to DB lookup
+            Person person = personService.getPersonEntity(username);
+            if (person != null) {
+                response.setFirstName(person.getFirstName());
+                response.setLastName(person.getLastName());
+            } else {
+                // Optional: handle missing person data explicitly
+                response.setFirstName("Unknown");
+                response.setLastName("User");
+            }
+        }
 
-			}
-		}
-
-		return response;
-	}
+        return response;
+    }
 }
