@@ -37,8 +37,6 @@ public class TechStackController {
 
 		return ResponseEntity.ok(response);
 	}
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> c50be704fb289e1928552bd72f73319faa40b6e6
+
