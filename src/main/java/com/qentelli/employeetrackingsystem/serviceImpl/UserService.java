@@ -40,21 +40,14 @@ public class UserService {
 		
 		LoginUserResponse response = new LoginUserResponse();
 		response.setUserName(userDetails.getUsername());
-<<<<<<< HEAD
+
 		String rawRole = userDetails.getAuthorities().iterator().next().getAuthority();
 		String role = rawRole.startsWith("ROLE_")
 		    ? rawRole.substring(5) // removes "ROLE_"
 		    : rawRole;
 		response.setRole(role); // optional: "superadmin"
-=======
-		
-		
-		String role = userDetails.getAuthorities().iterator().next().getAuthority();
-	    if (role.startsWith("ROLE_")) {
-	        role = role.substring(5); // remove "ROLE_" prefix
-	    }
-	    response.setRole(role);
->>>>>>> 10fab52800a39454f4652bc1bc13f669d6837c99
+
+
 		response.setAcessToken(token);
 
 		if (adminMetadata.containsKey(userDetails.getUsername())) {
@@ -66,13 +59,6 @@ public class UserService {
 			if (person != null) {
 				response.setFirstName(person.getFirstName());
 				response.setLastName(person.getLastName());
-<<<<<<< HEAD
-				
-=======
-				String rolePerson = userDetails.getAuthorities().iterator().next().getAuthority();
-				rolePerson = rolePerson.replaceFirst("^ROLE_", "").toLowerCase();
-			    response.setRole(rolePerson);
->>>>>>> 10fab52800a39454f4652bc1bc13f669d6837c99
 
 			}
 		}
