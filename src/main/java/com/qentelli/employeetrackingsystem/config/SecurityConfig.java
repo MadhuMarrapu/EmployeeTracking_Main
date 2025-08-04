@@ -39,13 +39,13 @@ public class SecurityConfig {
 	// 👤 In-memory admin users
 	@Bean
 	public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-		UserDetails admin1 = User.withUsername("admin1@example.com").password(passwordEncoder().encode("admin@123"))
+		UserDetails admin1 = User.withUsername("superadmin@gmail.com").password(passwordEncoder().encode("Sarath11@"))
 				.roles("SUPERADMIN").build();
 
-		UserDetails admin2 = User.withUsername("admin2@example.com").password(passwordEncoder().encode("admin#456"))
+		UserDetails admin2 = User.withUsername("superadmin2@gmail.com").password(passwordEncoder().encode("Madhu123@"))
 				.roles("SUPERADMIN").build();
 
-		UserDetails admin3 = User.withUsername("admin3@example.com").password(passwordEncoder().encode("admin$789"))
+		UserDetails admin3 = User.withUsername("Anil@qentelli.com").password(passwordEncoder().encode("Anil123@"))
 				.roles("SUPERADMIN").build();
 
 		return new InMemoryUserDetailsManager(admin1, admin2, admin3);

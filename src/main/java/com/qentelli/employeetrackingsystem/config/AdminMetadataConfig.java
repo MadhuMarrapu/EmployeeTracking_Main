@@ -13,9 +13,9 @@ public class AdminMetadataConfig {
 	public Map<String, Map<String, String>> adminMetadata() {
 		Map<String, Map<String, String>> details = new HashMap<>();
 
-		details.put("admin1@example.com", Map.of("firstName", "Amit", "lastName", "Kumar"));
-		details.put("admin2@example.com", Map.of("firstName", "Neha", "lastName", "Verma"));
-		details.put("admin3@example.com", Map.of("firstName", "Raj", "lastName", "Singh"));
+		details.put("admin1@example.com", Map.of("firstName", "Sarath", "lastName", "Tenneti"));
+		details.put("admin2@example.com", Map.of("firstName", "Madhu", "lastName", "Marrapu"));
+		details.put("admin3@example.com", Map.of("firstName", "Anil", "lastName", "Kumar"));
 
 		return details;
 	}
