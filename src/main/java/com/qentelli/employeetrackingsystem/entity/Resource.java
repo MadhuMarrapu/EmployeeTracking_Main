@@ -27,7 +27,7 @@ public class Resource {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ResourceType resourceType; 
+    private ResourceType resourceType; //tech stack or project
 
     @Enumerated(EnumType.STRING)
     private TechStack techStack; 
@@ -43,6 +43,8 @@ public class Resource {
     private int totalOffsiteCount;   
     private String totalRatio;       
     private String ratio;
+    
+    private Boolean resourceStatus = true; // true for active, false for inactive
 
     @Transient
     public int getTotal() {

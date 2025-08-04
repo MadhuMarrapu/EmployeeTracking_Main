@@ -1,7 +1,12 @@
 package com.qentelli.employeetrackingsystem.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,36 +28,63 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Person {
+public class Person implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer personId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer personId;
 
-    private String firstName;
-    private String lastName;
-    @Column(unique = true, nullable = false)
-    private String email;
-    @Column(unique = true, nullable = false)
-    private String employeeCode;
-    private String password;
-    private String confirmPassword;
-    
-    @Enumerated(EnumType.STRING)
-    private Roles role;
-    private Boolean personStatus=true; // true for active, false for inactive;
-    @ManyToMany
-    @JoinTable(
-        name = "person_project",
-        joinColumns = @JoinColumn(name = "person_id"),
-        inverseJoinColumns = @JoinColumn(name = "project_id")
-    )
-    private List<Project> projects = new ArrayList<>();
+	private String firstName;
+	private String lastName;
+	@Column(unique = true, nullable = false)
+	private String email;
+	@Column(unique = true, nullable = false)
+	private String employeeCode;
+	private String password;
+	private String confirmPassword;
 
-    @Enumerated(EnumType.STRING)
-    private TechStack techStack;
-    
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "resource_id", referencedColumnName = "resourceId")
-    private Resource resource;
+	@Enumerated(EnumType.STRING)
+	private Roles role;
+	private Boolean personStatus = true; // true for active, false for inactive;
+	@ManyToMany
+	@JoinTable(name = "person_project", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
+	private List<Project> projects = new ArrayList<>();
+
+	@Enumerated(EnumType.STRING)
+	private TechStack techStack;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "resource_id", referencedColumnName = "resourceId")
+	private Resource resource;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of(new SimpleGrantedAuthority(role.name())); // Adjust based on your setup
+	}
+
+	@Override
+	public String getPassword() {
+		return password;
+	}
+
+	@Override
+	public String getUsername() {
+		return email; // Or employeeCode, depending on your login field
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true; // Customize if needed
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
 }

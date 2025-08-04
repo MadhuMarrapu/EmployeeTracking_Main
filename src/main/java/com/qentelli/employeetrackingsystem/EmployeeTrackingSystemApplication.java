@@ -9,5 +9,5 @@ public class EmployeeTrackingSystemApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EmployeeTrackingSystemApplication.class, args);
 	}
-
+	
 }

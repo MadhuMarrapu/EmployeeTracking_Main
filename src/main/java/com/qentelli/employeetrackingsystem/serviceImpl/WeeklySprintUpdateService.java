@@ -106,7 +106,7 @@ public class WeeklySprintUpdateService {
 	            .orElseThrow(() -> new WeeklySprintUpdateNotFoundException(
 	                "WeeklySprintUpdate not found with id: " + weeklySprintUpdateId));
 
-	    update.setEnabled(true);
+	  //  update.setEnabled(true);
 	    weeklySprintUpdateRepository.save(update);
 	    return true;
 	}

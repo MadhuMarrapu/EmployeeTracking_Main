@@ -1,13 +1,13 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.ProgressReport;
+import com.qentelli.employeetrackingsystem.entity.RagStatus;
 import com.qentelli.employeetrackingsystem.exception.ReportNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ProgressReportDTO;
 import com.qentelli.employeetrackingsystem.repository.ProgressReportRepository;
@@ -24,7 +24,7 @@ public class ProgressReportService {
 	private double calculateCompletionPercentage(int assignedSP, int completedSP) {
 		if (assignedSP <= 0)
 			return 0.0;
-		return Math.round((completedSP * 100.0 / assignedSP) * 10.0) / 10.0; // rounded to 1 decimal
+		return Math.round((completedSP * 100.0 / assignedSP) * 10.0) / 10.0;
 	}
 
 	public void create(ProgressReportDTO dto) {
@@ -34,12 +34,13 @@ public class ProgressReportService {
 		reportRepository.save(entity);
 	}
 
-	public List<ProgressReportDTO> getAll() {
-		return reportRepository.findAll().stream().filter(ProgressReport::getProgressReportStatus).map(report -> {
+	public Page<ProgressReportDTO> getAll(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("snapshotDate").descending());
+		return reportRepository.findByProgressReportStatusTrue(pageable).map(report -> {
 			ProgressReportDTO dto = modelMapper.map(report, ProgressReportDTO.class);
 			dto.setCompletionPercentage(calculateCompletionPercentage(report.getAssignedSP(), report.getCompletedSP()));
 			return dto;
-		}).toList();
+		});
 	}
 
 	public void update(Long id, ProgressReportDTO dto) {
