@@ -15,7 +15,9 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
+
 import com.qentelli.employeetrackingsystem.exception.BadRequestException;
+
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
@@ -25,6 +27,7 @@ import com.qentelli.employeetrackingsystem.repository.ResourceRepository;
 @Service
 @Transactional
 public class ResourceService {
+
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceService.class);
 
@@ -175,4 +178,5 @@ public class ResourceService {
 		int offsiteRatio = 100 - onsiteRatio;
 		return onsiteRatio + "% : " + offsiteRatio + "%";
 	}
+
 }
