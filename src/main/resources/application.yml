@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: Employee-Tracking-System
-
   datasource:
     url: jdbc:postgresql://localhost:5432/emp-track-test
     username: postgres

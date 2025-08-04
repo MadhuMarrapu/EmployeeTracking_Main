@@ -37,16 +37,14 @@ public class UserService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 		String token = jwtUtil.generateToken(userDetails.getUsername());
-
+		
 		LoginUserResponse response = new LoginUserResponse();
 		response.setUserName(userDetails.getUsername());
-		
-		
-		String role = userDetails.getAuthorities().iterator().next().getAuthority();
-	    if (role.startsWith("ROLE_")) {
-	        role = role.substring(5); // remove "ROLE_" prefix
-	    }
-	    response.setRole(role);
+		String rawRole = userDetails.getAuthorities().iterator().next().getAuthority();
+		String role = rawRole.startsWith("ROLE_")
+		    ? rawRole.substring(5) // removes "ROLE_"
+		    : rawRole;
+		response.setRole(role); // optional: "superadmin"
 		response.setAcessToken(token);
 
 		if (adminMetadata.containsKey(userDetails.getUsername())) {
@@ -58,9 +56,7 @@ public class UserService {
 			if (person != null) {
 				response.setFirstName(person.getFirstName());
 				response.setLastName(person.getLastName());
-				String rolePerson = userDetails.getAuthorities().iterator().next().getAuthority();
-				rolePerson = rolePerson.replaceFirst("^ROLE_", "").toLowerCase();
-			    response.setRole(rolePerson);
+				
 
 			}
 		}
