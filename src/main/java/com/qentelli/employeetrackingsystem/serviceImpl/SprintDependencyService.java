@@ -17,7 +17,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.SprintDependen
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintDependencyRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintRepository;
-import com.qentelli.employeetrackingsystem.service.SprintDependencyService;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
