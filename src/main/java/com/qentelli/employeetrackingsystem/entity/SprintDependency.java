@@ -22,16 +22,19 @@ public class SprintDependency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String type; // Dependency / Blocker
+    private String type; 
     private String description;
     private String owner;
     private LocalDate date;
-    private TaskStatus status_in; // e.g., "In Progress"
+    private TaskStatus statusIn; 
     private String impact;
     private String actionTaken;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    private Sprint sprint;
+
 }
 
