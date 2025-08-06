@@ -32,19 +32,24 @@ public class  SprintDependencyService {
 	private final SprintRepository sprintRepository;
 
 	
-	public SprintDependencyResponse create( SprintDependencyRequest request) {
-	    log.info("Creating SprintDependency for sprintId {}: {}", request.getSprintId(), request);
-	    Project project = projectRepository.findById(request.getProjectId())
-	        .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + request.getProjectId()));
-	    Sprint sprint = sprintRepository.findById(request.getSprintId())
-	        .orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + request.getSprintId()));
-	    SprintDependency dependency = new SprintDependency();
-	    BeanUtils.copyProperties(request, dependency);
-	    dependency.setStatusIn(TaskStatus.valueOf(request.getStatusIn()));
-	    dependency.setProject(project);
-	    dependency.setSprint(sprint);
-	    dependency = sprintDependencyRepository.save(dependency);
-	    return toResponse(dependency);
+	public SprintDependencyResponse create(SprintDependencyRequest request) {
+		log.info("Creating SprintDependency for sprintId {}: {}", request.getSprintId(), request);
+		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(
+				() -> new ProjectNotFoundException("Project not found with id: " + request.getProjectId()));
+		Sprint sprint = sprintRepository.findById(request.getSprintId())
+				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + request.getSprintId()));
+		SprintDependency dependency = new SprintDependency(); 
+		dependency.setType(request.getType());
+		dependency.setDescription(request.getDescription());
+		dependency.setOwner(request.getOwner());
+		dependency.setDate(request.getDate());
+		dependency.setStatusIn(TaskStatus.valueOf(request.getStatusIn()));
+		dependency.setImpact(request.getImpact());
+		dependency.setActionTaken(request.getActionTaken());
+		dependency.setProject(project);
+		dependency.setSprint(sprint);
+		dependency = sprintDependencyRepository.save(dependency);
+		return toResponse(dependency);
 	}
 
 	
