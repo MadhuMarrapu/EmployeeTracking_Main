@@ -31,7 +31,7 @@ public class  SprintDependencyService {
 	private final ProjectRepository projectRepository;
 	private final SprintRepository sprintRepository;
 
-	
+	@Override
 	public SprintDependencyResponse create(SprintDependencyRequest request) {
 		log.info("Creating SprintDependency for sprintId {}: {}", request.getSprintId(), request);
 		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(
@@ -52,13 +52,13 @@ public class  SprintDependencyService {
 		return toResponse(dependency);
 	}
 
-	
+	@Override
 	public Page<SprintDependencyResponse> getAll(Pageable pageable) {
 		log.info("Fetching all SprintDependencies with pagination: {}", pageable);
 		return sprintDependencyRepository.findAll(pageable).map(this::toResponse);
 	}
 
-	
+	@Override
 	public SprintDependencyResponse getById(Long id) {
 		log.info("Fetching SprintDependency with ID: {}", id);
 		SprintDependency entity = sprintDependencyRepository.findById(id)
@@ -66,7 +66,7 @@ public class  SprintDependencyService {
 		return toResponse(entity);
 	}
 
-	
+	@Override
 	public SprintDependencyResponse update(Long id, SprintDependencyRequest request) {
 		log.info("Updating SprintDependency with ID: {}", id);
 		SprintDependency dependency = sprintDependencyRepository.findById(id)
@@ -80,20 +80,35 @@ public class  SprintDependencyService {
 		return toResponse(dependency);
 	}
 
-	
+	@Override
 	public void delete(Long id) {
 		log.info("Deleting SprintDependency with ID: {}", id);
 		sprintDependencyRepository.deleteById(id);
 	}
 
 	private SprintDependencyResponse toResponse(SprintDependency entity) {
-		SprintDependencyResponse response = new SprintDependencyResponse();
-		BeanUtils.copyProperties(entity, response);
-		response.setStatus_in(entity.getStatusIn() != null ? entity.getStatusIn().toString() : "NOT_STARTED");
-		if (entity.getProject() != null) {
-			response.setProjectId(entity.getProject().getProjectId());
-			response.setProjectName(entity.getProject().getProjectName());
-		}
-		return response;
+	    SprintDependencyResponse response = new SprintDependencyResponse();
+	    BeanUtils.copyProperties(entity, response);
+
+	    // Defensive status mapping
+	    response.setStatus_in(entity.getStatusIn() != null ? entity.getStatusIn().toString() : "NOT_STARTED");
+
+	    // Project info mapping
+	    if (entity.getProject() != null) {
+	        response.setProjectId(entity.getProject().getProjectId());
+	        response.setProjectName(entity.getProject().getProjectName() != null 
+	            ? entity.getProject().getProjectName() 
+	            : "Unnamed Project");
+	    }
+
+	    // Sprint info mapping
+	    if (entity.getSprint() != null) {
+	        response.setSprintId(entity.getSprint().getSprintId());
+	        response.setSprintName(entity.getSprint().getSprintName() != null 
+	            ? entity.getSprint().getSprintName() 
+	            : "Unnamed Sprint");
+	    }
+
+	    return response;
 	}
 }
