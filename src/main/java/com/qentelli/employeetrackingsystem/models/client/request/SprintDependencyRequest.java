@@ -13,11 +13,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SprintDependencyRequest {
+	private Long sprintId;  
     private String type;           // e.g., Dependency or Blocker
     private String description;
     private String owner;
     private LocalDate date;
-    private String status_in;         // e.g., "In Progress"
+    private String statusIn;         // e.g., "In Progress"
     private String impact;
     private String actionTaken;
     private Integer projectId;        // Refers to Project entity
