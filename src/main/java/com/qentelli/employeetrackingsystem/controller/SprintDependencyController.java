@@ -22,7 +22,7 @@ import com.qentelli.employeetrackingsystem.models.client.request.SprintDependenc
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintDependencyResponse;
-import com.qentelli.employeetrackingsystem.service.SprintDependencyService;
+import com.qentelli.employeetrackingsystem.serviceImpl.SprintDependencyService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
