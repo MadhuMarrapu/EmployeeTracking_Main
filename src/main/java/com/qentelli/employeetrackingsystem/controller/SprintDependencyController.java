@@ -23,7 +23,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintDependencyResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.SprintDependencyService;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +36,7 @@ public class SprintDependencyController {
 	private final SprintDependencyService sprintDependencyService;
 
 	@PostMapping("/create")
-	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@RequestBody SprintDependencyRequest request) {
+	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@Valid @RequestBody SprintDependencyRequest request) {
 		SprintDependencyResponse created = sprintDependencyService.create(request);
 		AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(HttpStatus.CREATED.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependency created successfully", created);
