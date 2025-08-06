@@ -27,21 +27,24 @@ public class SprintDependencyService {
 	@Autowired
     private ProjectRepository projectRepository;
 
-    public SprintDependencyResponse create(SprintDependencyRequest request) {
-        log.info("Creating SprintDependency: {}", request);
+	@Autowired
+    private  SprintRepository sprintRepository;
 
-        Project project = projectRepository.findById(request.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: "+ request.getProjectId()));
-
-        SprintDependency dependency = new SprintDependency();
-        BeanUtils.copyProperties(request, dependency);
-        dependency.setStatus_in(TaskStatus.valueOf(request.getStatus_in()));
-        dependency.setProject(project);
-
-        dependency = sprintDependencyRepository.save(dependency);
-
-        return toResponse(dependency);
-    }
+  
+	public SprintDependencyResponse create(Long sprintId, SprintDependencyRequest request) {
+	    log.info("Creating SprintDependency for sprintId {}: {}", sprintId, request);
+	    Project project = projectRepository.findById(request.getProjectId())
+	        .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + request.getProjectId()));
+	    Sprint sprint = sprintRepository.findById(sprintId)
+	        .orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + sprintId));
+	    SprintDependency dependency = new SprintDependency();
+	    BeanUtils.copyProperties(request, dependency);
+	    dependency.setStatusIn(TaskStatus.valueOf(request.getStatusIn()));
+	    dependency.setProject(project);
+	    dependency.setSprint(sprint);
+	    dependency = sprintDependencyRepository.save(dependency);
+	    return toResponse(dependency);
+	}
 
     public Page<SprintDependencyResponse> getAll(Pageable pageable) {
         log.info("Fetching all SprintDependencies with pagination: {}", pageable);
