@@ -2,7 +2,6 @@ package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,101 +22,63 @@ import com.qentelli.employeetrackingsystem.models.client.request.SprintDependenc
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintDependencyResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.SprintDependencyService;
+import com.qentelli.employeetrackingsystem.service.SprintDependencyService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/sprint-dependencies")
 public class SprintDependencyController {
 
-	@Autowired
-    private SprintDependencyService sprintDependencyService;
+	private final SprintDependencyService sprintDependencyService;
 
-   @PostMapping("/sprint/{sprintId}/create")
-	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@PathVariable Long sprintId,
-			@RequestBody SprintDependencyRequest request) {
-		SprintDependencyResponse created = sprintDependencyService.create(sprintId, request);
+	@PostMapping("/create")
+	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@RequestBody SprintDependencyRequest request) {
+		SprintDependencyResponse created = sprintDependencyService.create(request);
 		AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(HttpStatus.CREATED.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependency created successfully", created);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-    @GetMapping("/all")
-    public ResponseEntity<AuthResponse<PaginatedResponse<SprintDependencyResponse>>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<SprintDependencyResponse> resultPage = sprintDependencyService.getAll(pageable);
+	@GetMapping("/all")
+	public ResponseEntity<AuthResponse<PaginatedResponse<SprintDependencyResponse>>> getAll(
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<SprintDependencyResponse> resultPage = sprintDependencyService.getAll(pageable);
+		PaginatedResponse<SprintDependencyResponse> paginated = new PaginatedResponse<>(resultPage.getContent(),
+				resultPage.getNumber(), resultPage.getSize(), resultPage.getTotalElements(), resultPage.getTotalPages(),
+				resultPage.isLast());
+		AuthResponse<PaginatedResponse<SprintDependencyResponse>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependencies fetched successfully",
+				paginated);
+		return ResponseEntity.ok(response);
+	}
 
-        PaginatedResponse<SprintDependencyResponse> paginated = new PaginatedResponse<>(
-                resultPage.getContent(),
-                resultPage.getNumber(),
-                resultPage.getSize(),
-                resultPage.getTotalElements(),
-                resultPage.getTotalPages(),
-                resultPage.isLast()
-        );
+	@GetMapping("/{id}")
+	public ResponseEntity<AuthResponse<SprintDependencyResponse>> getById(@PathVariable Long id) {
+		SprintDependencyResponse found = sprintDependencyService.getById(id);
+		AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependency fetched successfully", found);
+		return ResponseEntity.ok(response);
+	}
 
-        AuthResponse<PaginatedResponse<SprintDependencyResponse>> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Sprint dependencies fetched successfully",
-                paginated
-        );
+	@PutMapping("/{id}")
+	public ResponseEntity<AuthResponse<SprintDependencyResponse>> update(@PathVariable Long id,
+			@RequestBody SprintDependencyRequest request) {
+		SprintDependencyResponse updated = sprintDependencyService.update(id, request);
+		AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependency updated successfully", updated);
+		return ResponseEntity.ok(response);
+	}
 
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<AuthResponse<SprintDependencyResponse>> getById(@PathVariable Long id) {
-        SprintDependencyResponse found = sprintDependencyService.getById(id);
-
-        AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Sprint dependency fetched successfully",
-                found
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<AuthResponse<SprintDependencyResponse>> update(
-            @PathVariable Long id,
-            @RequestBody SprintDependencyRequest request
-    ) {
-        SprintDependencyResponse updated = sprintDependencyService.update(id, request);
-
-        AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Sprint dependency updated successfully",
-                null
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<AuthResponse<Void>> delete(@PathVariable Long id) {
-        sprintDependencyService.delete(id);
-
-        AuthResponse<Void> response = new AuthResponse<>(
-                HttpStatus.OK.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Sprint dependency deleted successfully",
-                null
-        );
-
-        return ResponseEntity.ok(response);
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<AuthResponse<Void>> delete(@PathVariable Long id) {
+		sprintDependencyService.delete(id);
+		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Sprint dependency deleted successfully", null);
+		return ResponseEntity.ok(response);
+	}
 }
