@@ -36,20 +36,14 @@ public class SprintDependencyController {
 	@Autowired
     private SprintDependencyService sprintDependencyService;
 
-    @PostMapping("/create")
-    public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@RequestBody SprintDependencyRequest request) {
-        SprintDependencyResponse created = sprintDependencyService.create(request);
-
-        AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(
-                HttpStatus.CREATED.value(),
-                RequestProcessStatus.SUCCESS,
-                LocalDateTime.now(),
-                "Sprint dependency created successfully",
-                null
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
+   @PostMapping("/sprint/{sprintId}/create")
+	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@PathVariable Long sprintId,
+			@RequestBody SprintDependencyRequest request) {
+		SprintDependencyResponse created = sprintDependencyService.create(sprintId, request);
+		AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(HttpStatus.CREATED.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependency created successfully", created);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
 
     @GetMapping("/all")
     public ResponseEntity<AuthResponse<PaginatedResponse<SprintDependencyResponse>>> getAll(
