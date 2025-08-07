@@ -1,5 +1,8 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -91,6 +94,19 @@ public class  SprintDependencyService {
 		Sprint sprint = sprintRepository.findById(sprintId)
 				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
 		return sprintDependencyRepository.findBySprint_SprintId(sprint.getSprintId(), pageable).map(this::toResponse);
+	}
+  
+	public List<SprintDependencyResponse> getAllBySprintId(Long sprintId) {
+	    log.info("Fetching SprintDependencies (non-paginated) for Sprint ID: {}", sprintId);
+
+	    Sprint sprint = sprintRepository.findById(sprintId)
+	            .orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
+
+	    List<SprintDependency> dependencies = sprintDependencyRepository.findBySprint_SprintId(sprintId);
+
+	    return dependencies.stream()
+	            .map(this::toResponse)
+	            .collect(Collectors.toList());
 	}
 
 	private SprintDependencyResponse toResponse(SprintDependency entity) {

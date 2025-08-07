@@ -1,6 +1,7 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -96,4 +97,22 @@ public class SprintDependencyController {
 				paginated);
 		return ResponseEntity.ok(response);
 	}
+	
+	@GetMapping("/sprint/{sprintId}/all")
+	public ResponseEntity<AuthResponse<List<SprintDependencyResponse>>> getAllBySprintId(
+	        @PathVariable Long sprintId) {
+
+	    List<SprintDependencyResponse> responses = sprintDependencyService.getAllBySprintId(sprintId);
+
+	    AuthResponse<List<SprintDependencyResponse>> response = new AuthResponse<>(
+	            HttpStatus.OK.value(),
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Sprint dependencies fetched successfully",
+	            responses
+	    );
+
+	    return ResponseEntity.ok(response);
+	}
+
 }
