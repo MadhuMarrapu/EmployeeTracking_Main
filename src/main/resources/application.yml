@@ -1,32 +1,30 @@
 server:
-   port: ${PORT:8080}
+  port: ${PORT:8080}
 
 spring:
-   application:
-      name: Employee-Tracking-System
-   datasource:
+  application:
+    name: Employee-Tracking-System
+  datasource:
+    url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_JH0dwV2ORjDK
 
-      url: jdbc:postgresql://localhost:5432/final1
-      username: postgres
-      password: Postgres1996@@
-
-
-   jpa:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
       hibernate:
-         ddl-auto: update
-      properties:
-         hibernate:
-            jdbc:
-               time_zone: Asia/Kolkata
-      show-sql: true
+        jdbc:
+          time_zone: Asia/Kolkata
+    show-sql: true
 
-   jackson:
-      time-zone: Asia/Kolkata
+  jackson:
+    time-zone: Asia/Kolkata
 
-   main:
-      allow-circular-references: true
+  main:
+    allow-circular-references: true
 
-   data:
-      jpa:
-         repositories:
-            bootstrap-mode: lazy
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: lazy
