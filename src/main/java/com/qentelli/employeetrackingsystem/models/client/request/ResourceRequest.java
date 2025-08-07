@@ -21,6 +21,8 @@ public class ResourceRequest {
 
 	private Integer projectId;
 
+	private Long sprintId; // 🆕 Added to support sprint association
+
 	@Min(value = 0, message = "Onsite count must be non-negative")
 	private int onsite;
 
@@ -28,5 +30,4 @@ public class ResourceRequest {
 	private int offsite;
 
 	private Boolean resourceStatus = true;
-
 }

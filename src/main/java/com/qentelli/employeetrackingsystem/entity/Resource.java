@@ -1,16 +1,6 @@
 package com.qentelli.employeetrackingsystem.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,31 +17,32 @@ public class Resource {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ResourceType resourceType; //tech stack or project
+    private ResourceType resourceType; // TECH_STACK or PROJECT
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true) // explicitly nullable
+    @Column(nullable = true)
     private TechStack techStack;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = true)
-    private Project project; 
+    private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id", nullable = true)
+    private Sprint sprint;
 
     private int onsite;
     private int offsite;
 
-    private int totalOnsiteCount;    
-    private int totalOffsiteCount;   
-    private String totalRatio;       
+    private int totalOnsiteCount;
+    private int totalOffsiteCount;
+    private String totalRatio;
     private String ratio;
-    
-    private Boolean resourceStatus = true; // true for active, false for inactive
+
+    private Boolean resourceStatus = true;
 
     @Transient
     public int getTotal() {
         return onsite + offsite;
     }
 }
-
-
-

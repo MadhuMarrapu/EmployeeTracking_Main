@@ -83,7 +83,7 @@ public class SprintDependencyController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@GetMapping("/sprint/{sprintId}")
+	@GetMapping("/sprint/page/{sprintId}")
 	public ResponseEntity<AuthResponse<PaginatedResponse<SprintDependencyResponse>>> getBySprintId(
 			@PathVariable Long sprintId, @RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
@@ -98,7 +98,7 @@ public class SprintDependencyController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@GetMapping("/sprint/{sprintId}/all")
+	@GetMapping("/sprint/{sprintId}")
 	public ResponseEntity<AuthResponse<List<SprintDependencyResponse>>> getAllBySprintId(
 	        @PathVariable Long sprintId) {
 

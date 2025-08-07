@@ -76,60 +76,73 @@ public class ResourceController {
 
 	@GetMapping("/type/{resourceType}/active")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getActiveResourcesByType(
-			@PathVariable ResourceType resourceType, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<ResourceResponse> pageData = resourceService.getActiveResourcesByType(resourceType, pageable);
+	        @PathVariable ResourceType resourceType,
+	        @RequestParam(required = false) Long sprintId,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) {
 
-		PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
-				pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
+	    Pageable pageable = PageRequest.of(page, size);
+	    Page<ResourceResponse> pageData = resourceService.getActiveResourcesByType(sprintId, resourceType, pageable);
 
-		String message = pageData.isEmpty() ? "No active resources found for the requested page"
-				: "Active resources fetched successfully";
+	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
+	            pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
 
-		HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+	    String message = pageData.isEmpty()
+	            ? "No active resources found" + (sprintId != null ? " for sprint " + sprintId : "")
+	            : "Active resources fetched successfully" + (sprintId != null ? " for sprint " + sprintId : "");
 
-		return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), message, paginated));
+	    HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+
+	    return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(), message, paginated));
 	}
 
 	@GetMapping("/search/techstack")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchTechStackResources(
-			@RequestParam ResourceType resourceType, @RequestParam TechStack techStack,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<ResourceResponse> pageData = resourceService.searchActiveTechStack(resourceType, techStack, pageable);
+	        @RequestParam ResourceType resourceType,
+	        @RequestParam TechStack techStack,
+	        @RequestParam(required = false) Long sprintId,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) {
 
-		PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
-				pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
+	    Pageable pageable = PageRequest.of(page, size);
+	    Page<ResourceResponse> pageData = resourceService.searchActiveTechStack(sprintId, resourceType, techStack, pageable);
 
-		String message = pageData.isEmpty() ? "No active TECH_STACK resources found"
-				: "TECH_STACK resources fetched successfully";
+	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
+	            pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
 
-		HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+	    String message = pageData.isEmpty()
+	            ? "No TECH_STACK resources found" + (sprintId != null ? " for sprint " + sprintId : "")
+	            : "TECH_STACK resources fetched successfully" + (sprintId != null ? " for sprint " + sprintId : "");
 
-		return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), message, paginated));
+	    HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+
+	    return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(), message, paginated));
 	}
 
 	@GetMapping("/search/project")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchProjectResources(
-			@RequestParam ResourceType resourceType, @RequestParam String projectName,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<ResourceResponse> pageData = resourceService.searchActiveProjectsByName(resourceType, projectName,
-				pageable);
+	        @RequestParam ResourceType resourceType,
+	        @RequestParam String projectName,
+	        @RequestParam(required = false) Long sprintId,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) {
 
-		PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
-				pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
+	    Pageable pageable = PageRequest.of(page, size);
+	    Page<ResourceResponse> pageData = resourceService.searchActiveProjectsByName(sprintId, resourceType, projectName, pageable);
 
-		String message = pageData.isEmpty() ? "No active PROJECT resources found"
-				: "PROJECT resources fetched successfully";
+	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
+	            pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
 
-		HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+	    String message = pageData.isEmpty()
+	            ? "No PROJECT resources found" + (sprintId != null ? " for sprint " + sprintId : "")
+	            : "PROJECT resources fetched successfully" + (sprintId != null ? " for sprint " + sprintId : "");
 
-		return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), message, paginated));
+	    HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+
+	    return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(), message, paginated));
 	}
 
 	@PutMapping("/{id}")
