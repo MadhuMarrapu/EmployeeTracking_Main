@@ -83,14 +83,14 @@ public class ResourceService {
 		existing.setOffsite(request.getOffsite());
 		existing.setResourceStatus(request.getResourceStatus());
 
-		if (request.getResourceType() == ResourceType.TECH_STACK && request.getTechStack() != null) {
-			existing.setTechStack(request.getTechStack());
-		}
-
-		if (request.getResourceType() == ResourceType.PROJECT && request.getProjectId() != null) {
-			Project project = projectRepository.findById(request.getProjectId())
-					.orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
-			existing.setProject(project);
+		if (request.getResourceType() == ResourceType.TECH_STACK) {
+		    existing.setTechStack(request.getTechStack());
+		    existing.setProject(null); // ✅ Explicitly nullify
+		} else if (request.getResourceType() == ResourceType.PROJECT) {
+		    existing.setTechStack(null); // ✅ Explicitly nullify
+		    Project project = projectRepository.findById(request.getProjectId())
+		        .orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
+		    existing.setProject(project);
 		}
 
 		if (request.getSprintId() != null) {
@@ -174,33 +174,36 @@ public class ResourceService {
 
 	// 🔸 Entity → DTO
 	private ResourceResponse mapToResponse(Resource resource) {
-		ResourceResponse response = new ResourceResponse();
-		response.setResourceId(resource.getResourceId());
-		response.setResourceType(resource.getResourceType());
+	    ResourceResponse response = new ResourceResponse();
+	    response.setResourceId(resource.getResourceId());
+	    response.setResourceType(resource.getResourceType());
 
-		if (resource.getResourceType() == ResourceType.TECH_STACK && resource.getTechStack() != null) {
-			response.setTechStack(resource.getTechStack());
-		}
+	    if (resource.getResourceType() == ResourceType.TECH_STACK) {
+	        response.setTechStack(resource.getTechStack());
+	        response.setProjectId(null); // ✅
+	        response.setProjectName(null); // ✅
+	    } else if (resource.getResourceType() == ResourceType.PROJECT) {
+	        response.setTechStack(null); // ✅
+	        if (resource.getProject() != null) {
+	            response.setProjectId(resource.getProject().getProjectId());
+	            response.setProjectName(resource.getProject().getProjectName());
+	        }
+	    }
 
-		if (resource.getResourceType() == ResourceType.PROJECT && resource.getProject() != null) {
-			response.setProjectId(resource.getProject().getProjectId());
-			response.setProjectName(resource.getProject().getProjectName());
-		}
+	    if (resource.getSprint() != null) {
+	        response.setSprintId(resource.getSprint().getSprintId());
+	        response.setSprintName(resource.getSprint().getSprintName());
+	    }
 
-		if (resource.getSprint() != null) {
-			response.setSprintId(resource.getSprint().getSprintId());
-			response.setSprintName(resource.getSprint().getSprintName());
-		}
+	    response.setOnsite(resource.getOnsite());
+	    response.setOffsite(resource.getOffsite());
+	    response.setTotal(resource.getTotal());
+	    response.setTotalOnsiteCount(resource.getTotalOnsiteCount());
+	    response.setTotalOffsiteCount(resource.getTotalOffsiteCount());
+	    response.setRatio(resource.getRatio());
+	    response.setTotalRatio(resource.getTotalRatio());
 
-		response.setOnsite(resource.getOnsite());
-		response.setOffsite(resource.getOffsite());
-		response.setTotal(resource.getTotal());
-		response.setTotalOnsiteCount(resource.getTotalOnsiteCount());
-		response.setTotalOffsiteCount(resource.getTotalOffsiteCount());
-		response.setRatio(resource.getRatio());
-		response.setTotalRatio(resource.getTotalRatio());
-
-		return response;
+	    return response;
 	}
 
 	// 🔸 Ratio Calculation
