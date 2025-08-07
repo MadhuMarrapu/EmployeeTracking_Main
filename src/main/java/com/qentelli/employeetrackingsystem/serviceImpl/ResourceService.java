@@ -121,6 +121,7 @@ public class ResourceService {
 
 	// 🛠️ Helper Methods
 
+<<<<<<< HEAD
 	private void populateResource(Resource resource, BaseResourceRequest dto) {
 		resource.setResourceType(dto.getResourceType());
 
@@ -136,6 +137,36 @@ public class ResourceService {
 			resource.setProject(project);
 		}
 		default -> throw new BadRequestException("Unsupported resource type");
+=======
+	private void validateResourceRequest(ResourceRequest dto) {
+		if (dto.getResourceType() == ResourceType.PROJECT) {
+			if (dto.getProjectId() == null)
+				throw new BadRequestException("Project ID is required for type PROJECT");
+			if (dto.getTechStack() != null)
+				throw new BadRequestException("Tech Stack must be null for type PROJECT");
+		}
+
+		if (dto.getResourceType() == ResourceType.TECH_STACK) {
+			if (dto.getTechStack() == null)
+				throw new BadRequestException("Tech Stack is required for type TECH_STACK");
+			if (dto.getProjectId() != null)
+				throw new BadRequestException("Project ID must be null for type TECH_STACK");
+		}
+	}
+
+	private void populateResource(Resource resource, ResourceRequest dto) {
+		resource.setResourceType(dto.getResourceType());
+
+		// ✅ Set only the relevant field based on resourceType
+		if (dto.getResourceType() == ResourceType.TECH_STACK) {
+			resource.setTechStack(dto.getTechStack());
+			// Do NOT set project at all
+		} else if (dto.getResourceType() == ResourceType.PROJECT) {
+			Project project = projectRepository.findById(dto.getProjectId()).orElseThrow(
+					() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+			resource.setProject(project);
+			// Do NOT set techStack at all
+>>>>>>> 084be2cd36e43c58c86c1a968b0e7344312b3106
 		}
 
 		int onsite = dto.getOnsite();
