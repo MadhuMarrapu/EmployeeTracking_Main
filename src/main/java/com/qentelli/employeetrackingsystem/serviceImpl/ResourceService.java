@@ -132,30 +132,32 @@ public class ResourceService {
 	}
 
 	private void populateResource(Resource resource, ResourceRequest dto) {
-		resource.setResourceType(dto.getResourceType());
+    resource.setResourceType(dto.getResourceType());
 
-		if (dto.getResourceType() == ResourceType.TECH_STACK) {
-			resource.setTechStack(dto.getTechStack());
-			resource.setProject(null);
-		} else if (dto.getResourceType() == ResourceType.PROJECT) {
-			Project project = projectRepository.findById(dto.getProjectId()).orElseThrow(
-					() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
-			resource.setProject(project);
-			resource.setTechStack(null);
-		}
+    // 🔒 Reset both fields to avoid stale values
+    resource.setTechStack(null);
+    resource.setProject(null);
 
-		int onsite = dto.getOnsite();
-		int offsite = dto.getOffsite();
-		String calculatedRatio = calculateRatio(onsite, offsite);
+    // ✅ Set only the relevant field based on resourceType
+    if (dto.getResourceType() == ResourceType.TECH_STACK) {
+        resource.setTechStack(dto.getTechStack());
+    } else if (dto.getResourceType() == ResourceType.PROJECT) {
+        Project project = projectRepository.findById(dto.getProjectId())
+            .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+        resource.setProject(project);
+    }
 
-		resource.setOnsite(onsite);
-		resource.setOffsite(offsite);
-		resource.setTotalOnsiteCount(onsite);
-		resource.setTotalOffsiteCount(offsite);
-		resource.setRatio(calculatedRatio);
-		resource.setTotalRatio(calculatedRatio);
-	}
+    int onsite = dto.getOnsite();
+    int offsite = dto.getOffsite();
+    String calculatedRatio = calculateRatio(onsite, offsite);
 
+    resource.setOnsite(onsite);
+    resource.setOffsite(offsite);
+    resource.setTotalOnsiteCount(onsite);
+    resource.setTotalOffsiteCount(offsite);
+    resource.setRatio(calculatedRatio);
+    resource.setTotalRatio(calculatedRatio);
+}
 	private ResourceResponse mapToResponseDto(Resource entity) {
 		Integer projectId = null;
 		String projectName = null;
