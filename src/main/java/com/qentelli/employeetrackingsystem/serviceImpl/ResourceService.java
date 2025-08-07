@@ -85,27 +85,27 @@ public class ResourceService {
 		Page<Resource> results;
 
 		switch (type) {
-		case TECH_STACK -> {
-			TechStack techStack;
-			try {
-				techStack = TechStack.fromString(trimmedName);
-			} catch (IllegalArgumentException ex) {
-				throw new IllegalArgumentException(
-						"Invalid Tech Stack: '" + name + "'. Valid values: " + Arrays.toString(TechStack.values()));
+			case TECH_STACK -> {
+				TechStack techStack;
+				try {
+					techStack = TechStack.fromString(trimmedName);
+				} catch (IllegalArgumentException ex) {
+					throw new IllegalArgumentException(
+							"Invalid Tech Stack: '" + name + "'. Valid values: " + Arrays.toString(TechStack.values()));
+				}
+				logger.info("Filtering by TECH_STACK: {}", techStack);
+				logger.debug("Query params → Type: {}, TechStack: {}, Name: {}", type, techStack, null);
+				results = repository.findByResourceStatusTrueAndResourceTypeAndTechStack(type, techStack, pageable);
 			}
-			logger.info("Filtering by TECH_STACK: {}", techStack);
-			logger.debug("Query params → Type: {}, TechStack: {}, Name: {}", type, techStack, null);
-			results = repository.findByResourceStatusTrueAndResourceTypeAndTechStack(type, techStack, pageable);
-		}
 
-		case PROJECT -> {
-			logger.info("Filtering by PROJECT name: '{}'", trimmedName);
-			logger.debug("Query params → Type: {}, TechStack: {}, Name: {}", type, null, trimmedName);
-			results = repository.findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(type,
-					trimmedName, pageable);
-		}
+			case PROJECT -> {
+				logger.info("Filtering by PROJECT name: '{}'", trimmedName);
+				logger.debug("Query params → Type: {}, TechStack: {}, Name: {}", type, null, trimmedName);
+				results = repository.findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(
+						type, trimmedName, pageable);
+			}
 
-		default -> throw new UnsupportedOperationException("Unsupported resource type: " + type);
+			default -> throw new UnsupportedOperationException("Unsupported resource type: " + type);
 		}
 
 		return results.map(this::mapToResponseDto);
@@ -121,52 +121,21 @@ public class ResourceService {
 
 	// 🛠️ Helper Methods
 
-<<<<<<< HEAD
 	private void populateResource(Resource resource, BaseResourceRequest dto) {
 		resource.setResourceType(dto.getResourceType());
 
 		switch (dto.getResourceType()) {
-		case TECH_STACK -> {
-			TechStackResourceRequest techDto = (TechStackResourceRequest) dto;
-			resource.setTechStack(techDto.getTechStack());
-		}
-		case PROJECT -> {
-			ProjectResourceRequest projectDto = (ProjectResourceRequest) dto;
-			Project project = projectRepository.findById(projectDto.getProjectId()).orElseThrow(
-					() -> new ResourceNotFoundException("Project not found with ID: " + projectDto.getProjectId()));
-			resource.setProject(project);
-		}
-		default -> throw new BadRequestException("Unsupported resource type");
-=======
-	private void validateResourceRequest(ResourceRequest dto) {
-		if (dto.getResourceType() == ResourceType.PROJECT) {
-			if (dto.getProjectId() == null)
-				throw new BadRequestException("Project ID is required for type PROJECT");
-			if (dto.getTechStack() != null)
-				throw new BadRequestException("Tech Stack must be null for type PROJECT");
-		}
-
-		if (dto.getResourceType() == ResourceType.TECH_STACK) {
-			if (dto.getTechStack() == null)
-				throw new BadRequestException("Tech Stack is required for type TECH_STACK");
-			if (dto.getProjectId() != null)
-				throw new BadRequestException("Project ID must be null for type TECH_STACK");
-		}
-	}
-
-	private void populateResource(Resource resource, ResourceRequest dto) {
-		resource.setResourceType(dto.getResourceType());
-
-		// ✅ Set only the relevant field based on resourceType
-		if (dto.getResourceType() == ResourceType.TECH_STACK) {
-			resource.setTechStack(dto.getTechStack());
-			// Do NOT set project at all
-		} else if (dto.getResourceType() == ResourceType.PROJECT) {
-			Project project = projectRepository.findById(dto.getProjectId()).orElseThrow(
-					() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
-			resource.setProject(project);
-			// Do NOT set techStack at all
->>>>>>> 084be2cd36e43c58c86c1a968b0e7344312b3106
+			case TECH_STACK -> {
+				TechStackResourceRequest techDto = (TechStackResourceRequest) dto;
+				resource.setTechStack(techDto.getTechStack());
+			}
+			case PROJECT -> {
+				ProjectResourceRequest projectDto = (ProjectResourceRequest) dto;
+				Project project = projectRepository.findById(projectDto.getProjectId())
+						.orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectDto.getProjectId()));
+				resource.setProject(project);
+			}
+			default -> throw new BadRequestException("Unsupported resource type");
 		}
 
 		int onsite = dto.getOnsite();
@@ -191,15 +160,25 @@ public class ResourceService {
 			projectName = entity.getProject().getProjectName();
 		}
 
-		return new ResourceResponse(entity.getResourceId(), entity.getResourceType(), entity.getTechStack(), projectId,
-				projectName, entity.getOnsite(), entity.getOffsite(), entity.getTotal(), entity.getTotalOnsiteCount(),
-				entity.getTotalOffsiteCount(), entity.getTotalRatio(), entity.getRatio());
+		return new ResourceResponse(
+				entity.getResourceId(),
+				entity.getResourceType(),
+				entity.getTechStack(),
+				projectId,
+				projectName,
+				entity.getOnsite(),
+				entity.getOffsite(),
+				entity.getTotal(),
+				entity.getTotalOnsiteCount(),
+				entity.getTotalOffsiteCount(),
+				entity.getTotalRatio(),
+				entity.getRatio()
+		);
 	}
 
 	private String calculateRatio(int onsite, int offsite) {
 		int total = onsite + offsite;
-		if (total == 0)
-			return "0% : 0%";
+		if (total == 0) return "0% : 0%";
 		int onsiteRatio = (int) Math.round((onsite * 100.0) / total);
 		int offsiteRatio = 100 - onsiteRatio;
 		return onsiteRatio + "% : " + offsiteRatio + "%";
