@@ -125,39 +125,47 @@ public class ResourceService {
 	// 🛠️ Helper Methods
 
 	private void validateResourceRequest(ResourceRequest dto) {
-		if (dto.getResourceType() == ResourceType.PROJECT && dto.getProjectId() == null)
-			throw new BadRequestException("Project ID is required for type PROJECT");
-		if (dto.getResourceType() == ResourceType.TECH_STACK && dto.getTechStack() == null)
-			throw new BadRequestException("Tech Stack is required for type TECH_STACK");
+		if (dto.getResourceType() == ResourceType.PROJECT) {
+			if (dto.getProjectId() == null)
+				throw new BadRequestException("Project ID is required for type PROJECT");
+			if (dto.getTechStack() != null)
+				throw new BadRequestException("Tech Stack must be null for type PROJECT");
+		}
+
+		if (dto.getResourceType() == ResourceType.TECH_STACK) {
+			if (dto.getTechStack() == null)
+				throw new BadRequestException("Tech Stack is required for type TECH_STACK");
+			if (dto.getProjectId() != null)
+				throw new BadRequestException("Project ID must be null for type TECH_STACK");
+		}
 	}
 
 	private void populateResource(Resource resource, ResourceRequest dto) {
-    resource.setResourceType(dto.getResourceType());
+		resource.setResourceType(dto.getResourceType());
 
-    // 🔒 Reset both fields to avoid stale values
-    resource.setTechStack(null);
-    resource.setProject(null);
+		// ✅ Set only the relevant field based on resourceType
+		if (dto.getResourceType() == ResourceType.TECH_STACK) {
+			resource.setTechStack(dto.getTechStack());
+			// Do NOT set project at all
+		} else if (dto.getResourceType() == ResourceType.PROJECT) {
+			Project project = projectRepository.findById(dto.getProjectId()).orElseThrow(
+					() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+			resource.setProject(project);
+			// Do NOT set techStack at all
+		}
 
-    // ✅ Set only the relevant field based on resourceType
-    if (dto.getResourceType() == ResourceType.TECH_STACK) {
-        resource.setTechStack(dto.getTechStack());
-    } else if (dto.getResourceType() == ResourceType.PROJECT) {
-        Project project = projectRepository.findById(dto.getProjectId())
-            .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
-        resource.setProject(project);
-    }
+		int onsite = dto.getOnsite();
+		int offsite = dto.getOffsite();
+		String calculatedRatio = calculateRatio(onsite, offsite);
 
-    int onsite = dto.getOnsite();
-    int offsite = dto.getOffsite();
-    String calculatedRatio = calculateRatio(onsite, offsite);
+		resource.setOnsite(onsite);
+		resource.setOffsite(offsite);
+		resource.setTotalOnsiteCount(onsite);
+		resource.setTotalOffsiteCount(offsite);
+		resource.setRatio(calculatedRatio);
+		resource.setTotalRatio(calculatedRatio);
+	}
 
-    resource.setOnsite(onsite);
-    resource.setOffsite(offsite);
-    resource.setTotalOnsiteCount(onsite);
-    resource.setTotalOffsiteCount(offsite);
-    resource.setRatio(calculatedRatio);
-    resource.setTotalRatio(calculatedRatio);
-}
 	private ResourceResponse mapToResponseDto(Resource entity) {
 		Integer projectId = null;
 		String projectName = null;
