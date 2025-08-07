@@ -74,7 +74,7 @@ public class ResourceController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/type/{resourceType}/active")
+	@GetMapping("/type/{resourceType}")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getActiveResourcesByType(
 	        @PathVariable ResourceType resourceType,
 	        @RequestParam(required = false) Long sprintId,
