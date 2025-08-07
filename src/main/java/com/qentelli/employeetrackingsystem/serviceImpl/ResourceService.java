@@ -1,186 +1,171 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
-import com.qentelli.employeetrackingsystem.exception.BadRequestException;
-import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
-import com.qentelli.employeetrackingsystem.models.client.request.BaseResourceRequest;
-import com.qentelli.employeetrackingsystem.models.client.request.ProjectResourceRequest;
-import com.qentelli.employeetrackingsystem.models.client.request.TechStackResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ResourceRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class ResourceService {
 
-	private static final Logger logger = LoggerFactory.getLogger(ResourceService.class);
-
-	private final ResourceRepository repository;
+	private final ResourceRepository resourceRepository;
 	private final ProjectRepository projectRepository;
 
-	public ResourceService(@Lazy ResourceRepository repository, ProjectRepository projectRepository) {
-		this.repository = repository;
-		this.projectRepository = projectRepository;
-	}
-
-	public ResourceResponse createResource(BaseResourceRequest dto) {
-		logger.info("Creating new Resource of type: {}", dto.getResourceType());
-
+	// 🔹 Create
+	public ResourceResponse createResource(ResourceRequest request) {
+		validateRequest(request);
 		Resource resource = new Resource();
-		populateResource(resource, dto);
+		resource.setResourceType(request.getResourceType());
+		resource.setOnsite(request.getOnsite());
+		resource.setOffsite(request.getOffsite());
+		resource.setResourceStatus(request.getResourceStatus());
 
-		Resource saved = repository.save(resource);
-		return mapToResponseDto(saved);
+		if (request.getResourceType() == ResourceType.TECH_STACK && request.getTechStack() != null) {
+			resource.setTechStack(request.getTechStack());
+		}
+
+		if (request.getResourceType() == ResourceType.PROJECT && request.getProjectId() != null) {
+			Project project = projectRepository.findById(request.getProjectId())
+					.orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
+			resource.setProject(project);
+		}
+
+		updateRatios(resource);
+		Resource saved = resourceRepository.save(resource);
+		return mapToResponse(saved);
 	}
 
-	public ResourceResponse updateResource(Long id, BaseResourceRequest dto) {
-		logger.info("Updating Resource with ID: {}", id);
-
-		Resource resource = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID: " + id));
-
-		populateResource(resource, dto);
-
-		Resource updated = repository.save(resource);
-		return mapToResponseDto(updated);
-	}
-
+	// 🔹 Read All
 	public List<ResourceResponse> getAllResources() {
-		logger.info("Fetching all resources");
-		return repository.findAll().stream().map(this::mapToResponseDto).toList();
+		return resourceRepository.findAll().stream().map(this::mapToResponse).toList();
 	}
 
-	public ResourceResponse getById(Long id) {
-		Resource resource = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID: " + id));
-		return mapToResponseDto(resource);
+	// 🔹 Read by ID
+	public ResourceResponse getResourceById(Long id) {
+		Resource resource = resourceRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Resource not found with ID: " + id));
+		return mapToResponse(resource);
 	}
 
-	public Page<ResourceResponse> getResourcesByTypePaginated(ResourceType type, Pageable pageable) {
-		logger.info("Fetching active resources by type {} with pagination", type);
-		return repository.findByResourceTypeAndResourceStatus(type, true, pageable).map(this::mapToResponseDto);
-	}
+	// 🔹 Update
+	public ResourceResponse updateResource(Long id, ResourceRequest request) {
+		validateRequest(request);
+		Resource existing = resourceRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Resource not found with ID: " + id));
 
-	public Page<ResourceResponse> searchResourcesByTypeAndName(ResourceType type, String name, Pageable pageable) {
-		if (type == null || name == null || name.trim().isEmpty()) {
-			throw new IllegalArgumentException("Both resource type and name must be provided");
+		existing.setResourceType(request.getResourceType());
+		existing.setOnsite(request.getOnsite());
+		existing.setOffsite(request.getOffsite());
+		existing.setResourceStatus(request.getResourceStatus());
+
+		if (request.getResourceType() == ResourceType.TECH_STACK && request.getTechStack() != null) {
+			existing.setTechStack(request.getTechStack());
+			// Do not touch project
 		}
 
-		String trimmedName = name.trim();
-		Page<Resource> results;
-
-		switch (type) {
-			case TECH_STACK -> {
-				TechStack techStack;
-				try {
-					techStack = TechStack.fromString(trimmedName);
-				} catch (IllegalArgumentException ex) {
-					throw new IllegalArgumentException(
-							"Invalid Tech Stack: '" + name + "'. Valid values: " + Arrays.toString(TechStack.values()));
-				}
-				logger.info("Filtering by TECH_STACK: {}", techStack);
-				logger.debug("Query params → Type: {}, TechStack: {}, Name: {}", type, techStack, null);
-				results = repository.findByResourceStatusTrueAndResourceTypeAndTechStack(type, techStack, pageable);
-			}
-
-			case PROJECT -> {
-				logger.info("Filtering by PROJECT name: '{}'", trimmedName);
-				logger.debug("Query params → Type: {}, TechStack: {}, Name: {}", type, null, trimmedName);
-				results = repository.findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(
-						type, trimmedName, pageable);
-			}
-
-			default -> throw new UnsupportedOperationException("Unsupported resource type: " + type);
+		if (request.getResourceType() == ResourceType.PROJECT && request.getProjectId() != null) {
+			Project project = projectRepository.findById(request.getProjectId())
+					.orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
+			existing.setProject(project);
+			// Do not touch techStack
 		}
 
-		return results.map(this::mapToResponseDto);
+		updateRatios(existing);
+		Resource updated = resourceRepository.save(existing);
+		return mapToResponse(updated);
 	}
 
+	// 🔹 Delete
 	public void deleteResource(Long id) {
-		Resource resourceFound = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID: " + id));
-		resourceFound.setResourceStatus(false);
-		repository.save(resourceFound);
-		logger.info("Deleted Resource with ID: {}", id);
+		Resource resource = resourceRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Resource not found with ID: " + id));
+		resourceRepository.delete(resource);
+	}
+	
+	public Page<ResourceResponse> getActiveResourcesByType(ResourceType resourceType, Pageable pageable) {
+	    Page<Resource> resources = resourceRepository
+	            .findByResourceTypeAndResourceStatus(resourceType, true, pageable);
+	    return resources.map(this::mapToResponse);
+	}
+	
+	public Page<ResourceResponse> searchActiveTechStack(ResourceType resourceType, TechStack techStack, Pageable pageable) {
+	    Page<Resource> resources = resourceRepository
+	            .findByResourceStatusTrueAndResourceTypeAndTechStack(resourceType, techStack, pageable);
+	    return resources.map(this::mapToResponse);
+	}
+	
+	public Page<ResourceResponse> searchActiveProjectsByName(ResourceType resourceType, String projectName, Pageable pageable) {
+	    Page<Resource> resources = resourceRepository
+	            .findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(resourceType, projectName, pageable);
+	    return resources.map(this::mapToResponse);
 	}
 
-	// 🛠️ Helper Methods
 
-	private void populateResource(Resource resource, BaseResourceRequest dto) {
-		resource.setResourceType(dto.getResourceType());
+	// 🔸 Validation
+	private void validateRequest(ResourceRequest request) {
+		if (request.getResourceType() == ResourceType.TECH_STACK && request.getProjectId() != null) {
+			throw new IllegalArgumentException("TECH_STACK must not have projectId");
+		}
+		if (request.getResourceType() == ResourceType.PROJECT && request.getTechStack() != null) {
+			throw new IllegalArgumentException("PROJECT must not have techStack");
+		}
+	}
 
-		switch (dto.getResourceType()) {
-			case TECH_STACK -> {
-				TechStackResourceRequest techDto = (TechStackResourceRequest) dto;
-				resource.setTechStack(techDto.getTechStack());
-			}
-			case PROJECT -> {
-				ProjectResourceRequest projectDto = (ProjectResourceRequest) dto;
-				Project project = projectRepository.findById(projectDto.getProjectId())
-						.orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectDto.getProjectId()));
-				resource.setProject(project);
-			}
-			default -> throw new BadRequestException("Unsupported resource type");
+	// 🔸 Entity → DTO
+	private ResourceResponse mapToResponse(Resource resource) {
+		ResourceResponse response = new ResourceResponse();
+		response.setResourceId(resource.getResourceId());
+		response.setResourceType(resource.getResourceType());
+
+		if (resource.getResourceType() == ResourceType.TECH_STACK && resource.getTechStack() != null) {
+			response.setTechStack(resource.getTechStack());
 		}
 
-		int onsite = dto.getOnsite();
-		int offsite = dto.getOffsite();
-		String calculatedRatio = calculateRatio(onsite, offsite);
+		if (resource.getResourceType() == ResourceType.PROJECT && resource.getProject() != null) {
+			response.setProjectId(resource.getProject().getProjectId());
+			response.setProjectName(resource.getProject().getProjectName());
+		}
 
-		resource.setOnsite(onsite);
-		resource.setOffsite(offsite);
+		response.setOnsite(resource.getOnsite());
+		response.setOffsite(resource.getOffsite());
+		response.setTotal(resource.getTotal());
+		response.setTotalOnsiteCount(resource.getTotalOnsiteCount());
+		response.setTotalOffsiteCount(resource.getTotalOffsiteCount());
+		response.setRatio(resource.getRatio());
+		response.setTotalRatio(resource.getTotalRatio());
+
+		return response;
+	}
+
+	// 🔸 Ratio Calculation
+	private void updateRatios(Resource resource) {
+		int onsite = resource.getOnsite();
+		int offsite = resource.getOffsite();
+		int total = onsite + offsite;
+
 		resource.setTotalOnsiteCount(onsite);
 		resource.setTotalOffsiteCount(offsite);
-		resource.setRatio(calculatedRatio);
-		resource.setTotalRatio(calculatedRatio);
-		resource.setResourceStatus(dto.getResourceStatus());
-	}
 
-	private ResourceResponse mapToResponseDto(Resource entity) {
-		Integer projectId = null;
-		String projectName = null;
+		String ratio = total > 0
+				? String.format("%d%% : %d%%", Math.round((onsite * 100.0) / total),
+						Math.round((offsite * 100.0) / total))
+				: "0% : 0%";
 
-		if (entity.getResourceType() == ResourceType.PROJECT && entity.getProject() != null) {
-			projectId = entity.getProject().getProjectId();
-			projectName = entity.getProject().getProjectName();
-		}
-
-		return new ResourceResponse(
-				entity.getResourceId(),
-				entity.getResourceType(),
-				entity.getTechStack(),
-				projectId,
-				projectName,
-				entity.getOnsite(),
-				entity.getOffsite(),
-				entity.getTotal(),
-				entity.getTotalOnsiteCount(),
-				entity.getTotalOffsiteCount(),
-				entity.getTotalRatio(),
-				entity.getRatio()
-		);
-	}
-
-	private String calculateRatio(int onsite, int offsite) {
-		int total = onsite + offsite;
-		if (total == 0) return "0% : 0%";
-		int onsiteRatio = (int) Math.round((onsite * 100.0) / total);
-		int offsiteRatio = 100 - onsiteRatio;
-		return onsiteRatio + "% : " + offsiteRatio + "%";
+		resource.setRatio(ratio);
+		resource.setTotalRatio(ratio);
 	}
 }

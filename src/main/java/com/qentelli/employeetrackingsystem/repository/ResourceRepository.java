@@ -28,4 +28,6 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
 	// 🧾 Fetch all active resources
 	List<Resource> findByResourceStatus(Boolean resourceStatus);
+	
+	
 }

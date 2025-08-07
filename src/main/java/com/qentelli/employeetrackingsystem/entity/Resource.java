@@ -30,10 +30,11 @@ public class Resource {
     private ResourceType resourceType; //tech stack or project
 
     @Enumerated(EnumType.STRING)
-    private TechStack techStack; 
+    @Column(nullable = true) // explicitly nullable
+    private TechStack techStack;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", nullable = true)
     private Project project; 
 
     private int onsite;
