@@ -30,32 +30,34 @@ public class ResourceService {
 
 	// 🔹 Create
 	public ResourceResponse createResource(ResourceRequest request) {
-		validateRequest(request);
-		Resource resource = new Resource();
-		resource.setResourceType(request.getResourceType());
-		resource.setOnsite(request.getOnsite());
-		resource.setOffsite(request.getOffsite());
-		resource.setResourceStatus(request.getResourceStatus());
+	    validateRequest(request);
 
-		if (request.getResourceType() == ResourceType.TECH_STACK && request.getTechStack() != null) {
-			resource.setTechStack(request.getTechStack());
-		}
+	    Resource resource = new Resource();
+	    resource.setResourceType(request.getResourceType());
+	    resource.setOnsite(request.getOnsite());
+	    resource.setOffsite(request.getOffsite());
+	    resource.setResourceStatus(request.getResourceStatus());
 
-		if (request.getResourceType() == ResourceType.PROJECT && request.getProjectId() != null) {
-			Project project = projectRepository.findById(request.getProjectId())
-					.orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
-			resource.setProject(project);
-		}
+	    if (request.getResourceType() == ResourceType.TECH_STACK) {
+	        resource.setTechStack(request.getTechStack());
+	        resource.setProject(null); // ✅ Explicitly nullify project
+	    } else if (request.getResourceType() == ResourceType.PROJECT) {
+	        resource.setTechStack(null); // ✅ Explicitly nullify techStack
+	        Project project = projectRepository.findById(request.getProjectId())
+	            .orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
+	        resource.setProject(project);
+	    }
 
-		if (request.getSprintId() != null) {
-			Sprint sprint = sprintRepository.findById(request.getSprintId())
-					.orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + request.getSprintId()));
-			resource.setSprint(sprint);
-		}
+	    if (request.getSprintId() != null) {
+	        Sprint sprint = sprintRepository.findById(request.getSprintId())
+	            .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + request.getSprintId()));
+	        resource.setSprint(sprint);
+	    }
 
-		updateRatios(resource);
-		Resource saved = resourceRepository.save(resource);
-		return mapToResponse(saved);
+	    updateRatios(resource);
+
+	    Resource saved = resourceRepository.save(resource);
+	    return mapToResponse(saved);
 	}
 
 	// 🔹 Read All
