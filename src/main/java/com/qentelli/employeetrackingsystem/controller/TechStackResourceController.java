@@ -21,7 +21,6 @@ import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.TechStackResourceRequestDto;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
-import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.TechStackResourceResponseDto;
 import com.qentelli.employeetrackingsystem.serviceImpl.TechStackResourceService;
 

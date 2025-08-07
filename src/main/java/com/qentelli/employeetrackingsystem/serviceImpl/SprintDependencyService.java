@@ -91,7 +91,7 @@ public class  SprintDependencyService {
 	    BeanUtils.copyProperties(entity, response);
 
 	    // Defensive status mapping
-	    response.setStatus_in(entity.getStatusIn() != null ? entity.getStatusIn().toString() : "NOT_STARTED");
+	    response.setStatusIn(entity.getStatusIn() != null ? entity.getStatusIn().toString() : "NOT_STARTED");
 
 	    // Project info mapping
 	    if (entity.getProject() != null) {

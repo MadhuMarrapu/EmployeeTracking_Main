@@ -1,7 +1,6 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,17 +10,27 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
-import com.qentelli.employeetrackingsystem.entity.TechStack;
+import com.qentelli.employeetrackingsystem.exception.BadRequestException;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
-import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.BaseResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.UnifiedResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
-import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.ResourceService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/resources")
@@ -36,11 +45,35 @@ public class ResourceController {
 
 	// 🟢 Create Resource
 	@PostMapping
-	public ResponseEntity<AuthResponse<Void>> createResource(@RequestBody ResourceRequest dto) {
-		logger.info("Received request to create resource of type: {}", dto.getResourceType());
+	public ResponseEntity<AuthResponse<Void>> createResource(@Valid @RequestBody UnifiedResourceRequest wrapper) {
+		logger.info("Received request to create resource of type: {}", wrapper.getResourceType());
+
+		BaseResourceRequest dto = switch (wrapper.getResourceType()) {
+		case TECH_STACK -> wrapper.getTechStackRequest();
+		case PROJECT -> wrapper.getProjectRequest();
+		default -> throw new BadRequestException("Unsupported resource type: " + wrapper.getResourceType());
+		};
+
 		service.createResource(dto);
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(new AuthResponse<>(201, RequestProcessStatus.SUCCESS, "Resource created successfully"));
+	}
+
+	// 🔄 Update Resource
+	@PutMapping("/{id}")
+	public ResponseEntity<AuthResponse<Void>> updateResource(@PathVariable Long id,
+			@Valid @RequestBody UnifiedResourceRequest wrapper) {
+		logger.info("Updating resource with ID: {}, new type: {}", id, wrapper.getResourceType());
+
+		BaseResourceRequest dto = switch (wrapper.getResourceType()) {
+		case TECH_STACK -> wrapper.getTechStackRequest();
+		case PROJECT -> wrapper.getProjectRequest();
+		default -> throw new BadRequestException("Unsupported resource type: " + wrapper.getResourceType());
+		};
+
+		service.updateResource(id, dto);
+		return ResponseEntity
+				.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, "Resource updated successfully"));
 	}
 
 	// 🔍 Filter by Resource Type only
@@ -66,6 +99,7 @@ public class ResourceController {
 				"Resources filtered by type: " + type, paginated));
 	}
 
+	// 🔍 Filter by Type and Name
 	@GetMapping("/filter-by-type-and-name")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getByTypeAndName(
 			@RequestParam ResourceType type, @RequestParam String name, @RequestParam(defaultValue = "0") int page,
@@ -103,15 +137,6 @@ public class ResourceController {
 
 		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
 				"Found resources for type '" + type + "' and name '" + resolvedName + "'", paginated));
-	}
-
-	// 🔄 Update Resource
-	@PutMapping("/{id}")
-	public ResponseEntity<AuthResponse<Void>> updateResource(@PathVariable Long id, @RequestBody ResourceRequest dto) {
-		logger.info("Updating resource with ID: {}, new type: {}", id, dto.getResourceType());
-		service.updateResource(id, dto);
-		return ResponseEntity
-				.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, "Resource updated successfully"));
 	}
 
 	// 🗑️ Delete Resource

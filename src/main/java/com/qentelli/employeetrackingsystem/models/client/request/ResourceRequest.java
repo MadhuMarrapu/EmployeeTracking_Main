@@ -3,6 +3,8 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,16 +14,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ResourceRequest {
 
-    private ResourceType resourceType;
+	@NotNull(message = "Resource type is required")
+	private ResourceType resourceType;
 
-    // Used only when resourceType is TECH_STACK
-    private TechStack techStack;
+	private TechStack techStack;
 
-    // Used only when resourceType is PROJECT
-    private Integer projectId;
+	private Integer projectId;
 
-    private int onsite;
-    private int offsite;
-    
-    private Boolean resourceStatus = true; //
+	@Min(value = 0, message = "Onsite count must be non-negative")
+	private int onsite;
+
+	@Min(value = 0, message = "Offsite count must be non-negative")
+	private int offsite;
+
+	private Boolean resourceStatus = true;
+
 }

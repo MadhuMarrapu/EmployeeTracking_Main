@@ -19,9 +19,7 @@ import com.qentelli.employeetrackingsystem.exception.DuplicateProjectException;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ProjectDTO;
 import com.qentelli.employeetrackingsystem.repository.AccountRepository;
-import com.qentelli.employeetrackingsystem.repository.PersonRepository;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
-import com.qentelli.employeetrackingsystem.repository.WeeklySummaryRepository;
 import com.qentelli.employeetrackingsystem.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;

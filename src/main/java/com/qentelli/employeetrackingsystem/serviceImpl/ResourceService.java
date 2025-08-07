@@ -15,11 +15,11 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
-
 import com.qentelli.employeetrackingsystem.exception.BadRequestException;
-
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
-import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.BaseResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.ProjectResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.request.TechStackResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ResourceRepository;
@@ -27,7 +27,6 @@ import com.qentelli.employeetrackingsystem.repository.ResourceRepository;
 @Service
 @Transactional
 public class ResourceService {
-
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceService.class);
 
@@ -39,9 +38,8 @@ public class ResourceService {
 		this.projectRepository = projectRepository;
 	}
 
-	public ResourceResponse createResource(ResourceRequest dto) {
+	public ResourceResponse createResource(BaseResourceRequest dto) {
 		logger.info("Creating new Resource of type: {}", dto.getResourceType());
-		validateResourceRequest(dto);
 
 		Resource resource = new Resource();
 		populateResource(resource, dto);
@@ -50,9 +48,8 @@ public class ResourceService {
 		return mapToResponseDto(saved);
 	}
 
-	public ResourceResponse updateResource(Long id, ResourceRequest dto) {
+	public ResourceResponse updateResource(Long id, BaseResourceRequest dto) {
 		logger.info("Updating Resource with ID: {}", id);
-		validateResourceRequest(dto);
 
 		Resource resource = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID: " + id));
@@ -124,24 +121,21 @@ public class ResourceService {
 
 	// 🛠️ Helper Methods
 
-	private void validateResourceRequest(ResourceRequest dto) {
-		if (dto.getResourceType() == ResourceType.PROJECT && dto.getProjectId() == null)
-			throw new BadRequestException("Project ID is required for type PROJECT");
-		if (dto.getResourceType() == ResourceType.TECH_STACK && dto.getTechStack() == null)
-			throw new BadRequestException("Tech Stack is required for type TECH_STACK");
-	}
-
-	private void populateResource(Resource resource, ResourceRequest dto) {
+	private void populateResource(Resource resource, BaseResourceRequest dto) {
 		resource.setResourceType(dto.getResourceType());
 
-		if (dto.getResourceType() == ResourceType.TECH_STACK) {
-			resource.setTechStack(dto.getTechStack());
-			resource.setProject(null);
-		} else if (dto.getResourceType() == ResourceType.PROJECT) {
-			Project project = projectRepository.findById(dto.getProjectId()).orElseThrow(
-					() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+		switch (dto.getResourceType()) {
+		case TECH_STACK -> {
+			TechStackResourceRequest techDto = (TechStackResourceRequest) dto;
+			resource.setTechStack(techDto.getTechStack());
+		}
+		case PROJECT -> {
+			ProjectResourceRequest projectDto = (ProjectResourceRequest) dto;
+			Project project = projectRepository.findById(projectDto.getProjectId()).orElseThrow(
+					() -> new ResourceNotFoundException("Project not found with ID: " + projectDto.getProjectId()));
 			resource.setProject(project);
-			resource.setTechStack(null);
+		}
+		default -> throw new BadRequestException("Unsupported resource type");
 		}
 
 		int onsite = dto.getOnsite();
@@ -154,6 +148,7 @@ public class ResourceService {
 		resource.setTotalOffsiteCount(offsite);
 		resource.setRatio(calculatedRatio);
 		resource.setTotalRatio(calculatedRatio);
+		resource.setResourceStatus(dto.getResourceStatus());
 	}
 
 	private ResourceResponse mapToResponseDto(Resource entity) {
@@ -166,8 +161,8 @@ public class ResourceService {
 		}
 
 		return new ResourceResponse(entity.getResourceId(), entity.getResourceType(), entity.getTechStack(), projectId,
-				projectName, entity.getOnsite(), entity.getOffsite(), entity.getTotal(), // calculated via @Transient
-				entity.getTotalOnsiteCount(), entity.getTotalOffsiteCount(), entity.getTotalRatio(), entity.getRatio());
+				projectName, entity.getOnsite(), entity.getOffsite(), entity.getTotal(), entity.getTotalOnsiteCount(),
+				entity.getTotalOffsiteCount(), entity.getTotalRatio(), entity.getRatio());
 	}
 
 	private String calculateRatio(int onsite, int offsite) {
@@ -178,5 +173,4 @@ public class ResourceService {
 		int offsiteRatio = 100 - onsiteRatio;
 		return onsiteRatio + "% : " + offsiteRatio + "%";
 	}
-
 }

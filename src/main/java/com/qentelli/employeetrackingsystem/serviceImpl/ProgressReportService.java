@@ -3,11 +3,13 @@ package com.qentelli.employeetrackingsystem.serviceImpl;
 import java.time.LocalDateTime;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.ProgressReport;
-import com.qentelli.employeetrackingsystem.entity.RagStatus;
 import com.qentelli.employeetrackingsystem.exception.ReportNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ProgressReportDTO;
 import com.qentelli.employeetrackingsystem.repository.ProgressReportRepository;
