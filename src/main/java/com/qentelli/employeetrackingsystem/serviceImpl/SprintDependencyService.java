@@ -85,6 +85,13 @@ public class  SprintDependencyService {
 		log.info("Deleting SprintDependency with ID: {}", id);
 		sprintDependencyRepository.deleteById(id);
 	}
+	
+	public Page<SprintDependencyResponse> getBySprintId(Long sprintId, Pageable pageable) {
+		log.info("Fetching SprintDependencies for Sprint ID: {}", sprintId);
+		Sprint sprint = sprintRepository.findById(sprintId)
+				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
+		return sprintDependencyRepository.findBySprint_SprintId(sprint.getSprintId(), pageable).map(this::toResponse);
+	}
 
 	private SprintDependencyResponse toResponse(SprintDependency entity) {
 	    SprintDependencyResponse response = new SprintDependencyResponse();
