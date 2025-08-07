@@ -81,4 +81,19 @@ public class SprintDependencyController {
 				LocalDateTime.now(), "Sprint dependency deleted successfully", null);
 		return ResponseEntity.ok(response);
 	}
+	
+	@GetMapping("/sprint/{sprintId}")
+	public ResponseEntity<AuthResponse<PaginatedResponse<SprintDependencyResponse>>> getBySprintId(
+			@PathVariable Long sprintId, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<SprintDependencyResponse> resultPage = sprintDependencyService.getBySprintId(sprintId, pageable);
+		PaginatedResponse<SprintDependencyResponse> paginated = new PaginatedResponse<>(resultPage.getContent(),
+				resultPage.getNumber(), resultPage.getSize(), resultPage.getTotalElements(), resultPage.getTotalPages(),
+				resultPage.isLast());
+		AuthResponse<PaginatedResponse<SprintDependencyResponse>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependencies fetched successfully",
+				paginated);
+		return ResponseEntity.ok(response);
+	}
 }
