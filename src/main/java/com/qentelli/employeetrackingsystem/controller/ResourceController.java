@@ -1,6 +1,7 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,6 @@ public class ResourceController {
 		try {
 			logger.info("Creating new resource of type: {}", request.getResourceType());
 			ResourceResponse responseDto = resourceService.createResource(request);
-
 			logger.debug("Resource created: {}", responseDto);
 			return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>(HttpStatus.CREATED.value(),
 					RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Resource created successfully", responseDto));
@@ -62,7 +62,6 @@ public class ResourceController {
 		try {
 			logger.info("Updating resource with ID: {}", id);
 			ResourceResponse updated = resourceService.updateResource(id, request);
-
 			logger.debug("Resource updated: {}", updated);
 			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 					LocalDateTime.now(), "Resource updated successfully", updated));
@@ -79,7 +78,6 @@ public class ResourceController {
 		try {
 			logger.info("Deleting resource with ID: {}", id);
 			resourceService.deleteResource(id);
-
 			logger.debug("Resource deleted with ID: {}", id);
 			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 					LocalDateTime.now(), "Resource deleted successfully"));
@@ -94,7 +92,6 @@ public class ResourceController {
 	@GetMapping("/active")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getActiveResourcesByType(
 			@RequestParam(required = false) Long sprintId, @RequestParam ResourceType resourceType, Pageable pageable) {
-
 		return buildPaginatedResponse(resourceService.getActiveResourcesByType(sprintId, resourceType, pageable),
 				"Fetched active resources", "No active resources found");
 	}
@@ -103,7 +100,6 @@ public class ResourceController {
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchActiveTechStack(
 			@RequestParam(required = false) Long sprintId, @RequestParam ResourceType resourceType,
 			@RequestParam TechStack techStack, Pageable pageable) {
-
 		return buildPaginatedResponse(
 				resourceService.searchActiveTechStack(sprintId, resourceType, techStack, pageable),
 				"Fetched tech stack resources", "No tech stack resources found");
@@ -113,20 +109,31 @@ public class ResourceController {
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchActiveProjectsByName(
 			@RequestParam Long sprintId, @RequestParam ResourceType resourceType, @RequestParam String projectName,
 			Pageable pageable) {
-
 		return buildPaginatedResponse(
 				resourceService.searchActiveProjectsByName(sprintId, resourceType, projectName, pageable),
 				"Fetched project resources", "No project resources found");
 	}
 
+	@GetMapping("/sprint/page/all")
+	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesBySprintId(
+			@RequestParam Long sprintId, Pageable pageable) {
+		Page<ResourceResponse> page = resourceService.getAllResourcesBySprintId(sprintId, pageable);
+		return buildPaginatedResponse(page, "Fetched resources for sprint ID: " + sprintId, "No resources found");
+	}
+
+	@GetMapping("/sprint/all")
+	public ResponseEntity<AuthResponse<List<ResourceResponse>>> getAllResourcesBySprintId(@RequestParam Long sprintId) {
+		List<ResourceResponse> allResources = resourceService.getAllResourcesBySprintId(sprintId);
+		String msg = allResources.isEmpty() ? "No resources found" : "Fetched all resources for sprint ID: " + sprintId;
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), msg, allResources));
+	}
+
 	private ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> buildPaginatedResponse(
 			Page<ResourceResponse> page, String successMsg, String emptyMsg) {
-
 		PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(page.getContent(), page.getNumber(),
 				page.getSize(), page.getTotalElements(), page.getTotalPages(), page.isLast());
-
 		String message = page.hasContent() ? successMsg : emptyMsg;
-
 		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), message, response));
 	}
