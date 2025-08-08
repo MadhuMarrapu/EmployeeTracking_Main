@@ -45,4 +45,12 @@ public class Resource {
     public int getTotal() {
         return onsite + offsite;
     }
+    
+    public void enforceTypeConstraints() {
+        if (this.resourceType == ResourceType.TECHSTACK) {
+            this.project = null;
+        } else if (this.resourceType == ResourceType.PROJECT) {
+            this.techStack = null;
+        }
+    }
 }

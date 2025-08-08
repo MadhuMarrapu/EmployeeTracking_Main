@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ResourceType {
-    TECH_STACK, PROJECT;
+    TECHSTACK, PROJECT;
 
     @JsonValue
     public String getDisplayName() {

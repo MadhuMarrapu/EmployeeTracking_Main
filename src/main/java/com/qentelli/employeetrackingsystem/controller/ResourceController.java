@@ -1,12 +1,10 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,128 +41,94 @@ public class ResourceController {
 
 	@PostMapping
 	public ResponseEntity<AuthResponse<ResourceResponse>> createResource(@Valid @RequestBody ResourceRequest request) {
-		logger.info("Creating resource of type: {}", request.getResourceType());
-		ResourceResponse created = resourceService.createResource(request);
+		try {
+			logger.info("Creating new resource of type: {}", request.getResourceType());
+			ResourceResponse responseDto = resourceService.createResource(request);
 
-		AuthResponse<ResourceResponse> response = new AuthResponse<>(HttpStatus.CREATED.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Resource created successfully", created);
-
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
-	}
-
-	@GetMapping("/all")
-	public ResponseEntity<AuthResponse<List<ResourceResponse>>> getAllResources() {
-		logger.info("Fetching all resources");
-		List<ResourceResponse> resources = resourceService.getAllResources();
-
-		AuthResponse<List<ResourceResponse>> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Resources fetched successfully", resources);
-
-		return ResponseEntity.ok(response);
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<AuthResponse<ResourceResponse>> getResourceById(@PathVariable Long id) {
-		logger.info("Fetching resource with ID: {}", id);
-		ResourceResponse resource = resourceService.getResourceById(id);
-
-		AuthResponse<ResourceResponse> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Resource fetched successfully", resource);
-
-		return ResponseEntity.ok(response);
-	}
-
-	@GetMapping("/type/{resourceType}")
-	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getActiveResourcesByType(
-	        @PathVariable ResourceType resourceType,
-	        @RequestParam(required = false) Long sprintId,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) {
-
-	    Pageable pageable = PageRequest.of(page, size);
-	    Page<ResourceResponse> pageData = resourceService.getActiveResourcesByType(sprintId, resourceType, pageable);
-
-	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
-	            pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
-
-	    String message = pageData.isEmpty()
-	            ? "No active resources found" + (sprintId != null ? " for sprint " + sprintId : "")
-	            : "Active resources fetched successfully" + (sprintId != null ? " for sprint " + sprintId : "");
-
-	    HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-
-	    return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(), message, paginated));
-	}
-
-	@GetMapping("/search/techstack")
-	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchTechStackResources(
-	        @RequestParam ResourceType resourceType,
-	        @RequestParam TechStack techStack,
-	        @RequestParam(required = false) Long sprintId,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) {
-
-	    Pageable pageable = PageRequest.of(page, size);
-	    Page<ResourceResponse> pageData = resourceService.searchActiveTechStack(sprintId, resourceType, techStack, pageable);
-
-	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
-	            pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
-
-	    String message = pageData.isEmpty()
-	            ? "No TECH_STACK resources found" + (sprintId != null ? " for sprint " + sprintId : "")
-	            : "TECH_STACK resources fetched successfully" + (sprintId != null ? " for sprint " + sprintId : "");
-
-	    HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-
-	    return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(), message, paginated));
-	}
-
-	@GetMapping("/search/project")
-	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchProjectResources(
-	        @RequestParam ResourceType resourceType,
-	        @RequestParam String projectName,
-	        @RequestParam(required = false) Long sprintId,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) {
-
-	    Pageable pageable = PageRequest.of(page, size);
-	    Page<ResourceResponse> pageData = resourceService.searchActiveProjectsByName(sprintId, resourceType, projectName, pageable);
-
-	    PaginatedResponse<ResourceResponse> paginated = new PaginatedResponse<>(pageData.getContent(), page, size,
-	            pageData.getTotalElements(), pageData.getTotalPages(), pageData.isLast());
-
-	    String message = pageData.isEmpty()
-	            ? "No PROJECT resources found" + (sprintId != null ? " for sprint " + sprintId : "")
-	            : "PROJECT resources fetched successfully" + (sprintId != null ? " for sprint " + sprintId : "");
-
-	    HttpStatus status = pageData.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-
-	    return ResponseEntity.status(status).body(new AuthResponse<>(status.value(), RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(), message, paginated));
+			logger.debug("Resource created: {}", responseDto);
+			return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>(HttpStatus.CREATED.value(),
+					RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Resource created successfully", responseDto));
+		} catch (Exception ex) {
+			logger.error("Error creating resource: {}", ex.getMessage(), ex);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
+							"Failed to create resource", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+		}
 	}
 
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<ResourceResponse>> updateResource(@PathVariable Long id,
 			@Valid @RequestBody ResourceRequest request) {
-		logger.info("Updating resource with ID: {}", id);
-		ResourceResponse updated = resourceService.updateResource(id, request);
+		try {
+			logger.info("Updating resource with ID: {}", id);
+			ResourceResponse updated = resourceService.updateResource(id, request);
 
-		AuthResponse<ResourceResponse> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Resource updated successfully", updated);
-
-		return ResponseEntity.ok(response);
+			logger.debug("Resource updated: {}", updated);
+			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+					LocalDateTime.now(), "Resource updated successfully", updated));
+		} catch (Exception ex) {
+			logger.error("Error updating resource: {}", ex.getMessage(), ex);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
+							"Failed to update resource", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<AuthResponse<Void>> deleteResource(@PathVariable Long id) {
-		logger.info("Deleting resource with ID: {}", id);
-		resourceService.deleteResource(id);
+		try {
+			logger.info("Deleting resource with ID: {}", id);
+			resourceService.deleteResource(id);
 
-		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), "Resource deleted successfully");
-
-		return ResponseEntity.ok(response);
+			logger.debug("Resource deleted with ID: {}", id);
+			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+					LocalDateTime.now(), "Resource deleted successfully"));
+		} catch (Exception ex) {
+			logger.error("Error deleting resource: {}", ex.getMessage(), ex);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
+							"Failed to delete resource", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+		}
 	}
+
+	@GetMapping("/active")
+	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getActiveResourcesByType(
+			@RequestParam(required = false) Long sprintId, @RequestParam ResourceType resourceType, Pageable pageable) {
+
+		return buildPaginatedResponse(resourceService.getActiveResourcesByType(sprintId, resourceType, pageable),
+				"Fetched active resources", "No active resources found");
+	}
+
+	@GetMapping("/search/techstack")
+	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchActiveTechStack(
+			@RequestParam(required = false) Long sprintId, @RequestParam ResourceType resourceType,
+			@RequestParam TechStack techStack, Pageable pageable) {
+
+		return buildPaginatedResponse(
+				resourceService.searchActiveTechStack(sprintId, resourceType, techStack, pageable),
+				"Fetched tech stack resources", "No tech stack resources found");
+	}
+
+	@GetMapping("/search/project")
+	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> searchActiveProjectsByName(
+			@RequestParam Long sprintId, @RequestParam ResourceType resourceType, @RequestParam String projectName,
+			Pageable pageable) {
+
+		return buildPaginatedResponse(
+				resourceService.searchActiveProjectsByName(sprintId, resourceType, projectName, pageable),
+				"Fetched project resources", "No project resources found");
+	}
+
+	private ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> buildPaginatedResponse(
+			Page<ResourceResponse> page, String successMsg, String emptyMsg) {
+
+		PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(page.getContent(), page.getNumber(),
+				page.getSize(), page.getTotalElements(), page.getTotalPages(), page.isLast());
+
+		String message = page.hasContent() ? successMsg : emptyMsg;
+
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), message, response));
+	}
+
 }
