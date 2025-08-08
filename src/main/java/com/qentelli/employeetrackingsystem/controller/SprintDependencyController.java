@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.SprintDependencyRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintDependencyResponse;
 import com.qentelli.employeetrackingsystem.serviceImpl.SprintDependencyService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +39,8 @@ public class SprintDependencyController {
 	private final SprintDependencyService sprintDependencyService;
 
 	@PostMapping("/create")
-	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(@Valid @RequestBody SprintDependencyRequest request) {
+	public ResponseEntity<AuthResponse<SprintDependencyResponse>> create(
+			@Valid @RequestBody SprintDependencyRequest request) {
 		SprintDependencyResponse created = sprintDependencyService.create(request);
 		AuthResponse<SprintDependencyResponse> response = new AuthResponse<>(HttpStatus.CREATED.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependency created successfully", created);
@@ -82,7 +85,7 @@ public class SprintDependencyController {
 				LocalDateTime.now(), "Sprint dependency deleted successfully", null);
 		return ResponseEntity.ok(response);
 	}
-	
+
 	@GetMapping("/sprint/page/{sprintId}")
 	public ResponseEntity<AuthResponse<PaginatedResponse<SprintDependencyResponse>>> getBySprintId(
 			@PathVariable Long sprintId, @RequestParam(defaultValue = "0") int page,
@@ -97,22 +100,15 @@ public class SprintDependencyController {
 				paginated);
 		return ResponseEntity.ok(response);
 	}
-	
+
 	@GetMapping("/sprint/{sprintId}")
-	public ResponseEntity<AuthResponse<List<SprintDependencyResponse>>> getAllBySprintId(
-	        @PathVariable Long sprintId) {
-
-	    List<SprintDependencyResponse> responses = sprintDependencyService.getAllBySprintId(sprintId);
-
-	    AuthResponse<List<SprintDependencyResponse>> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Sprint dependencies fetched successfully",
-	            responses
-	    );
-
-	    return ResponseEntity.ok(response);
+	public ResponseEntity<AuthResponse<ListContentWrapper<SprintDependencyResponse>>> getAllBySprintId(
+			@PathVariable Long sprintId) {
+		List<SprintDependencyResponse> responses = sprintDependencyService.getAllBySprintId(sprintId);
+		ListContentWrapper<SprintDependencyResponse> wrapper = new ListContentWrapper<>(responses.size(), responses);
+		AuthResponse<ListContentWrapper<SprintDependencyResponse>> response = new AuthResponse<>(HttpStatus.OK.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Sprint dependencies fetched successfully", wrapper);
+		return ResponseEntity.ok(response);
 	}
 
 }
