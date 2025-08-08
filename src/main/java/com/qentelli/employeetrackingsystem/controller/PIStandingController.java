@@ -17,12 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.PIStandingRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PIStandingResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.PIStandingService;
+import com.qentelli.employeetrackingsystem.service.PIStandingService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +37,7 @@ public class PIStandingController {
 
 	@PostMapping
 	public ResponseEntity<AuthResponse<PIStandingResponse>> create(@Valid @RequestBody PIStandingRequest dto) {
-
 		PIStandingResponse data = service.create(dto);
-
 		return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>(201, RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), "Created successfully", data));
 	}
@@ -46,9 +45,7 @@ public class PIStandingController {
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<PIStandingResponse>> update(@PathVariable Long id,
 			@Valid @RequestBody PIStandingRequest dto) {
-
 		PIStandingResponse data = service.update(id, dto);
-
 		return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
 				"Updated successfully", data));
 	}
@@ -62,7 +59,6 @@ public class PIStandingController {
 	@GetMapping
 	public ResponseEntity<AuthResponse<PaginatedResponse<PIStandingResponse>>> list(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-
 		return ResponseEntity.ok(wrapPage("Paged list fetched",
 				service.list(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")))));
 	}
@@ -73,20 +69,16 @@ public class PIStandingController {
 				LocalDateTime.now(), "All PIStanding entries fetched successfully", service.list()));
 	}
 
-	/* filter by PI / Quarter */
 	@GetMapping("/pi/{piNumber}")
 	public ResponseEntity<AuthResponse<PaginatedResponse<PIStandingResponse>>> byPi(@PathVariable int piNumber,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-
 		return ResponseEntity.ok(wrapPage("Quarter list fetched",
 				service.listByPi(piNumber, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")))));
 	}
 
-	/* filter by project */
 	@GetMapping("/project/{projectId}")
 	public ResponseEntity<AuthResponse<PaginatedResponse<PIStandingResponse>>> byProject(@PathVariable int projectId,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-
 		return ResponseEntity.ok(wrapPage("Project list fetched",
 				service.listByProject(projectId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")))));
 	}
@@ -99,10 +91,8 @@ public class PIStandingController {
 	}
 
 	private AuthResponse<PaginatedResponse<PIStandingResponse>> wrapPage(String msg, Page<PIStandingResponse> p) {
-
 		PaginatedResponse<PIStandingResponse> body = new PaginatedResponse<>(p.getContent(), p.getNumber(), p.getSize(),
 				p.getTotalElements(), p.getTotalPages(), p.isLast());
-
 		return new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(), msg, body);
 	}
 }

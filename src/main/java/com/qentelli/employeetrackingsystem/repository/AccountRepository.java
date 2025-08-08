@@ -10,10 +10,8 @@ import com.qentelli.employeetrackingsystem.entity.Account;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
 
-	boolean existsByAccountName(String accountName);
-
-	Page<Account> findByAccountNameContainingIgnoreCase(String accountName, Pageable pageable);
-
-	Page<Account> findByAccountStatusTrue(Pageable pageable);
+	public boolean existsByAccountName(String accountName);
+	public Page<Account> findByAccountNameContainingIgnoreCase(String accountName, Pageable pageable);
+	public Page<Account> findByAccountStatusTrue(Pageable pageable);
 
 }

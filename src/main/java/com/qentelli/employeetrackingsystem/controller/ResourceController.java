@@ -26,7 +26,7 @@ import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.ResourceService;
+import com.qentelli.employeetrackingsystem.service.ResourceService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

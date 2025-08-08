@@ -14,38 +14,20 @@ import com.qentelli.employeetrackingsystem.entity.TechStack;
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
-	List<Resource> findBySprint_SprintIdAndResourceStatusTrue(Long sprintId);
-	Page<Resource> findBySprint_SprintIdAndResourceStatusTrue(Long sprintId, Pageable pageable);
-
-	// 📦 Fetch active resources by type with pagination
-	Page<Resource> findByResourceTypeAndResourceStatus(ResourceType resourceType, Boolean resourceStatus,
+	public List<Resource> findBySprint_SprintIdAndResourceStatusTrue(Long sprintId);
+	public Page<Resource> findBySprint_SprintIdAndResourceStatusTrue(Long sprintId, Pageable pageable);
+	public Page<Resource> findByResourceTypeAndResourceStatus(ResourceType resourceType, Boolean resourceStatus,
 			Pageable pageable);
-
-	// 🔍 For TECH_STACK search (enum match)
-	Page<Resource> findByResourceStatusTrueAndResourceTypeAndTechStack(ResourceType resourceType, TechStack techStack,
+	public Page<Resource> findByResourceStatusTrueAndResourceTypeAndTechStack(ResourceType resourceType, TechStack techStack,
 			Pageable pageable);
-
-	// 🔍 For PROJECT search (partial name match, case-insensitive)
-	Page<Resource> findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(
+	public Page<Resource> findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(
 			ResourceType resourceType, String projectName, Pageable pageable);
-
-	// 🧾 Fetch all active resources
-	List<Resource> findByResourceStatus(Boolean resourceStatus);
-
-	// 🆕 Sprint-aware queries
-
-	// 🔹 All resources by sprint
-	Page<Resource> findBySprint_SprintId(Long sprintId, Pageable pageable);
-
-	// 🔹 Active resources by type and sprint
-	Page<Resource> findBySprint_SprintIdAndResourceTypeAndResourceStatusTrue(Long sprintId, ResourceType resourceType,
+	public List<Resource> findByResourceStatus(Boolean resourceStatus);
+	public Page<Resource> findBySprint_SprintId(Long sprintId, Pageable pageable);
+	public Page<Resource> findBySprint_SprintIdAndResourceTypeAndResourceStatusTrue(Long sprintId, ResourceType resourceType,
 			Pageable pageable);
-
-	// 🔹 Active TECH_STACK by sprint
-	Page<Resource> findBySprint_SprintIdAndResourceTypeAndTechStackAndResourceStatusTrue(Long sprintId,
+	public Page<Resource> findBySprint_SprintIdAndResourceTypeAndTechStackAndResourceStatusTrue(Long sprintId,
 			ResourceType resourceType, TechStack techStack, Pageable pageable);
-
-	// 🔹 Active PROJECTs by sprint and name
-	Page<Resource> findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndResourceStatusTrue(
+	public Page<Resource> findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndResourceStatusTrue(
 			Long sprintId, ResourceType resourceType, String projectName, Pageable pageable);
 }

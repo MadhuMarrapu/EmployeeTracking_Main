@@ -9,9 +9,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-	boolean existsByProjectName(String projectName);
-
-	Page<Project> findByProjectNameContainingIgnoreCase(String projectName, Pageable pageable);
-
-	Page<Project> findByProjectStatusTrue(Pageable pageable);
+	public boolean existsByProjectName(String projectName);
+	public Page<Project> findByProjectNameContainingIgnoreCase(String projectName, Pageable pageable);
+	public Page<Project> findByProjectStatusTrue(Pageable pageable);
 }
