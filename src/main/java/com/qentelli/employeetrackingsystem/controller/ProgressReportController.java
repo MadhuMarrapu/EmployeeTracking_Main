@@ -36,7 +36,7 @@ public class ProgressReportController {
 
 	@PostMapping
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody ProgressReportDTO dto) {
-		logger.info("Creating ProgressReport for team: {}, lead: {}", dto.getTeam(), dto.getTcbLead());
+		logger.info("Creating ProgressReport for projectId: {}, teamLead: {}", dto.getProjectId(), dto.getTeamLead());
 		service.create(dto);
 		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
 				"ProgressReport created successfully");
@@ -46,13 +46,17 @@ public class ProgressReportController {
 	@GetMapping
 	public ResponseEntity<AuthResponse<PaginatedResponse<ProgressReportDTO>>> getAll(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+
 		Page<ProgressReportDTO> dtoPage = service.getAll(page, size);
 		PaginatedResponse<ProgressReportDTO> paginated = new PaginatedResponse<>(dtoPage.getContent(), page, size,
 				dtoPage.getTotalElements(), dtoPage.getTotalPages(), dtoPage.isLast());
+
 		String message = dtoPage.isEmpty() ? "No ProgressReports found" : "ProgressReports fetched successfully";
 		HttpStatus status = dtoPage.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+
 		AuthResponse<PaginatedResponse<ProgressReportDTO>> response = new AuthResponse<>(status.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), message, paginated);
+
 		return ResponseEntity.status(status).body(response);
 	}
 

@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.qentelli.employeetrackingsystem.entity.RagStatus;
 
@@ -12,13 +14,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProgressReportDTO {
-    private Long reportId;  
-    private String team;
-    private String tcbLead;
-    private Integer assignedSP;
-    private Integer completedSP;
-    private RagStatus rag;
-    private Double completionPercentage;
-    private Boolean progressReportStatus = true; // true for active, false for inactive
-
+	private Long reportId;
+	private Integer projectId; // ✅ Single project selected from dropdown
+	private String teamLead;
+	private Integer assignedSP;
+	private Integer completedSP;
+	private RagStatus rag;
+	private Double completionPercentage;
+	private Boolean progressReportStatus = true;
+	private LocalDateTime snapshotDate;
 }
