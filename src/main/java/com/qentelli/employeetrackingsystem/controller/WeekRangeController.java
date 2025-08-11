@@ -67,13 +67,23 @@ public class WeekRangeController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/inActive/{id}")
+	/**
+	 * DELETE API to perform soft delete for a week range.
+	 */
+	@DeleteMapping("/softDelete/{id}")
 	public ResponseEntity<AuthResponse<Void>> softDelete(@PathVariable int id) {
-		logger.info("inActive week range with ID {}", id);
-		service.softDelete(id);
-		logger.info("Week range inActive successfully");
-		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), "Week range inActive  successfully", null);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+	    logger.info("Soft deleting week range with ID {}", id);
+	    service.softDelete(id);
+	    logger.info("Week range soft deleted successfully");
+
+	    AuthResponse<Void> response = new AuthResponse<>(
+	            HttpStatus.OK.value(),
+	            RequestProcessStatus.SUCCESS,
+	            LocalDateTime.now(),
+	            "Week range marked as inactive successfully",
+	            null
+	    );
+
+	    return ResponseEntity.ok(response);
+  }
 }

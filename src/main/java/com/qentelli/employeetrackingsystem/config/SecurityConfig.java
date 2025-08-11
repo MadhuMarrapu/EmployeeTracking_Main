@@ -25,6 +25,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.qentelli.employeetrackingsystem.serviceimpl.PersonDetailService;
 
+
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -33,7 +35,7 @@ public class SecurityConfig {
     private JwtFilter jwtFilter;
 
     @Autowired
-    private PersonDetailService personDetailService;
+    PersonDetailService personDetailService;
 
     // 🔐 Composite UserDetailsService: In-Memory + DB fallback
     @Bean(name = "userDetailsService")
