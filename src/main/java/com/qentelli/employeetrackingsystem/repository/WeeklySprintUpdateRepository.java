@@ -13,28 +13,18 @@ import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 
 @Repository
 public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprintUpdate, Integer> {
-	Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue(Pageable pageable);
-
-	List<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue();
-
+	public Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue(Pageable pageable);
+	public List<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue();
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
 			    WHERE wsu.week.weekId = :weekId
 			    AND wsu.weeklySprintUpdateStatus = true
 			""")
-	List<WeeklySprintUpdate> findActiveByWeekId(@Param("weekId") int weekId);
-
+	public List<WeeklySprintUpdate> findActiveByWeekId(@Param("weekId") int weekId);
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
 			    WHERE wsu.week.sprint.sprintId = :sprintId
 			    AND wsu.weeklySprintUpdateStatus = true
 			""")
 	List<WeeklySprintUpdate> findActiveBySprintId(@Param("sprintId") Long sprintId);
-
-//	@Query("""
-//			    SELECT wsu FROM WeeklySprintUpdate wsu
-//			    WHERE wsu.week.sprint.sprintNumber = :sprintNumber
-//			    AND wsu.weeklySprintUpdateStatus = true
-//			""")
-//	List<WeeklySprintUpdate> findActiveBySprintNumber(@Param("sprintNumber") String sprintNumber);
 }

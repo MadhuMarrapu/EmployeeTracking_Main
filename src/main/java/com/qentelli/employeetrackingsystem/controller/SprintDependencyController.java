@@ -24,7 +24,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ListContentWrapper;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintDependencyResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.SprintDependencyService;
+import com.qentelli.employeetrackingsystem.service.SprintDependencyService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

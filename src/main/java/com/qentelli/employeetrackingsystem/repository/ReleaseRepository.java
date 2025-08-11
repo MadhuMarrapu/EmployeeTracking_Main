@@ -18,10 +18,8 @@ public interface ReleaseRepository extends JpaRepository<Release, Long> {
 			LEFT JOIN release r ON p.project_id = r.project_id
 			GROUP BY p.project_name
 			""", nativeQuery = true)
-	List<ReleaseCountProjection> getAggregatedReleaseCounts();
-
-	List<Release> findByWeek_WeekId(int weekId);
-
-	List<Release> findBySprint_SprintId(int sprintId);
+	public List<ReleaseCountProjection> getAggregatedReleaseCounts();
+	public List<Release> findByWeek_WeekId(int weekId);
+	public List<Release> findBySprint_SprintId(int sprintId);
 
 }
