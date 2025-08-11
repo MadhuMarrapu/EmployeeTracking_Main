@@ -6,9 +6,9 @@ spring:
       name: Employee-Tracking-System
 
    datasource:
-      url: jdbc:postgresql://ep-green-block-aem0hfok-pooler.c-2.us-east-2.aws.neon.tech/neondb
+      url: jdbc:postgresql://ep-super-dust-adns4tzr-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
       username: neondb_owner
-      password: npg_bWGRz8VMCn4D
+      password: npg_JH0dwV2ORjDK
       driver-class-name: org.postgresql.Driver
 
    jpa:
