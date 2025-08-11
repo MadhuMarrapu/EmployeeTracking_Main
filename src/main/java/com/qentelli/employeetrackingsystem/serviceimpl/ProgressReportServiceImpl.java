@@ -3,7 +3,6 @@ package com.qentelli.employeetrackingsystem.serviceimpl;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +25,6 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 
 	private final ProgressReportRepository reportRepository;
 	private final ProjectRepository projectRepository;
-	private final ModelMapper modelMapper;
 
 	private double calculateCompletionPercentage(int assignedSP, int completedSP) {
 		if (assignedSP <= 0)
@@ -41,40 +39,29 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 
 	@Override
 	public void create(ProgressReportDTO dto) {
-		ProgressReport entity = modelMapper.map(dto, ProgressReport.class);
-		entity.setProjects(List.of(resolveProject(dto.getProjectId())));
-		entity.setCompletionPercentage(calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
-		entity.setSnapshotDate(LocalDateTime.now());
+		ProgressReport entity = toEntity(dto);
 		reportRepository.save(entity);
 	}
 
 	@Override
 	public Page<ProgressReportDTO> getAll(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size, Sort.by("snapshotDate").descending());
-		return reportRepository.findByProgressReportStatusTrue(pageable).map(report -> {
-			ProgressReportDTO dto = modelMapper.map(report, ProgressReportDTO.class);
-			dto.setCompletionPercentage(calculateCompletionPercentage(report.getAssignedSP(), report.getCompletedSP()));
-			if (report.getProjects() != null && !report.getProjects().isEmpty()) {
-				dto.setProjectId(report.getProjects().get(0).getProjectId());
-			}
-			return dto;
-		});
+		return reportRepository.findByProgressReportStatusTrue(pageable).map(this::toDTO);
 	}
 
 	@Override
 	public void update(Long id, ProgressReportDTO dto) {
 		ProgressReport existingReport = reportRepository.findById(id)
 				.orElseThrow(() -> new ReportNotFoundException("No progress report found for ID: " + id));
-
 		existingReport.setTeamLead(dto.getTeamLead());
 		existingReport.setAssignedSP(dto.getAssignedSP());
 		existingReport.setCompletedSP(dto.getCompletedSP());
 		existingReport.setRag(dto.getRag());
-		existingReport.setProjects(List.of(resolveProject(dto.getProjectId())));
+		existingReport.setProgressReportStatus(dto.getProgressReportStatus());
+		existingReport.setSnapshotDate(LocalDateTime.now());
 		existingReport
 				.setCompletionPercentage(calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
-		existingReport.setSnapshotDate(LocalDateTime.now());
-
+		existingReport.setProjects(List.of(resolveProject(dto.getProjectId())));
 		reportRepository.save(existingReport);
 	}
 
@@ -84,5 +71,35 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 				.orElseThrow(() -> new ReportNotFoundException("Cannot delete. No report with ID: " + id));
 		existingReport.setProgressReportStatus(false);
 		reportRepository.save(existingReport);
+	}
+
+	private ProgressReport toEntity(ProgressReportDTO dto) {
+		ProgressReport entity = new ProgressReport();
+		entity.setId(dto.getReportId());
+		entity.setTeamLead(dto.getTeamLead());
+		entity.setAssignedSP(dto.getAssignedSP());
+		entity.setCompletedSP(dto.getCompletedSP());
+		entity.setRag(dto.getRag());
+		entity.setProgressReportStatus(dto.getProgressReportStatus());
+		entity.setSnapshotDate(LocalDateTime.now());
+		entity.setCompletionPercentage(calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
+		entity.setProjects(List.of(resolveProject(dto.getProjectId())));
+		return entity;
+	}
+
+	private ProgressReportDTO toDTO(ProgressReport report) {
+		ProgressReportDTO dto = new ProgressReportDTO();
+		dto.setReportId(report.getId());
+		dto.setTeamLead(report.getTeamLead());
+		dto.setAssignedSP(report.getAssignedSP());
+		dto.setCompletedSP(report.getCompletedSP());
+		dto.setRag(report.getRag());
+		dto.setProgressReportStatus(report.getProgressReportStatus());
+		dto.setSnapshotDate(report.getSnapshotDate());
+		dto.setCompletionPercentage(calculateCompletionPercentage(report.getAssignedSP(), report.getCompletedSP()));
+		if (report.getProjects() != null && !report.getProjects().isEmpty()) {
+			dto.setProjectId(report.getProjects().get(0).getProjectId());
+		}
+		return dto;
 	}
 }
