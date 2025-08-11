@@ -159,7 +159,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page,
 			int size) {
 		List<ViewReports> reports = viewReportRepository.findByWeekRange(fromDate, toDate);
-		List<ViewReportResponse> allResponses = reports.stream().map(this::mapToResponse).collect(Collectors.toList());
+		List<ViewReportResponse> allResponses = reports.stream().map(this::mapToResponse).toList();
 		int start = Math.min(page * size, allResponses.size());
 		int end = Math.min(start + size, allResponses.size());
 		List<ViewReportResponse> pagedResponses = allResponses.subList(start, end);
@@ -170,7 +170,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	@Override
 	public List<ViewReportResponse> getAllReports() {
 		List<ViewReports> reports = viewReportRepository.findBySoftDeleteFalse();
-		return reports.stream().map(this::mapToResponse).collect(Collectors.toList());
+		return reports.stream().map(this::mapToResponse).toList();
 	}
 
 	private ViewReportResponse mapToResponse(ViewReports report) {

@@ -25,10 +25,9 @@ public class PersonDTO {
     private String password;
     private String confirmPassword;
     private Roles role;
-    private Boolean personStatus=true; // true for active, false for inactive;
+    private Boolean personStatus=true; 
     @JsonDeserialize(using = FlexibleTechStackDeserializer.class)
-    private TechStack techStack;
-    
-    private List<Integer> projectIds;   // Existing mapping by ID
-    private List<String> projectNames;  // New field for project name mapping
+    private TechStack techStack;  
+    private List<Integer> projectIds;   
+    private List<String> projectNames;  
  }
