@@ -89,10 +89,10 @@ public class WeekRangeService {
     }
     
     public void softDelete(int id) {
-        WeekRange range = weekRangeRepository.findById(id).orElseThrow();
-        range.setSoftDelete(true); // Set soft delete flag to true
+        WeekRange range = weekRangeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Week range not found with id: " + id));
+        range.setSoftDelete(true); // Flag as deleted
         weekRangeRepository.save(range);
-    }
-    
+    }  
 }
  

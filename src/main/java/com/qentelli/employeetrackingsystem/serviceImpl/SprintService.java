@@ -108,19 +108,12 @@ public class SprintService {
 		return mapToResponse(updated);
 	}
 
-	public void deleteSprint(Long id) {
-		Sprint sprint = sprintRepository.findById(id)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
-		sprint.setSprintStatus(false); // Assuming sprintStatus indicates active/inactive
-		sprintRepository.save(sprint);
-	}
-
-	public boolean setSprintEnabled(Long sprintId) {
-		Sprint sprint = sprintRepository.findById(sprintId)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + sprintId));
-		sprint.setIsEnabled(true);
-		sprintRepository.save(sprint);
-		return true;
+	// SOFT DELETE (mark inactive)
+	public void softDeleteSprint(Long id) {
+	    Sprint sprint = sprintRepository.findById(id)
+	            .orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
+	    sprint.setSprintStatus(false); // mark as inactive
+	    sprintRepository.save(sprint);
 	}
 
 	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
