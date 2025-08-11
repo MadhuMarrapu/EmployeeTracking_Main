@@ -1,4 +1,4 @@
-package com.qentelli.employeetrackingsystem.serviceImpl;
+package com.qentelli.employeetrackingsystem.serviceimpl;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
