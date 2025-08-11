@@ -1,7 +1,6 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.TechStack;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
+import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
@@ -121,12 +121,13 @@ public class ResourceController {
 		return buildPaginatedResponse(page, "Fetched resources for sprint ID: " + sprintId, "No resources found");
 	}
 
-	@GetMapping("/sprint/all")
-	public ResponseEntity<AuthResponse<List<ResourceResponse>>> getAllResourcesBySprintId(@RequestParam Long sprintId) {
-		List<ResourceResponse> allResources = resourceService.getAllResourcesBySprintId(sprintId);
-		String msg = allResources.isEmpty() ? "No resources found" : "Fetched all resources for sprint ID: " + sprintId;
+	@GetMapping("/sprint/grouped")
+	public ResponseEntity<AuthResponse<GroupedResourceResponse>> getGroupedResources(@RequestParam Long sprintId) {
+		GroupedResourceResponse grouped = resourceService.getGroupedResourcesBySprintId(sprintId);
+		boolean isEmpty = grouped.getTechStackResources().isEmpty() && grouped.getProjectResources().isEmpty();
+		String msg = isEmpty ? "No resources found" : "Resources grouped by type for sprint ID: " + sprintId;
 		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), msg, allResources));
+				LocalDateTime.now(), msg, grouped));
 	}
 
 	private ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> buildPaginatedResponse(

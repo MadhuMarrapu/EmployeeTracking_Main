@@ -44,7 +44,6 @@ public class ViewReports {
 
 	@Enumerated(EnumType.STRING)
 	private TaskStatus taskStatus;
-	
 
 	@ElementCollection
 	private List<String> comments;
@@ -60,9 +59,7 @@ public class ViewReports {
 	@ManyToOne
 	@JoinColumn(name = "personId")
 	private Person person;
-	
-	//private User user;
-	
+
 	private String taskName;
 	private LocalDate taskStartDate;
 	private LocalDate taskEndDate;
