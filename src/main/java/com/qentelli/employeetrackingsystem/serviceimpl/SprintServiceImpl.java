@@ -96,12 +96,14 @@ public class SprintServiceImpl implements SprintService {
 		return mapToResponse(updated);
 	}
 
+
+	// SOFT DELETE (mark inactive)
 	@Override
 	public void deleteSprint(Long id) {
-		Sprint sprint = sprintRepository.findById(id)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
-		sprint.setSprintStatus(false);
-		sprintRepository.save(sprint);
+	    Sprint sprint = sprintRepository.findById(id)
+	            .orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
+	    sprint.setSprintStatus(false); // mark as inactive
+	    sprintRepository.save(sprint);
 	}
 
 	@Override
