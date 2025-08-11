@@ -2,6 +2,8 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.qentelli.employeetrackingsystem.entity.enums.HealthStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;

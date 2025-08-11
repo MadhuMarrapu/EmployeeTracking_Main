@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
-import com.qentelli.employeetrackingsystem.entity.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
-import com.qentelli.employeetrackingsystem.entity.TechStack;
+import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
+import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
@@ -65,21 +65,17 @@ public class ResourceServiceImpl implements ResourceService {
 	@Override
 	public GroupedResourceResponse getGroupedResourcesBySprintId(Long sprintId) {
 	    List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
-
 	    List<ResourceResponse> techStackResources = resources.stream()
 	        .filter(r -> r.getResourceType() == ResourceType.TECHSTACK)
 	        .map(this::mapToResponse)
 	        .toList();
-
 	    List<ResourceResponse> projectResources = resources.stream()
 	        .filter(r -> r.getResourceType() == ResourceType.PROJECT)
 	        .map(this::mapToResponse)
 	        .toList();
-
 	    GroupedResourceResponse response = new GroupedResourceResponse();
 	    response.setTechStackResources(techStackResources);
 	    response.setProjectResources(projectResources);
-
 	    return response;
 	}
 

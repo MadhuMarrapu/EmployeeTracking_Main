@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.SprintDependency;
-import com.qentelli.employeetrackingsystem.entity.TaskStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.SprintNotFoundException;

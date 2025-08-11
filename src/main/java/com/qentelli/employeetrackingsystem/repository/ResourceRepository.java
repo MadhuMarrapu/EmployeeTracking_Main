@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.Resource;
-import com.qentelli.employeetrackingsystem.entity.ResourceType;
-import com.qentelli.employeetrackingsystem.entity.TechStack;
+import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
+import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, Long> {

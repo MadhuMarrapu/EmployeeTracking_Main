@@ -1,7 +1,6 @@
 package com.qentelli.employeetrackingsystem.serviceimpl;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,9 +58,9 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 		existingReport.setRag(dto.getRag());
 		existingReport.setProgressReportStatus(dto.getProgressReportStatus());
 		existingReport.setSnapshotDate(LocalDateTime.now());
-		existingReport
-				.setCompletionPercentage(calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
-		existingReport.setProjects(List.of(resolveProject(dto.getProjectId())));
+		existingReport.setCompletionPercentage(
+				calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
+		existingReport.setProject(resolveProject(dto.getProjectId()));
 		reportRepository.save(existingReport);
 	}
 
@@ -82,8 +81,9 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 		entity.setRag(dto.getRag());
 		entity.setProgressReportStatus(dto.getProgressReportStatus());
 		entity.setSnapshotDate(LocalDateTime.now());
-		entity.setCompletionPercentage(calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
-		entity.setProjects(List.of(resolveProject(dto.getProjectId())));
+		entity.setCompletionPercentage(
+				calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
+		entity.setProject(resolveProject(dto.getProjectId()));
 		return entity;
 	}
 
@@ -96,10 +96,11 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 		dto.setRag(report.getRag());
 		dto.setProgressReportStatus(report.getProgressReportStatus());
 		dto.setSnapshotDate(report.getSnapshotDate());
-		dto.setCompletionPercentage(calculateCompletionPercentage(report.getAssignedSP(), report.getCompletedSP()));
-		if (report.getProjects() != null && !report.getProjects().isEmpty()) {
-			dto.setProjectId(report.getProjects().get(0).getProjectId());
-			dto.setProjectName(report.getProjects().get(0).getProjectName());
+		dto.setCompletionPercentage(
+				calculateCompletionPercentage(report.getAssignedSP(), report.getCompletedSP()));
+		if (report.getProject() != null) {
+			dto.setProjectId(report.getProject().getProjectId());
+			dto.setProjectName(report.getProject().getProjectName());
 		}
 		return dto;
 	}

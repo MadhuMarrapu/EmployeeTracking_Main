@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.qentelli.employeetrackingsystem.entity.Person;
-import com.qentelli.employeetrackingsystem.entity.Roles;
+import com.qentelli.employeetrackingsystem.entity.enums.Roles;
 import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
 
 public interface PersonService {

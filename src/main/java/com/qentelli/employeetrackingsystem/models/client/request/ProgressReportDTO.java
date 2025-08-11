@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.RagStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.RagStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

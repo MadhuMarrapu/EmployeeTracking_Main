@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.Roles;
+import com.qentelli.employeetrackingsystem.entity.enums.Roles;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Integer> {

@@ -1,6 +1,6 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
-import com.qentelli.employeetrackingsystem.entity.TechStack;
+import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

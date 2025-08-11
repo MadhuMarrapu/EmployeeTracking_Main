@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.TaskStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
