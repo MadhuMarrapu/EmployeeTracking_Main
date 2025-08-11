@@ -99,6 +99,7 @@ public class ProgressReportServiceImpl implements ProgressReportService {
 		dto.setCompletionPercentage(calculateCompletionPercentage(report.getAssignedSP(), report.getCompletedSP()));
 		if (report.getProjects() != null && !report.getProjects().isEmpty()) {
 			dto.setProjectId(report.getProjects().get(0).getProjectId());
+			dto.setProjectName(report.getProjects().get(0).getProjectName());
 		}
 		return dto;
 	}

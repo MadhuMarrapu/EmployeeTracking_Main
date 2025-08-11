@@ -15,7 +15,8 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProgressReportDTO {
 	private Long reportId;
-	private Integer projectId; // ✅ Single project selected from dropdown
+	private Integer projectId;
+	private String projectName; // ✅ Single project selected from dropdown
 	private String teamLead;
 	private Integer assignedSP;
 	private Integer completedSP;
