@@ -16,15 +16,10 @@ import com.qentelli.employeetrackingsystem.entity.ViewReports;
 public interface ViewreportRepository extends JpaRepository<ViewReports, Integer> {
 
 	@Query("SELECT v FROM ViewReports v WHERE v.softDelete = false AND v.weekRange.weekFromDate = :fromDate AND v.weekRange.weekToDate = :toDate")
-	List<ViewReports> findByWeekRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
-
-	List<ViewReports> findBySoftDeleteFalse();
-	
-	Page<ViewReports> findBySoftDeleteFalse(Pageable pageable);
-
-    Page<ViewReports> findBySoftDeleteFalseAndPerson_PersonId(Integer personId, Pageable pageable);
-
-    Page<ViewReports> findBySoftDeleteFalseAndProject_ProjectId(Integer projectId, Pageable pageable);
-
-    Page<ViewReports> findBySoftDeleteFalseAndPerson_PersonIdAndProject_ProjectId(Integer personId, Integer projectId, Pageable pageable);
+	public List<ViewReports> findByWeekRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+	public List<ViewReports> findBySoftDeleteFalse();	
+	public Page<ViewReports> findBySoftDeleteFalse(Pageable pageable);
+	public Page<ViewReports> findBySoftDeleteFalseAndPerson_PersonId(Integer personId, Pageable pageable);
+	public Page<ViewReports> findBySoftDeleteFalseAndProject_ProjectId(Integer projectId, Pageable pageable);
+	public Page<ViewReports> findBySoftDeleteFalseAndPerson_PersonIdAndProject_ProjectId(Integer personId, Integer projectId, Pageable pageable);
 }

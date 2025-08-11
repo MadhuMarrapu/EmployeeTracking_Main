@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.TechStackService;
+import com.qentelli.employeetrackingsystem.service.TechStackService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,13 +30,10 @@ public class TechStackController {
 	public ResponseEntity<AuthResponse<List<String>>> getAllTechStacks() {
 		logger.info("Fetching all tech stack entries (enum display names)");
 		List<String> techStacks = techStackService.getAllTechStacks();
-
 		logger.debug("Tech stacks fetched: {}", techStacks.size());
 		AuthResponse<List<String>> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), "Tech stack list retrieved successfully", techStacks);
-
 		return ResponseEntity.ok(response);
 	}
 
 }
-

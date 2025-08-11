@@ -21,7 +21,7 @@ import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ProgressReportDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.ProgressReportService;
+import com.qentelli.employeetrackingsystem.service.ProgressReportService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,48 +38,30 @@ public class ProgressReportController {
 	public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody ProgressReportDTO dto) {
 		logger.info("Creating ProgressReport for team: {}, lead: {}", dto.getTeam(), dto.getTcbLead());
 		service.create(dto);
-
 		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
 				"ProgressReport created successfully");
-
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping
 	public ResponseEntity<AuthResponse<PaginatedResponse<ProgressReportDTO>>> getAll(
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) {
-
-	    Page<ProgressReportDTO> dtoPage = service.getAll(page, size);
-
-	    PaginatedResponse<ProgressReportDTO> paginated = new PaginatedResponse<>(
-	            dtoPage.getContent(), page, size,
-	            dtoPage.getTotalElements(), dtoPage.getTotalPages(), dtoPage.isLast());
-
-	    String message = dtoPage.isEmpty()
-	            ? "No ProgressReports found"
-	            : "ProgressReports fetched successfully";
-
-	    HttpStatus status = dtoPage.isEmpty()
-	            ? HttpStatus.NO_CONTENT
-	            : HttpStatus.OK;
-
-	    AuthResponse<PaginatedResponse<ProgressReportDTO>> response = new AuthResponse<>(
-	            status.value(), RequestProcessStatus.SUCCESS, LocalDateTime.now(), message, paginated);
-
-	    return ResponseEntity.status(status).body(response);
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		Page<ProgressReportDTO> dtoPage = service.getAll(page, size);
+		PaginatedResponse<ProgressReportDTO> paginated = new PaginatedResponse<>(dtoPage.getContent(), page, size,
+				dtoPage.getTotalElements(), dtoPage.getTotalPages(), dtoPage.isLast());
+		String message = dtoPage.isEmpty() ? "No ProgressReports found" : "ProgressReports fetched successfully";
+		HttpStatus status = dtoPage.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+		AuthResponse<PaginatedResponse<ProgressReportDTO>> response = new AuthResponse<>(status.value(),
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), message, paginated);
+		return ResponseEntity.status(status).body(response);
 	}
-
 
 	@PutMapping("/{id}")
 	public ResponseEntity<AuthResponse<Void>> update(@PathVariable Long id, @Valid @RequestBody ProgressReportDTO dto) {
-
 		logger.info("Updating ProgressReport ID: {}", id);
 		service.update(id, dto);
-
 		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				"ProgressReport updated successfully");
-
 		return ResponseEntity.ok(response);
 	}
 
@@ -87,10 +69,8 @@ public class ProgressReportController {
 	public ResponseEntity<AuthResponse<Void>> softDelete(@PathVariable Long id) {
 		logger.info("Soft deleting ProgressReport ID: {}", id);
 		service.softDelete(id);
-
 		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				"ProgressReport deleted successfully");
-
 		return ResponseEntity.ok(response);
 	}
 }

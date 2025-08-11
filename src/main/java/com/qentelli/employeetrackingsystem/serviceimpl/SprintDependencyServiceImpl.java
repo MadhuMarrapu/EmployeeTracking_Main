@@ -1,7 +1,6 @@
 package com.qentelli.employeetrackingsystem.serviceImpl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.SprintDependen
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintDependencyRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintRepository;
-
+import com.qentelli.employeetrackingsystem.service.SprintDependencyService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,20 +27,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class  SprintDependencyService {
+public class SprintDependencyServiceImpl implements SprintDependencyService {
 
 	private final SprintDependencyRepository sprintDependencyRepository;
 	private final ProjectRepository projectRepository;
 	private final SprintRepository sprintRepository;
 
-	
+	@Override
 	public SprintDependencyResponse create(SprintDependencyRequest request) {
 		log.info("Creating SprintDependency for sprintId {}: {}", request.getSprintId(), request);
 		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(
 				() -> new ProjectNotFoundException("Project not found with id: " + request.getProjectId()));
 		Sprint sprint = sprintRepository.findById(request.getSprintId())
 				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + request.getSprintId()));
-		SprintDependency dependency = new SprintDependency(); 
+		SprintDependency dependency = new SprintDependency();
 		dependency.setType(request.getType());
 		dependency.setDescription(request.getDescription());
 		dependency.setOwner(request.getOwner());
@@ -55,13 +54,13 @@ public class  SprintDependencyService {
 		return toResponse(dependency);
 	}
 
-	
+	@Override
 	public Page<SprintDependencyResponse> getAll(Pageable pageable) {
 		log.info("Fetching all SprintDependencies with pagination: {}", pageable);
 		return sprintDependencyRepository.findAll(pageable).map(this::toResponse);
 	}
 
-	
+	@Override
 	public SprintDependencyResponse getById(Long id) {
 		log.info("Fetching SprintDependency with ID: {}", id);
 		SprintDependency entity = sprintDependencyRepository.findById(id)
@@ -69,7 +68,7 @@ public class  SprintDependencyService {
 		return toResponse(entity);
 	}
 
-	
+	@Override
 	public SprintDependencyResponse update(Long id, SprintDependencyRequest request) {
 		log.info("Updating SprintDependency with ID: {}", id);
 		SprintDependency dependency = sprintDependencyRepository.findById(id)
@@ -83,55 +82,44 @@ public class  SprintDependencyService {
 		return toResponse(dependency);
 	}
 
-	
+	@Override
 	public void delete(Long id) {
 		log.info("Deleting SprintDependency with ID: {}", id);
 		sprintDependencyRepository.deleteById(id);
 	}
-	
+
+	@Override
 	public Page<SprintDependencyResponse> getBySprintId(Long sprintId, Pageable pageable) {
 		log.info("Fetching SprintDependencies for Sprint ID: {}", sprintId);
 		Sprint sprint = sprintRepository.findById(sprintId)
 				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
 		return sprintDependencyRepository.findBySprint_SprintId(sprint.getSprintId(), pageable).map(this::toResponse);
 	}
-  
+
+	@Override
 	public List<SprintDependencyResponse> getAllBySprintId(Long sprintId) {
-	    log.info("Fetching SprintDependencies (non-paginated) for Sprint ID: {}", sprintId);
-
-	    Sprint sprint = sprintRepository.findById(sprintId)
-	            .orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
-
-	    List<SprintDependency> dependencies = sprintDependencyRepository.findBySprint_SprintId(sprintId);
-
-	    return dependencies.stream()
-	            .map(this::toResponse)
-	            .collect(Collectors.toList());
+		log.info("Fetching SprintDependencies (non-paginated) for Sprint ID: {}", sprintId);
+		Sprint sprint = sprintRepository.findById(sprintId)
+				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
+		List<SprintDependency> dependencies = sprintDependencyRepository.findBySprint_SprintId(sprint.getSprintId());
+		return dependencies.stream().map(this::toResponse).toList();
 	}
 
 	private SprintDependencyResponse toResponse(SprintDependency entity) {
-	    SprintDependencyResponse response = new SprintDependencyResponse();
-	    BeanUtils.copyProperties(entity, response);
+		SprintDependencyResponse response = new SprintDependencyResponse();
+		BeanUtils.copyProperties(entity, response);
+		response.setStatusIn(entity.getStatusIn() != null ? entity.getStatusIn().toString() : "NOT_STARTED");
+		if (entity.getProject() != null) {
+			response.setProjectId(entity.getProject().getProjectId());
+			response.setProjectName(entity.getProject().getProjectName() != null ? entity.getProject().getProjectName()
+					: "Unnamed Project");
+		}
+		if (entity.getSprint() != null) {
+			response.setSprintId(entity.getSprint().getSprintId());
+			response.setSprintName(
+					entity.getSprint().getSprintName() != null ? entity.getSprint().getSprintName() : "Unnamed Sprint");
+		}
 
-	    // Defensive status mapping
-	    response.setStatusIn(entity.getStatusIn() != null ? entity.getStatusIn().toString() : "NOT_STARTED");
-
-	    // Project info mapping
-	    if (entity.getProject() != null) {
-	        response.setProjectId(entity.getProject().getProjectId());
-	        response.setProjectName(entity.getProject().getProjectName() != null 
-	            ? entity.getProject().getProjectName() 
-	            : "Unnamed Project");
-	    }
-
-	    // Sprint info mapping
-	    if (entity.getSprint() != null) {
-	        response.setSprintId(entity.getSprint().getSprintId());
-	        response.setSprintName(entity.getSprint().getSprintName() != null 
-	            ? entity.getSprint().getSprintName() 
-	            : "Unnamed Sprint");
-	    }
-
-	    return response;
+		return response;
 	}
 }

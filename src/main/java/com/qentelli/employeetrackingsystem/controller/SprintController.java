@@ -25,7 +25,7 @@ import com.qentelli.employeetrackingsystem.models.client.request.SprintRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintResponse;
-import com.qentelli.employeetrackingsystem.serviceImpl.SprintService;
+import com.qentelli.employeetrackingsystem.service.SprintService;
 
 import jakarta.validation.Valid;
 
@@ -104,7 +104,7 @@ public class SprintController {
     @DeleteMapping("/softDelete/{id}")
     public ResponseEntity<AuthResponse<Void>> softDelete(@PathVariable Long id) {
         logger.info("Soft deleting sprint with ID {}", id);
-        sprintService.softDeleteSprint(id);
+        sprintService.deleteSprint(id);
         logger.info("Sprint with ID {} soft deleted successfully", id);
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
                 "Sprint soft deleted successfully", null));

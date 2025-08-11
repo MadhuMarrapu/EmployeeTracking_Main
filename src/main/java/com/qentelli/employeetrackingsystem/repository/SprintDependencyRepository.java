@@ -12,7 +12,7 @@ import com.qentelli.employeetrackingsystem.entity.SprintDependency;
 
 @Repository
 public interface SprintDependencyRepository extends JpaRepository<SprintDependency, Long> {
-    Page<SprintDependency> findByProject_ProjectId(Integer projectId, Pageable pageable);
-    Page<SprintDependency> findBySprint_SprintId(Long sprintId, Pageable pageable);
-    List<SprintDependency> findBySprint_SprintId(Long sprintId);
+	public Page<SprintDependency> findByProject_ProjectId(Integer projectId, Pageable pageable);
+	public Page<SprintDependency> findBySprint_SprintId(Long sprintId, Pageable pageable);
+	public List<SprintDependency> findBySprint_SprintId(Long sprintId);
 }

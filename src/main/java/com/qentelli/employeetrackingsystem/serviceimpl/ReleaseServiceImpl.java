@@ -21,33 +21,31 @@ import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ReleaseRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintRepository;
 import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
+import com.qentelli.employeetrackingsystem.service.ReleaseService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ReleaseService {
+public class ReleaseServiceImpl implements ReleaseService {
 
-	private static final Logger logger = LoggerFactory.getLogger(ReleaseService.class);
-	
-	
+	private static final Logger logger = LoggerFactory.getLogger(ReleaseServiceImpl.class);
+
 	private final ReleaseRepository releaseRepository;
 	private final ProjectRepository projectRepository;
 	private final WeekRangeRepository weekRangeRepository;
 	private final SprintRepository sprintRepository;
 
-	// ✅ Create
+	@Override
 	public Release createRelease(ReleaseRequestDTO dto) {
 		logger.info("Creating release for projectId={}, weekId={}", dto.getProjectId(), dto.getWeekId());
-
 		Project project = projectRepository.findById(dto.getProjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 		WeekRange week = weekRangeRepository.findById(dto.getWeekId())
 				.orElseThrow(() -> new ResourceNotFoundException("WeekRange not found"));
 		Sprint sprint = sprintRepository.findById(dto.getSprintId())
 				.orElseThrow(() -> new ResourceNotFoundException("Sprint not found"));
-
 		Release release = new Release();
 		release.setProject(project);
 		release.setWeek(week);
@@ -56,14 +54,12 @@ public class ReleaseService {
 		release.setIncidentCreated(dto.getIncidentCreated());
 		release.setReleaseInformation(dto.getReleaseInformation());
 		release.setSprint(sprint);
-
 		Release savedRelease = releaseRepository.save(release);
 		logger.info("Release created with ID: {}", savedRelease.getReleaseId());
-
 		return savedRelease;
 	}
 
-	// ✅ Read All
+	@Override
 	public List<ReleaseResponseDTO> getAllReleases() {
 		logger.info("Fetching all releases");
 		List<ReleaseResponseDTO> list = releaseRepository.findAll().stream().map(this::mapToResponseDTO).toList();
@@ -71,7 +67,7 @@ public class ReleaseService {
 		return list;
 	}
 
-	// ✅ Paginated Read
+	@Override
 	public Page<ReleaseResponseDTO> getPaginatedReleases(Pageable pageable) {
 		logger.info("Fetching paginated release entries");
 		Page<Release> releasePage = releaseRepository.findAll(pageable);
@@ -81,74 +77,58 @@ public class ReleaseService {
 		return dtoPage;
 	}
 
-	// ✅ Read by Week ID
+	@Override
 	public List<ReleaseResponseDTO> getReleasesByWeekId(int weekId) {
 		logger.info("Fetching releases for weekId: {}", weekId);
-
 		List<Release> releases = releaseRepository.findByWeek_WeekId(weekId);
-
 		return releases.stream().map(this::mapToResponseDTO).toList();
 	}
 
-	// ✅ Read by Sprint ID
-
+	@Override
 	public List<ReleaseResponseDTO> getReleasesBySprintId(int sprintId) {
 		logger.info("Fetching releases for sprintId: {}", sprintId);
-
 		List<Release> releases = releaseRepository.findBySprint_SprintId(sprintId);
-
 		return releases.stream().map(this::mapToResponseDTO).toList();
 	}
 
-	
+	@Override
+	public Release updateRelease(Long id, ReleaseRequestDTO dto) {
+		logger.info("Updating release with ID: {}", id);
+		Release release = releaseRepository.findById(id)
+				.orElseThrow(() -> new ReleaseNotFoundException("Release not found with ID: " + id));
+		Project project = projectRepository.findById(dto.getProjectId())
+				.orElseThrow(() -> new ReleaseNotFoundException("Project not found with ID: " + dto.getProjectId()));
+		WeekRange week = weekRangeRepository.findById(dto.getWeekId())
+				.orElseThrow(() -> new ReleaseNotFoundException("WeekRange not found with ID: " + dto.getWeekId()));
+		Sprint sprint = sprintRepository.findById(dto.getSprintId())
+				.orElseThrow(() -> new ReleaseNotFoundException("Sprint not found with ID: " + dto.getSprintId()));
+		release.setProject(project);
+		release.setWeek(week);
+		release.setMajor(dto.getMajor());
+		release.setMinor(dto.getMinor());
+		release.setIncidentCreated(dto.getIncidentCreated());
+		release.setReleaseInformation(dto.getReleaseInformation());
+		release.setSprint(sprint);
+		Release updatedRelease = releaseRepository.save(release);
+		logger.info("Release updated successfully. ID: {}", updatedRelease.getReleaseId());
+		return updatedRelease;
+	}
 
-	// ✅ Update
-    public Release updateRelease(Long id, ReleaseRequestDTO dto) {
-        logger.info("Updating release with ID: {}", id);
-        Release release = releaseRepository.findById(id)
-                .orElseThrow(() -> new ReleaseNotFoundException("Release not found with ID: " + id));
+	@Override
+	public void deleteRelease(Long id) {
+		logger.info("Deleting release ID: {}", id);
+		if (!releaseRepository.existsById(id)) {
+			throw new ReleaseNotFoundException("Release not found with ID: " + id);
+		}
+		releaseRepository.deleteById(id);
+		logger.info("Release deleted. ID: {}", id);
+	}
 
-        Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new ReleaseNotFoundException("Project not found with ID: " + dto.getProjectId()));
-        WeekRange week = weekRangeRepository.findById(dto.getWeekId())
-                .orElseThrow(() -> new ReleaseNotFoundException("WeekRange not found with ID: " + dto.getWeekId()));
-        Sprint sprint = sprintRepository.findById(dto.getSprintId())
-                .orElseThrow(() -> new ReleaseNotFoundException("Sprint not found with ID: " + dto.getSprintId()));
-
-        release.setProject(project);
-        release.setWeek(week);
-        release.setMajor(dto.getMajor());
-        release.setMinor(dto.getMinor());
-        release.setIncidentCreated(dto.getIncidentCreated());
-        release.setReleaseInformation(dto.getReleaseInformation());
-        release.setSprint(sprint);
-
-        Release updatedRelease = releaseRepository.save(release);
-        logger.info("Release updated successfully. ID: {}", updatedRelease.getReleaseId());
-        return updatedRelease;
-    }
-
-    // ✅ Delete
-    public void deleteRelease(Long id) {
-        logger.info("Deleting release ID: {}", id);
-        if (!releaseRepository.existsById(id)) {
-            throw new ReleaseNotFoundException("Release not found with ID: " + id);
-        }
-        releaseRepository.deleteById(id);
-        logger.info("Release deleted. ID: {}", id);
-    }
-
-	// Mapper
 	private ReleaseResponseDTO mapToResponseDTO(Release release) {
-		return new ReleaseResponseDTO(
-			    release.getProject().getProjectName(),
-			    release.getMajor(), 
-			    release.getMinor(),
-			    release.getIncidentCreated(), 
-			    release.getReleaseInformation(),
-			    release.getWeek() != null ? release.getWeek().getWeekId() : 0,
-			    release.getSprint() != null ? release.getSprint().getSprintId() : 0, 
-			    release.getReleaseId(),
-			    release.getProject().getProjectId()); 
+		return new ReleaseResponseDTO(release.getProject().getProjectName(), release.getMajor(), release.getMinor(),
+				release.getIncidentCreated(), release.getReleaseInformation(),
+				release.getWeek() != null ? release.getWeek().getWeekId() : 0,
+				release.getSprint() != null ? release.getSprint().getSprintId() : 0, release.getReleaseId(),
+				release.getProject().getProjectId());
 	}
 }

@@ -12,7 +12,7 @@ import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
 
 @Repository
 public interface WeeklySummaryRepository extends JpaRepository<WeeklySummary, Integer> {
-	Optional<WeeklySummary> findByWeekStartDateAndWeekEndDate(LocalDate startDate, LocalDate endDate);
-	Page<WeeklySummary> findAllBySoftDeleteFalse(Pageable pageable);
-	Page<WeeklySummary> findByWeekStartDateBetweenAndSoftDeleteFalse(LocalDate start, LocalDate end, Pageable pageable);
+	public Optional<WeeklySummary> findByWeekStartDateAndWeekEndDate(LocalDate startDate, LocalDate endDate);
+	public Page<WeeklySummary> findAllBySoftDeleteFalse(Pageable pageable);
+	public Page<WeeklySummary> findByWeekStartDateBetweenAndSoftDeleteFalse(LocalDate start, LocalDate end, Pageable pageable);
 }
