@@ -39,7 +39,7 @@ public class WeeklySprintUpdateDto {
 	private int riskStoryCounts;
 	private String comments; 
 	private Integer injectionPercentage;
-	private boolean weeklySprintUpdateStatus = true; 
-	private boolean isEnabled = false; 
+	private Boolean weeklySprintUpdateStatus = true; 
+	private Boolean isEnabled = false; 
 	
 }

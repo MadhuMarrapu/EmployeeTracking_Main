@@ -60,8 +60,8 @@ public class WeeklySprintUpdate{
     @Column(columnDefinition = "TEXT") 
     private String comments; 
     private Integer injectionPercentage;
-    private boolean weeklySprintUpdateStatus=true;   
-    private boolean isEnabled = false; 
+    private Boolean weeklySprintUpdateStatus=true;   
+    private Boolean isEnabled = false; 
     
    
 }

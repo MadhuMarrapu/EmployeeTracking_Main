@@ -41,6 +41,7 @@ public class Sprint {
     @Column(updatable = false)
     private LocalDateTime createdAt;
     
+    
     private Boolean sprintStatus = true; // default true, indicates active sprint
     
     private Boolean isEnabled = false; // default false
