@@ -2,6 +2,8 @@ package com.qentelli.employeetrackingsystem.serviceimpl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.modelmapper.ModelMapper;
@@ -131,12 +133,24 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 
 	@Override
 	public List<WeeklySprintUpdate> getHistoricalUpdates(int currentWeekId) {
-		if (currentWeekId <= 1) {
-			return Collections.emptyList(); // No history before week 1
-		}
-		List<Integer> previousWeekIds = IntStream.rangeClosed(1, currentWeekId - 1).boxed()
-				.toList();
-		return weeklySprintUpdateRepository.findActiveByWeekIds(previousWeekIds);
+	    // Validate currentWeekId and ensure it's not soft-deleted
+	    if (currentWeekId <= 1 || !weekRangeRepository.existsByIdAndSoftDeleteFalse(currentWeekId)) {
+	        return Collections.emptyList();
+	    }
+	    // Generate all previous week IDs using IntStream
+	    List<Integer> previousWeekIds = IntStream.rangeClosed(1, currentWeekId - 1).boxed().toList();
+	    // Filter out soft-deleted week IDs
+	    Set<Integer> activeWeekIds = weekRangeRepository.findAll().stream()
+	        .filter(wr -> !wr.isSoftDelete())
+	        .map(WeekRange::getWeekId)
+	        .collect(Collectors.toSet());
+	    List<Integer> validPreviousWeekIds = previousWeekIds.stream()
+	        .filter(activeWeekIds::contains)
+	        .toList();
+	    if (validPreviousWeekIds.isEmpty()) {
+	        return Collections.emptyList();
+	    }  
+	    return  weeklySprintUpdateRepository.findActiveByWeekIds(validPreviousWeekIds);
 	}
 
 	public WeeklySprintUpdateDto toDto(WeeklySprintUpdate update) {

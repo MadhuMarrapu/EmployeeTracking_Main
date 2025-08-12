@@ -13,4 +13,5 @@ import com.qentelli.employeetrackingsystem.entity.WeekRange;
 public interface WeekRangeRepository extends JpaRepository<WeekRange, Integer> {
 	
 	public Page<WeekRange> findByWeekFromDateBetweenAndSoftDeleteFalse(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable);
+	public boolean existsByIdAndSoftDeleteFalse(Integer id);
 }
