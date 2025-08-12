@@ -1,4 +1,4 @@
-package com.qentelli.employeetrackingsystem.entity;
+package com.qentelli.employeetrackingsystem.entity.enums;
 
 import java.util.Arrays;
 

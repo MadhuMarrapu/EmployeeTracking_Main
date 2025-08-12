@@ -18,4 +18,7 @@ public interface WeeklySprintUpdateService {
 	public List<WeeklySprintUpdate> getAllActiveUpdates();
 	public List<WeeklySprintUpdate> getAllBySprintId(Long sprintId);
 	public List<WeeklySprintUpdate> getActiveUpdatesByWeekId(int weekId);
+	public List<WeeklySprintUpdate> getHistoricalUpdates(int currentWeekId);
+	public List<WeeklySprintUpdateDto> toDtoList(List<WeeklySprintUpdate> updates);
+	public WeeklySprintUpdateDto toDto(WeeklySprintUpdate update);
 }

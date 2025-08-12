@@ -27,4 +27,6 @@ public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprint
 			    AND wsu.weeklySprintUpdateStatus = true
 			""")
 	List<WeeklySprintUpdate> findActiveBySprintId(@Param("sprintId") Long sprintId);
+	@Query("SELECT w FROM WeeklySprintUpdate w WHERE w.week.weekId IN :weekIds AND w.weeklySprintUpdateStatus = true")
+	List<WeeklySprintUpdate> findActiveByWeekIds(@Param("weekIds") List<Integer> weekIds);
 }

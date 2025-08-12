@@ -6,19 +6,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PIStandingResponse {
-   
+
 	private Long id;
-    private int  piNumber;
-    private Integer projectId;
-    private String projectName;
- 
-    private String feature;
-    private boolean sprint0, sprint1, sprint2, sprint3, sprint4;
-    private double completionPercentage;
-    private String statusReport;
+	private int piNumber;
+	private Integer projectId;
+	private String projectName;
+	private String feature;
+	private String selectedSprint; // "sprint0" to "sprint4"
+	private boolean sprint0;
+	private boolean sprint1;
+	private boolean sprint2;
+	private boolean sprint3;
+	private boolean sprint4;
+	private double completionPercentage;
+	private String statusReport;
 }

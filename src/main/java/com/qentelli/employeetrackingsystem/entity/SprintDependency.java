@@ -2,6 +2,8 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import java.time.LocalDate;
 
+import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

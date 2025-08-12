@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.qentelli.employeetrackingsystem.entity.TechStack;
+import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.service.TechStackService;
 
 @Service

@@ -1,6 +1,8 @@
 package com.qentelli.employeetrackingsystem.serviceimpl;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -33,10 +35,12 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 	@Override
 	public WeeklySprintUpdate createUpdate(WeeklySprintUpdateDto dto) {
 		WeeklySprintUpdate update = modelMapper.map(dto, WeeklySprintUpdate.class);
+
 		Project project = projectRepository.findById(dto.getProjectId())
 				.orElseThrow(() -> new ProjectNotFoundException("Project not found with ID: " + dto.getProjectId()));
 		WeekRange week = weekRangeRepository.findById(dto.getWeeekRangeId()).orElseThrow(
 				() -> new WeekRangeNotFoundException("WeekRange not found with ID: " + dto.getWeeekRangeId()));
+
 		update.setProject(project);
 		update.setWeek(week);
 		update.setEstimationHealthStatus(dto.getEstimationHealthStatus());
@@ -45,6 +49,7 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 		update.setRiskStoryCounts(dto.getRiskStoryCounts());
 		update.setComments(dto.getComments());
 		update.setInjectionPercentage(dto.getInjectionPercentage());
+
 		return weeklySprintUpdateRepository.save(update);
 	}
 
@@ -52,10 +57,12 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 	public WeeklySprintUpdate updateUpdate(Integer id, WeeklySprintUpdateDto dto) {
 		WeeklySprintUpdate existing = weeklySprintUpdateRepository.findById(id).orElseThrow(
 				() -> new WeeklySprintUpdateNotFoundException("WeeklySprintUpdate not found with ID: " + id));
+
 		Project project = projectRepository.findById(dto.getProjectId())
 				.orElseThrow(() -> new ProjectNotFoundException("Project not found with ID: " + dto.getProjectId()));
 		WeekRange week = weekRangeRepository.findById(dto.getWeeekRangeId()).orElseThrow(
 				() -> new WeekRangeNotFoundException("WeekRange not found with ID: " + dto.getWeeekRangeId()));
+
 		existing.setAssignedPoints(dto.getAssignedPoints());
 		existing.setAssignedStoriesCount(dto.getAssignedStoriesCount());
 		existing.setInDevPoints(dto.getInDevPoints());
@@ -80,6 +87,7 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 		existing.setInjectionPercentage(dto.getInjectionPercentage());
 		existing.setProject(project);
 		existing.setWeek(week);
+
 		return weeklySprintUpdateRepository.save(existing);
 	}
 
@@ -96,6 +104,7 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 		WeeklySprintUpdate update = weeklySprintUpdateRepository.findById(weeklySprintUpdateId)
 				.orElseThrow(() -> new WeeklySprintUpdateNotFoundException(
 						"WeeklySprintUpdate not found with id: " + weeklySprintUpdateId));
+		update.setEnabled(true);
 		weeklySprintUpdateRepository.save(update);
 		return true;
 	}
@@ -118,5 +127,37 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 	@Override
 	public List<WeeklySprintUpdate> getActiveUpdatesByWeekId(int weekId) {
 		return weeklySprintUpdateRepository.findActiveByWeekId(weekId);
+	}
+
+	@Override
+	public List<WeeklySprintUpdate> getHistoricalUpdates(int currentWeekId) {
+		if (currentWeekId <= 1) {
+			return Collections.emptyList(); // No history before week 1
+		}
+		List<Integer> previousWeekIds = IntStream.rangeClosed(1, currentWeekId - 1).boxed()
+				.toList();
+		return weeklySprintUpdateRepository.findActiveByWeekIds(previousWeekIds);
+	}
+
+	public WeeklySprintUpdateDto toDto(WeeklySprintUpdate update) {
+		WeeklySprintUpdateDto dto = modelMapper.map(update, WeeklySprintUpdateDto.class);
+
+		if (update.getProject() != null) {
+			dto.setProjectId(update.getProject().getProjectId());
+			dto.setProjectName(update.getProject().getProjectName());
+		}
+
+		if (update.getWeek() != null) {
+			dto.setWeeekRangeId(update.getWeek().getWeekId());
+			if (update.getWeek().getSprint() != null) {
+				dto.setSprintNumber(update.getWeek().getSprint().getSprintNumber());
+			}
+		}
+
+		return dto;
+	}
+
+	public List<WeeklySprintUpdateDto> toDtoList(List<WeeklySprintUpdate> updates) {
+		return updates.stream().map(this::toDto).toList();
 	}
 }

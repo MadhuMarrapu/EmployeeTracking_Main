@@ -2,7 +2,6 @@ package com.qentelli.employeetrackingsystem.serviceimpl;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,10 +31,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ViewReportServiceImpl implements ViewReportService {
 
-	private static final String REPORT_NOT_FOUND = "Report not found";
-	private static final String WEEKLY_SUMMARY_NOT_FOUND = "Weekly summary not found";
-	private static final String PROJECT_NOT_FOUND = "Project not found";
-	private static final String PERSON_NOT_FOUND = "Person not found";
+	private static final String REPORT_NOT_FOUND = "Report not found with id: ";
+	private static final String WEEKLY_SUMMARY_NOT_FOUND = "Weekly summary not found with id: ";
+	private static final String PROJECT_NOT_FOUND = "Project not found with id: ";
+	private static final String PERSON_NOT_FOUND = "Person not found with id: ";
 
 	private final ViewreportRepository viewReportRepository;
 	private final WeekRangeRepository weekRangeRepository;
@@ -45,11 +44,11 @@ public class ViewReportServiceImpl implements ViewReportService {
 	@Override
 	public ViewReportResponse saveReport(ViewReportRequest request) {
 		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
-				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + " with id: " + request.getWeekId()));
+				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + request.getWeekId()));
 		Project project = projectRepository.findById(request.getProjectId())
-				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + " with id: " + request.getProjectId()));
+				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + request.getProjectId()));
 		Person person = personRepository.findByPersonId(request.getPersonId())
-				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND + " with id: " + request.getPersonId()));
+				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND + request.getPersonId()));
 		ViewReports report = new ViewReports();
 		report.setTaskName(request.getTaskName());
 		report.setTaskStatus(request.getTaskStatus());
@@ -82,11 +81,11 @@ public class ViewReportServiceImpl implements ViewReportService {
 		ViewReports report = viewReportRepository.findById(request.getViewReportId())
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND));
 		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
-				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + " with id: " + request.getWeekId()));
+				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND  + request.getWeekId()));
 		Project project = projectRepository.findById(request.getProjectId())
-				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + " with id: " + request.getProjectId()));
+				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND  + request.getProjectId()));
 		Person person = personRepository.findByPersonId(request.getPersonId())
-				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND + " with id: " + request.getPersonId()));
+				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND  + request.getPersonId()));
 		report.setTaskName(request.getTaskName());
 		report.setTaskStatus(request.getTaskStatus());
 		report.setTaskStartDate(request.getTaskStartDate());
@@ -115,7 +114,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	@Override
 	public ViewReportResponse getReportById(Integer id) {
 		ViewReports report = viewReportRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + " with id: " + id));
+				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND  + id));
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(report.getViewReportId());
 		response.setWeekRange(new WeekRangeResponse(report.getWeekRange().getWeekId(),
@@ -151,7 +150,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	@Override
 	public void deleteReport(Integer id) {
 		ViewReports report = viewReportRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + " with id: " + id));
+				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND  + id));
 		viewReportRepository.delete(report);
 	}
 
@@ -159,7 +158,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page,
 			int size) {
 		List<ViewReports> reports = viewReportRepository.findByWeekRange(fromDate, toDate);
-		List<ViewReportResponse> allResponses = reports.stream().map(this::mapToResponse).collect(Collectors.toList());
+		List<ViewReportResponse> allResponses = reports.stream().map(this::mapToResponse).toList();
 		int start = Math.min(page * size, allResponses.size());
 		int end = Math.min(start + size, allResponses.size());
 		List<ViewReportResponse> pagedResponses = allResponses.subList(start, end);
@@ -170,7 +169,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	@Override
 	public List<ViewReportResponse> getAllReports() {
 		List<ViewReports> reports = viewReportRepository.findBySoftDeleteFalse();
-		return reports.stream().map(this::mapToResponse).collect(Collectors.toList());
+		return reports.stream().map(this::mapToResponse).toList();
 	}
 
 	private ViewReportResponse mapToResponse(ViewReports report) {

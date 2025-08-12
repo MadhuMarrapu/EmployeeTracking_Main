@@ -7,12 +7,16 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PIStandingRequest {
-	private Long id;            // null on create
-    private int  piNumber;      // 1‑4
-    private Integer projectId;
- 
-    private String feature;
-    private boolean sprint0, sprint1, sprint2, sprint3, sprint4;
-    private double completionPercentage;
-    private String statusReport;
+	private Long id; // null on create
+	private int piNumber; // 1‑4
+	private Integer projectId;
+
+	private String feature;
+
+	/** Sprint marker (e.g., SPRINT_0 to SPRINT_4) */
+	private String selectedSprint; // e.g., "Sprint-1"
+
+	private double completionPercentage;
+	private String statusReport;
+
 }

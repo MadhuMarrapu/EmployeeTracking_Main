@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class SprintServiceImpl implements SprintService {
 
 	private final SprintRepository sprintRepository;
+	private static final String SPRINT_NOT_FOUND = "Sprint not found with id: ";
 
 	@Override
 	public SprintResponse createSprint(SprintRequest request) {
@@ -80,14 +81,14 @@ public class SprintServiceImpl implements SprintService {
 	@Override
 	public SprintResponse getSprintById(Long id) {
 		Sprint sprint = sprintRepository.findById(id)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
+				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + id));
 		return mapToResponse(sprint);
 	}
 
 	@Override
 	public SprintResponse updateSprint(Long id, SprintRequest request) {
 		Sprint sprint = sprintRepository.findById(id)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
+				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND+ id));
 		sprint.setSprintNumber(request.getSprintNumber());
 		sprint.setSprintName(request.getSprintName());
 		sprint.setFromDate(request.getFromDate());
@@ -101,20 +102,30 @@ public class SprintServiceImpl implements SprintService {
 	@Override
 	public void deleteSprint(Long id) {
 	    Sprint sprint = sprintRepository.findById(id)
-	            .orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + id));
+	            .orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + id));
 	    sprint.setSprintStatus(false); // mark as inactive
 	    sprintRepository.save(sprint);
 	}
-
+	
 	public boolean setSprintEnabled(Long sprintId) {
 		Sprint sprint = sprintRepository.findById(sprintId)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
+				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + sprintId));
 		boolean newStatus = !Boolean.TRUE.equals(sprint.getIsEnabled());
 		sprint.setIsEnabled(newStatus);
 		sprintRepository.save(sprint);
 		return newStatus;
 	}
-
+	
+	@Override
+	public Sprint getPreviousSprint(Long sprintId) {
+		Sprint currentSprint = sprintRepository.findById(sprintId)
+				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + sprintId));
+		List<Sprint> previousSprints = sprintRepository.findPreviousActiveSprints(currentSprint.getFromDate());
+		return previousSprints.stream()
+				.findFirst()
+				.orElseThrow(() -> new SprintNotFoundException("No previous sprint found before ID: " + sprintId));
+	}
+	
 	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
 		List<WeekRange> weekRanges = new ArrayList<>();
 		LocalDate current = start;

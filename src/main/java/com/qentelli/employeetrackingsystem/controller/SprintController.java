@@ -1,6 +1,8 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.SprintRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -122,4 +125,8 @@ public class SprintController {
 				LocalDateTime.now(), message, null));
 	}
 
+	@GetMapping("/sprint-options")
+	public List<String> getSprintOptions() {
+		return Arrays.stream(SprintOrdinal.values()).map(s -> "Sprint-" + s.name().split("_")[1]).toList();
+	}
 }
