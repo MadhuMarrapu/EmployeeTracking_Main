@@ -29,4 +29,6 @@ public class WeekRange {
 	@ManyToOne
 	@JoinColumn(name = "sprint_id")
 	private Sprint sprint;
+	
+	private boolean isEnabled = false; // default false
 }

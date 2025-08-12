@@ -1,4 +1,5 @@
 package com.qentelli.employeetrackingsystem.controller;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -113,10 +114,19 @@ public class SprintController {
                 "Sprint soft deleted successfully", null));
     }
     
-    @GetMapping("/sprint-options")
-    public List<String> getSprintOptions() {
-        return Arrays.stream(SprintOrdinal.values())
-            .map(s -> "Sprint-" + s.name().split("_")[1])
-            .toList();
-    }
+	@PutMapping("/toggle-enabled/{id}")
+	public ResponseEntity<AuthResponse<Void>> toggleIsEnabled(@PathVariable Long id) {
+		logger.info("Toggling isEnabled status for sprint with ID {}", id);
+		boolean newStatus = sprintService.setSprintEnabled(id);
+		logger.info("Sprint with ID {} isEnabled set to {}", id, newStatus);
+
+		String message = newStatus ? "Sprint enabled successfully" : "Sprint disabled successfully";
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), message, null));
+	}
+
+	@GetMapping("/sprint-options")
+	public List<String> getSprintOptions() {
+		return Arrays.stream(SprintOrdinal.values()).map(s -> "Sprint-" + s.name().split("_")[1]).toList();
+	}
 }

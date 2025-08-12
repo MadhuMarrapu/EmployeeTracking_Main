@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,24 +67,45 @@ public class WeekRangeController {
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly report fetched successfully", data);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
+	@GetMapping("/getById/{id}")
+	public ResponseEntity<AuthResponse<WeekRangeResponse>> getById(@PathVariable int id) {
+	    logger.info("Fetching week range with ID {}", id);
+	    
+	    WeekRangeResponse response = service.getById(id);
+
+	    logger.info("Week range with ID {} fetched successfully", id);
+	    return ResponseEntity.ok(
+	            new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+	                    LocalDateTime.now(), "Week range fetched successfully", response)
+	    );
+	}
+
 
 	/**
 	 * DELETE API to perform soft delete for a week range.
 	 */
 	@DeleteMapping("/softDelete/{id}")
 	public ResponseEntity<AuthResponse<Void>> softDelete(@PathVariable int id) {
-	    logger.info("Soft deleting week range with ID {}", id);
-	    service.softDelete(id);
-	    logger.info("Week range soft deleted successfully");
+		logger.info("Soft deleting week range with ID {}", id);
+		service.softDelete(id);
+		logger.info("Week range soft deleted successfully");
 
-	    AuthResponse<Void> response = new AuthResponse<>(
-	            HttpStatus.OK.value(),
-	            RequestProcessStatus.SUCCESS,
-	            LocalDateTime.now(),
-	            "Week range marked as inactive successfully",
-	            null
-	    );
+		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Week range marked as inactive successfully", null);
 
-	    return ResponseEntity.ok(response);
-  }
+		return ResponseEntity.ok(response);
+	}
+	
+	@PutMapping("/toggle-enabled/{id}")
+	public ResponseEntity<AuthResponse<Void>> toggleIsEnabled(@PathVariable int id) {
+		logger.info("Toggling isEnabled for WeekRange with ID {}", id);
+		boolean newStatus = service.setWeekRangeEnabled(id);
+		logger.info("WeekRange with ID {} isEnabled set to {}", id, newStatus);
+
+		String message = newStatus ? "WeekRange enabled successfully" : "WeekRange disabled successfully";
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), message, null));
+	}
+
 }
