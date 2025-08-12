@@ -1,6 +1,7 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +130,26 @@ public class ResourceController {
 		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				LocalDateTime.now(), msg, grouped));
 	}
-
+	
+	@GetMapping("/previous/sprint/{sprintId}")
+	public ResponseEntity<AuthResponse<List<ResourceResponse>>> getResourcesByPreviousSprint(
+	        @PathVariable Long sprintId) {
+	    try {
+	        logger.info("Fetching resources for previous sprint of sprint ID: {}", sprintId);
+	        List<ResourceResponse> resources = resourceService.getResourcesByPreviousSprint(sprintId);
+	        String message = resources.isEmpty()
+	                ? "No resources found for previous sprint"
+	                : "Fetched resources for previous sprint of sprint ID: " + sprintId;
+	        return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+	                LocalDateTime.now(), message, resources));
+	    } catch (Exception ex) {
+	        logger.error("Error fetching previous sprint resources: {}", ex.getMessage(), ex);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
+	                        "Failed to fetch previous sprint resources", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+	    }
+	}
+	
 	private ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> buildPaginatedResponse(
 			Page<ResourceResponse> page, String successMsg, String emptyMsg) {
 		PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(page.getContent(), page.getNumber(),

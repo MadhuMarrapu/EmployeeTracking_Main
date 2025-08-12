@@ -45,11 +45,10 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<WeeklySprintUpdateDto>> create(@Valid @RequestBody WeeklySprintUpdateDto dto) {
 		logger.info("Creating WeeklySprintUpdate for projectId={}, weekRangeId={}", dto.getProjectId(),
 				dto.getWeeekRangeId());
-		WeeklySprintUpdate created = service.createUpdate(dto);
-		service.toDto(created);
+		service.createUpdate(dto);
 		AuthResponse<WeeklySprintUpdateDto> response = new AuthResponse<>(HttpStatus.CREATED.value(),
-				RequestProcessStatus.SUCCESS, "Weekly sprint update created successfully");
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly sprint update created successfully");
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@GetMapping
@@ -111,10 +110,9 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<WeeklySprintUpdateDto>> update(@PathVariable Integer id,
 			@Valid @RequestBody WeeklySprintUpdateDto dto) {
 		logger.info("Updating WeeklySprintUpdate ID: {}", id);
-		WeeklySprintUpdate updated = service.updateUpdate(id, dto);
-		service.toDto(updated);
+		service.updateUpdate(id, dto);
 		AuthResponse<WeeklySprintUpdateDto> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, "Weekly sprint update modified successfully");
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly sprint update modified successfully");
 		return ResponseEntity.ok(response);
 	}
 

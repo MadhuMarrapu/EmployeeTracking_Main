@@ -19,6 +19,7 @@ import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ResourceRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintRepository;
 import com.qentelli.employeetrackingsystem.service.ResourceService;
+import com.qentelli.employeetrackingsystem.service.SprintService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class ResourceServiceImpl implements ResourceService {
 	private final ResourceRepository resourceRepository;
 	private final ProjectRepository projectRepository;
 	private final SprintRepository sprintRepository;
+	private final SprintService sprintService;
 
 	@Override
 	@Transactional
@@ -83,6 +85,20 @@ public class ResourceServiceImpl implements ResourceService {
 	public Page<ResourceResponse> getAllResourcesBySprintId(Long sprintId, Pageable pageable) {
 		Page<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId, pageable);
 		return resources.map(this::mapToResponse);
+	}
+	
+	@Override
+	public List<ResourceResponse> getAllResourcesBySprintId(Long sprintId) {
+	    List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
+	    return resources.stream()
+	            .map(this::mapToResponse)
+	            .toList();
+	}
+	
+	@Override
+	public List<ResourceResponse> getResourcesByPreviousSprint(Long currentSprintId) {
+	    Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId); // resolves previous sprint
+	    return getAllResourcesBySprintId(previousSprint.getSprintId()); // fetches resources by resolved ID
 	}
 
 	@Override

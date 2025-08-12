@@ -57,12 +57,11 @@ public class WeeklySprintUpdate{
     private int difficultCount2;
     private int riskPoints;
     private int riskStoryCounts;
-    @Column(columnDefinition = "TEXT") // for longer content in database
+    @Column(columnDefinition = "TEXT") 
     private String comments; 
     private Integer injectionPercentage;
-    private boolean weeklySprintUpdateStatus=true; // true means active, false means inactive;
-    
-    private boolean isEnabled = false; // default false, indicates not enabled
+    private boolean weeklySprintUpdateStatus=true;   
+    private boolean isEnabled = false; 
     
    
 }

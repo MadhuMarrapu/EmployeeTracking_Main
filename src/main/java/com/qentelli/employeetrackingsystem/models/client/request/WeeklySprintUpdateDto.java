@@ -12,13 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WeeklySprintUpdateDto {
 	private Integer weekSprintId;
-
 	private String sprintNumber;
-	// Using IDs to keep DTO lightweight
-	private int weeekRangeId; // consider renaming to weekRangeId
+	private int weeekRangeId; 
 	private int projectId;
-
-	private String projectName; // ✅ Added field to hold project name
+	private String projectName; 
 	private int assignedPoints;
 	private int assignedStoriesCount;
 	private int inDevPoints;
@@ -29,27 +26,20 @@ public class WeeklySprintUpdateDto {
 	private int completeStoriesCount;
 	private int blockedPoints;
 	private int blockedStoriesCount;
-
 	private double completePercentage;
-
 	private String estimationHealth;
 	private String groomingHealth;
 	@JsonProperty("estimationHealthStatus")
 	private HealthStatus estimationHealthStatus;
-
 	@JsonProperty("groomingHealthStatus")
 	private HealthStatus groomingHealthStatus;
-
 	private int difficultCount1;
 	private int difficultCount2;
 	private int riskPoints;
 	private int riskStoryCounts;
-
-	private String comments; // backend-side comment from frontend
+	private String comments; 
 	private Integer injectionPercentage;
-	private boolean weeklySprintUpdateStatus = true; // true means active, false means inactive;
-
-	private boolean isEnabled = false; // default false, indicates not enabled
-
+	private boolean weeklySprintUpdateStatus = true; 
+	private boolean isEnabled = false; 
 	
 }

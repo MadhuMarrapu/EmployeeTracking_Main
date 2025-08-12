@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,7 +16,6 @@ public interface ResourceService {
 	public ResourceResponse createResource(ResourceRequest request);
 	public ResourceResponse updateResource(Long id, ResourceRequest request);
 	public void deleteResource(Long id);
-	// public List<ResourceResponse> getAllResourcesBySprintId(Long sprintId);
 	public Page<ResourceResponse> getAllResourcesBySprintId(Long sprintId, Pageable pageable);
 	public Page<ResourceResponse> getActiveResourcesByType(Long sprintId, ResourceType resourceType, Pageable pageable);
 	public Page<ResourceResponse> searchActiveTechStack(Long sprintId, ResourceType resourceType, TechStack techStack,
@@ -22,4 +23,6 @@ public interface ResourceService {
 	public Page<ResourceResponse> searchActiveProjectsByName(Long sprintId, ResourceType resourceType,
 			String projectName, Pageable pageable);
 	public GroupedResourceResponse getGroupedResourcesBySprintId(Long sprintId);
+	public List<ResourceResponse> getAllResourcesBySprintId(Long sprintId);
+	public List<ResourceResponse> getResourcesByPreviousSprint(Long currentSprintId);
 }
