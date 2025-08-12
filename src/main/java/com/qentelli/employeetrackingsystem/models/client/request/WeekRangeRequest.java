@@ -3,7 +3,6 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +21,5 @@ public class WeekRangeRequest {
 
 	// You can either expose Sprint ID or a nested SprintDto
 	private Long sprintId;
-
+	private boolean isEnabled = false; // default false
 }

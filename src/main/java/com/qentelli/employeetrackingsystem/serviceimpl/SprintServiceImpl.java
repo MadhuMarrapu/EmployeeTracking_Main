@@ -106,13 +106,13 @@ public class SprintServiceImpl implements SprintService {
 	    sprintRepository.save(sprint);
 	}
 
-	@Override
 	public boolean setSprintEnabled(Long sprintId) {
 		Sprint sprint = sprintRepository.findById(sprintId)
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with id: " + sprintId));
-		sprint.setIsEnabled(true);
+				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + sprintId));
+		boolean newStatus = !Boolean.TRUE.equals(sprint.getIsEnabled());
+		sprint.setIsEnabled(newStatus);
 		sprintRepository.save(sprint);
-		return true;
+		return newStatus;
 	}
 
 	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {

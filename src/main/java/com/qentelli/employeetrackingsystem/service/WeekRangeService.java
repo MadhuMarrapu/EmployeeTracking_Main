@@ -12,5 +12,7 @@ public interface WeekRangeService {
 
 	public void saveWeeklyData(WeekRangeRequest request);
 	public Page<WeekRangeResponse> generateReport(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable);
+	public WeekRangeResponse getById(int id);
 	public void softDelete(int id);
+	public boolean setWeekRangeEnabled(Integer id);
 }

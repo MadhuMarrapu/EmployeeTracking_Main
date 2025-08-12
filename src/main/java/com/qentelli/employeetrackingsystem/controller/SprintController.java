@@ -1,4 +1,5 @@
 package com.qentelli.employeetrackingsystem.controller;
+
 import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
@@ -109,4 +110,16 @@ public class SprintController {
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
                 "Sprint soft deleted successfully", null));
     }
+    
+	@PutMapping("/toggle-enabled/{id}")
+	public ResponseEntity<AuthResponse<Void>> toggleIsEnabled(@PathVariable Long id) {
+		logger.info("Toggling isEnabled status for sprint with ID {}", id);
+		boolean newStatus = sprintService.setSprintEnabled(id);
+		logger.info("Sprint with ID {} isEnabled set to {}", id, newStatus);
+
+		String message = newStatus ? "Sprint enabled successfully" : "Sprint disabled successfully";
+		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), message, null));
+	}
+
 }

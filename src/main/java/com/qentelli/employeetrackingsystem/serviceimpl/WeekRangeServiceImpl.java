@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.exception.MissingRequestDateException;
+import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.SprintNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.WeekRangeRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.WeekRangeResponse;
@@ -19,6 +20,7 @@ import com.qentelli.employeetrackingsystem.repository.SprintRepository;
 import com.qentelli.employeetrackingsystem.repository.WeekRangeRepository;
 import com.qentelli.employeetrackingsystem.service.WeekRangeService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,6 +42,7 @@ public class WeekRangeServiceImpl implements WeekRangeService {
 			weekRange.setWeekFromDate(weekStart);
 			weekRange.setWeekToDate(weekEnd);
 			weekRange.setSoftDelete(false);
+		    weekRange.setEnabled(request.isEnabled());
 			weekRange.setSprint(sprint);
 			weekRangeRepository.save(weekRange);
 			currentDate = currentDate.plusWeeks(1);
@@ -66,6 +69,19 @@ public class WeekRangeServiceImpl implements WeekRangeService {
 				.toList();
 		return new PageImpl<>(filteredResponses, pageable, filteredResponses.size());
 	}
+   
+	@Override
+	public WeekRangeResponse getById(int id) {	  
+	    WeekRange weekRange = weekRangeRepository.findById(id)
+	            .orElseThrow(() -> {	              
+	                return new SprintNotFoundException("WeekRange not found with ID: " + id);
+	            });  
+	    return new WeekRangeResponse(
+	            weekRange.getWeekId(),
+	            weekRange.getWeekFromDate(),
+	            weekRange.getWeekToDate()
+	    );
+	}
 
 	@Override
 	public void softDelete(int id) {
@@ -73,4 +89,16 @@ public class WeekRangeServiceImpl implements WeekRangeService {
 		range.setSoftDelete(true);
 		weekRangeRepository.save(range);
 	}
+	
+	@Transactional
+	@Override
+	public boolean setWeekRangeEnabled(Integer id) {
+		WeekRange weekRange = weekRangeRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("WeekRange not found with ID: " + id));
+
+		weekRange.setEnabled(true);
+	    weekRangeRepository.save(weekRange);
+		return true;
+	}
+
 }
