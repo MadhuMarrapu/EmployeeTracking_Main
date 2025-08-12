@@ -106,14 +106,14 @@ public class SprintServiceImpl implements SprintService {
 	    sprint.setSprintStatus(false); // mark as inactive
 	    sprintRepository.save(sprint);
 	}
-
-	@Override
+	
 	public boolean setSprintEnabled(Long sprintId) {
 		Sprint sprint = sprintRepository.findById(sprintId)
 				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + sprintId));
-		sprint.setIsEnabled(true);
+		boolean newStatus = !Boolean.TRUE.equals(sprint.getIsEnabled());
+		sprint.setIsEnabled(newStatus);
 		sprintRepository.save(sprint);
-		return true;
+		return newStatus;
 	}
 	
 	@Override
