@@ -42,7 +42,6 @@ public class WeekRangeServiceImpl implements WeekRangeService {
 			weekRange.setWeekFromDate(weekStart);
 			weekRange.setWeekToDate(weekEnd);
 			weekRange.setSoftDelete(false);
-		    weekRange.setEnabled(request.isEnabled());
 			weekRange.setSprint(sprint);
 			weekRangeRepository.save(weekRange);
 			currentDate = currentDate.plusWeeks(1);
@@ -61,7 +60,7 @@ public class WeekRangeServiceImpl implements WeekRangeService {
 		}
 		LocalDate adjustedWeekFromDate = weekFromDate.with(DayOfWeek.MONDAY);
 		List<WeekRange> weekRanges = weekRangeRepository
-				.findByWeekFromDateBetweenAndSoftDeleteFalse(adjustedWeekFromDate, weekToDate, Pageable.unpaged())
+				.findActiveWeeksInRange(adjustedWeekFromDate, weekToDate, Pageable.unpaged())
 				.getContent();
 		List<WeekRangeResponse> filteredResponses = weekRanges.stream()
 				.map(weekRange -> new WeekRangeResponse(weekRange.getWeekId(), weekRange.getWeekFromDate(),

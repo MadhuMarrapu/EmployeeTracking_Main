@@ -16,10 +16,10 @@ public class WeekRangeRequest {
 	private int weekId;
 	private LocalDate weekFromDate;
 	private LocalDate weekToDate;
-	private boolean isActive=true;
-	private boolean softDelete=false;
+	//private boolean isActive=true;
+	private Boolean softDelete=false;
 
 	// You can either expose Sprint ID or a nested SprintDto
 	private Long sprintId;
-	private boolean isEnabled = false; // default false
+	private Boolean enabled = false; // default false
 }

@@ -3,6 +3,7 @@ package com.qentelli.employeetrackingsystem.entity;
 import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,11 +25,11 @@ public class WeekRange {
 	private LocalDate weekFromDate;
 	private LocalDate weekToDate;
 //	private boolean isActive = true;
-	private boolean softDelete = false;
+	private Boolean  softDelete = false;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "sprint_id")
 	private Sprint sprint;
 	
-	private boolean isEnabled = false; // default false
+	private Boolean enabled = false; // default false
 }

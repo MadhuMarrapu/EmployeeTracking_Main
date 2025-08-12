@@ -37,11 +37,11 @@ public class SprintServiceImpl implements SprintService {
 		List<WeekRange> generatedWeeks = generateWeekRanges(request.getFromDate(), request.getToDate(), sprint);
 		sprint.setWeeks(generatedWeeks);
 		Sprint savedSprint = sprintRepository.save(sprint);
-		List<WeekRangeResponse> weekResponses = savedSprint.getWeeks().stream().filter(week -> !week.isSoftDelete())
+		List<WeekRangeResponse> weekResponses = savedSprint.getWeeks().stream().filter(week -> !week.getSoftDelete())
 				.map(week -> new WeekRangeResponse(week.getWeekId(), week.getWeekFromDate(), week.getWeekToDate()))
 				.toList();
 		return new SprintResponse(savedSprint.getSprintId(), savedSprint.getSprintNumber(), savedSprint.getSprintName(),
-				savedSprint.getFromDate(), savedSprint.getToDate(), weekResponses, savedSprint.getIsEnabled(),
+				savedSprint.getFromDate(), savedSprint.getToDate(), weekResponses, savedSprint.getEnabled(),
 				savedSprint.getSprintStatus());
 	}
 
@@ -65,11 +65,11 @@ public class SprintServiceImpl implements SprintService {
 		List<WeekRange> generatedWeeks = generateWeekRanges(request.getFromDate(), request.getToDate(), sprint);
 		sprint.setWeeks(generatedWeeks);
 		Sprint savedSprint = sprintRepository.save(sprint);
-		List<WeekRangeResponse> weekResponses = savedSprint.getWeeks().stream().filter(week -> !week.isSoftDelete())
+		List<WeekRangeResponse> weekResponses = savedSprint.getWeeks().stream().filter(week -> !week.getSoftDelete())
 				.map(week -> new WeekRangeResponse(week.getWeekId(), week.getWeekFromDate(), week.getWeekToDate()))
 				.toList();
 		return new SprintResponse(savedSprint.getSprintId(), savedSprint.getSprintNumber(), savedSprint.getSprintName(),
-				savedSprint.getFromDate(), savedSprint.getToDate(), weekResponses, savedSprint.getIsEnabled(),
+				savedSprint.getFromDate(), savedSprint.getToDate(), weekResponses, savedSprint.getEnabled(),
 				savedSprint.getSprintStatus());
 	}
 
@@ -110,8 +110,8 @@ public class SprintServiceImpl implements SprintService {
 	public boolean setSprintEnabled(Long sprintId) {
 		Sprint sprint = sprintRepository.findById(sprintId)
 				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + sprintId));
-		boolean newStatus = !Boolean.TRUE.equals(sprint.getIsEnabled());
-		sprint.setIsEnabled(newStatus);
+		boolean newStatus = !Boolean.TRUE.equals(sprint.getEnabled());
+		sprint.setEnabled(newStatus);
 		sprintRepository.save(sprint);
 		return newStatus;
 	}
@@ -151,18 +151,30 @@ public class SprintServiceImpl implements SprintService {
 	}
 
 	private SprintResponse mapToResponse(Sprint sprint) {
-		List<WeekRangeResponse> weekResponses = new ArrayList<>();
-		if (sprint.getWeeks() != null) {
-			for (WeekRange week : sprint.getWeeks()) {
-				if (!week.isSoftDelete()) {
-					weekResponses
-							.add(new WeekRangeResponse(week.getWeekId(), week.getWeekFromDate(), week.getWeekToDate()));
-				}
-			}
-		}
+	    List<WeekRangeResponse> weekResponses = new ArrayList<>();
 
-		return new SprintResponse(sprint.getSprintId(), sprint.getSprintNumber(), sprint.getSprintName(),
-				sprint.getFromDate(), sprint.getToDate(), weekResponses, sprint.getSprintStatus(),
-				sprint.getIsEnabled());
+	    if (sprint.getWeeks() != null) {
+	        for (WeekRange week : sprint.getWeeks()) {
+	            // Safely check for non-deleted weeks
+	            if (Boolean.FALSE.equals(week.getSoftDelete())) {
+	                weekResponses.add(new WeekRangeResponse(
+	                    week.getWeekId(),
+	                    week.getWeekFromDate(),
+	                    week.getWeekToDate()
+	                ));
+	            }
+	        }
+	    }
+
+	    return new SprintResponse(
+	        sprint.getSprintId(),
+	        sprint.getSprintNumber(),
+	        sprint.getSprintName(),
+	        sprint.getFromDate(),
+	        sprint.getToDate(),
+	        weekResponses,
+	        sprint.getSprintStatus(),
+	        sprint.getEnabled() // updated to match new field name
+	    );
 	}
 }

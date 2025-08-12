@@ -140,7 +140,7 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 	@Override
 	public List<WeeklySprintUpdate> getHistoricalUpdates(int currentWeekId) {
 	    // Validate currentWeekId and ensure it's not soft-deleted
-	    if (currentWeekId <= 1 || !weekRangeRepository.existsByIdAndSoftDelete(currentWeekId,false)) {
+	    if (currentWeekId <= 1 || !weekRangeRepository.existsByWeekIdAndSoftDelete(currentWeekId,false)) {
 	        return Collections.emptyList();
 	    }
 	    // Generate all previous week IDs using IntStream
