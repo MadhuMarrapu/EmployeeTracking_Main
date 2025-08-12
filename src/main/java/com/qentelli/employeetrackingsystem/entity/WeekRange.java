@@ -20,7 +20,7 @@ public class WeekRange {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int weekId;
+	private Integer weekId;
 	private LocalDate weekFromDate;
 	private LocalDate weekToDate;
 //	private boolean isActive = true;
