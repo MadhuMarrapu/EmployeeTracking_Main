@@ -1,6 +1,8 @@
 package com.qentelli.employeetrackingsystem.serviceimpl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -93,27 +95,33 @@ public class ResourceServiceImpl implements ResourceService {
 	}
 
 	@Override
-	public List<TechStackSummaryResponse> getTechStackSummary() {
-		return resourceRepository.aggregateTechStackResources().stream().map(row -> {
-			int onsite = ((Number) row[1]).intValue();
-			int offsite = ((Number) row[2]).intValue();
-			return new TechStackSummaryResponse((TechStack) row[0], onsite, offsite, onsite + offsite);
-		}).toList();
-	}
+	public CombinedResourceSummaryResponse getCombinedSummaryBySprint(Long sprintId) {
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
 
-	@Override
-	public List<ProjectSummaryResponse> getProjectSummary() {
-		return resourceRepository.aggregateProjectResources().stream().map(row -> {
-			int onsite = ((Number) row[2]).intValue();
-			int offsite = ((Number) row[3]).intValue();
-			return new ProjectSummaryResponse((Integer) row[0], (String) row[1], onsite, offsite, onsite + offsite);
-		}).toList();
-	}
+		// Group by TechStack
+		Map<TechStack, List<Resource>> techGrouped = resources.stream()
+				.filter(r -> r.getResourceType() == ResourceType.TECHSTACK)
+				.collect(Collectors.groupingBy(Resource::getTechStack));
 
-	@Override
-	public CombinedResourceSummaryResponse getCombinedSummary() {
-		List<TechStackSummaryResponse> techStackSummary = getTechStackSummary();
-		List<ProjectSummaryResponse> projectSummary = getProjectSummary();
+		List<TechStackSummaryResponse> techStackSummary = techGrouped.entrySet().stream().map(entry -> {
+			int onsite = entry.getValue().stream().mapToInt(Resource::getOnsite).sum();
+			int offsite = entry.getValue().stream().mapToInt(Resource::getOffsite).sum();
+			return new TechStackSummaryResponse(entry.getKey(), onsite, offsite, onsite + offsite);
+		}).toList();
+
+		// Group by Project
+		Map<Project, List<Resource>> projectGrouped = resources.stream()
+				.filter(r -> r.getResourceType() == ResourceType.PROJECT)
+				.collect(Collectors.groupingBy(Resource::getProject));
+
+		List<ProjectSummaryResponse> projectSummary = projectGrouped.entrySet().stream().map(entry -> {
+			Project project = entry.getKey();
+			int onsite = entry.getValue().stream().mapToInt(Resource::getOnsite).sum();
+			int offsite = entry.getValue().stream().mapToInt(Resource::getOffsite).sum();
+			return new ProjectSummaryResponse(project.getProjectId(), project.getProjectName(), onsite, offsite,
+					onsite + offsite);
+		}).toList();
+
 		return new CombinedResourceSummaryResponse(techStackSummary, projectSummary);
 	}
 
@@ -245,4 +253,5 @@ public class ResourceServiceImpl implements ResourceService {
 		int offsitePercent = 100 - onsitePercent;
 		return onsitePercent + "% : " + offsitePercent + "%";
 	}
+
 }

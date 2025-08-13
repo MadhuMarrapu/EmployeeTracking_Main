@@ -151,14 +151,17 @@ public class ResourceController {
 		}
 	}
 
-	@GetMapping("/summary/combined")
-	public ResponseEntity<AuthResponse<CombinedResourceSummaryResponse>> getCombinedResourceSummary() {
+	@GetMapping("/summary/combined/{sprintId}")
+	public ResponseEntity<AuthResponse<CombinedResourceSummaryResponse>> getCombinedResourceSummary(
+			@PathVariable Long sprintId) {
 		try {
-			logger.info("Fetching combined resource summary");
-			CombinedResourceSummaryResponse summary = resourceService.getCombinedSummary();
+			logger.info("Fetching combined resource summary for sprint ID: {}", sprintId);
+			CombinedResourceSummaryResponse summary = resourceService.getCombinedSummaryBySprint(sprintId);
+
 			String message = (summary.getTechStackSummary().isEmpty() && summary.getProjectSummary().isEmpty())
-					? "No resource summary available"
-					: "Fetched combined resource summary successfully";
+					? "No resource summary available for sprint ID: " + sprintId
+					: "Fetched combined resource summary for sprint ID: " + sprintId;
+
 			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 					LocalDateTime.now(), message, summary));
 		} catch (Exception ex) {
