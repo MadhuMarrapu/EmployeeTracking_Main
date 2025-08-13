@@ -35,8 +35,8 @@ public class SecurityConfig {
     }
 
     // 🔐 Composite UserDetailsService: In-Memory + DB fallback
-    @Bean
-    public UserDetailsService userDetailsService() {
+    @Bean(name = "customUserDetailsService")
+    public UserDetailsService customUserDetailsService() {
         InMemoryUserDetailsManager inMemoryManager = new InMemoryUserDetailsManager(
             User.withUsername("superadmin@gmail.com").password(passwordEncoder().encode("Sarath11@")).roles("SUPERADMIN").build(),
             User.withUsername("superadmin2@gmail.com").password(passwordEncoder().encode("Madhu123@")).roles("SUPERADMIN").build(),
@@ -47,7 +47,7 @@ public class SecurityConfig {
             try {
                 return inMemoryManager.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
-                return personDetailService.loadUserByUsername(username); // ✅ Safe now
+                return personDetailService.loadUserDetails(username); // ✅ renamed method
             }
         };
     }
@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
                 .anyRequest().authenticated()
             )
-            .userDetailsService(userDetailsService())
+            .userDetailsService(customUserDetailsService()) // ✅ Explicitly wired
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
