@@ -75,9 +75,21 @@ public class ResourceServiceImpl implements ResourceService {
 	        .filter(r -> r.getResourceType() == ResourceType.PROJECT)
 	        .map(this::mapToResponse)
 	        .toList();
+	    int techOnsite = techStackResources.stream().mapToInt(ResourceResponse::getOnsite).sum();
+	    int techOffsite = techStackResources.stream().mapToInt(ResourceResponse::getOffsite).sum();
+	    String techRatio = calculateRatio(techOnsite, techOffsite);
+	    int projOnsite = projectResources.stream().mapToInt(ResourceResponse::getOnsite).sum();
+	    int projOffsite = projectResources.stream().mapToInt(ResourceResponse::getOffsite).sum();
+	    String projRatio = calculateRatio(projOnsite, projOffsite);
 	    GroupedResourceResponse response = new GroupedResourceResponse();
 	    response.setTechStackResources(techStackResources);
+	    response.setTechStackOnsiteTotal(techOnsite);
+	    response.setTechStackOffsiteTotal(techOffsite);
+	    response.setTechStackRatio(techRatio);
 	    response.setProjectResources(projectResources);
+	    response.setProjectOnsiteTotal(projOnsite);
+	    response.setProjectOffsiteTotal(projOffsite);
+	    response.setProjectRatio(projRatio);
 	    return response;
 	}
 
@@ -166,9 +178,6 @@ public class ResourceServiceImpl implements ResourceService {
 		resource.setOnsite(request.getOnsite());
 		resource.setOffsite(request.getOffsite());
 		resource.setRatio(calculateRatio(request.getOnsite(), request.getOffsite()));
-		resource.setTotalRatio(resource.getRatio());
-		resource.setTotalOnsiteCount(request.getOnsite());
-		resource.setTotalOffsiteCount(request.getOffsite());
 		resource.setResourceStatus(request.getResourceStatus());
 		if (request.getProjectId() != null) {
 			Project project = projectRepository.findById(request.getProjectId())
@@ -202,9 +211,6 @@ public class ResourceServiceImpl implements ResourceService {
 		response.setOnsite(resource.getOnsite());
 		response.setOffsite(resource.getOffsite());
 		response.setTotal(resource.getTotal());
-		response.setTotalOnsiteCount(resource.getTotalOnsiteCount());
-		response.setTotalOffsiteCount(resource.getTotalOffsiteCount());
-		response.setTotalRatio(resource.getTotalRatio());
 		response.setRatio(resource.getRatio());
 		return response;
 	}

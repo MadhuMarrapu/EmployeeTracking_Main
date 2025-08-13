@@ -15,5 +15,13 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class GroupedResourceResponse {
 	private List<ResourceResponse> techStackResources;
+	private int techStackOnsiteTotal;
+    private int techStackOffsiteTotal;
+    private String techStackRatio;
+
 	private List<ResourceResponse> projectResources;
+	private int projectOnsiteTotal;
+    private int projectOffsiteTotal;
+    private String projectRatio;
+
 }

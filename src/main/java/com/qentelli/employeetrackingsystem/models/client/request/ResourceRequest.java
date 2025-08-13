@@ -16,18 +16,12 @@ public class ResourceRequest {
 
 	@NotNull(message = "Resource type is required")
 	private ResourceType resourceType;
-
 	private TechStack techStack;
-
 	private Integer projectId;
-
 	private Long sprintId; // 🆕 Added to support sprint association
-
 	@Min(value = 0, message = "Onsite count must be non-negative")
 	private int onsite;
-
 	@Min(value = 0, message = "Offsite count must be non-negative")
 	private int offsite;
-
 	private Boolean resourceStatus = true;
 }
