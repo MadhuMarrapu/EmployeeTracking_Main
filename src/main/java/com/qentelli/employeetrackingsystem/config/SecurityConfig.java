@@ -47,7 +47,7 @@ public class SecurityConfig {
             try {
                 return inMemoryManager.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
-                return personDetailService.loadUserByUsername(username);
+                return personDetailService.loadUserByUsername(username); // ✅ Safe now
             }
         };
     }
