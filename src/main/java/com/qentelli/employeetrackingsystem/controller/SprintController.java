@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,15 +31,15 @@ import com.qentelli.employeetrackingsystem.models.client.response.SprintResponse
 import com.qentelli.employeetrackingsystem.service.SprintService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/sprints")
 public class SprintController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SprintController.class);
-
-    @Autowired
-    private SprintService sprintService;
+    private static final Logger logger = LoggerFactory.getLogger(SprintController.class);   
+    private final SprintService sprintService;
 
     @PostMapping("/createSprint")
     public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
@@ -96,7 +95,7 @@ public class SprintController {
     public ResponseEntity<AuthResponse<SprintResponse>> update(@PathVariable Long id,
                                                                @Valid @RequestBody SprintRequest request) {
         logger.info("Updating sprint with ID {}: {}", id, request);
-        SprintResponse response = sprintService.updateSprint(id, request);
+        sprintService.updateSprint(id, request);
         logger.info("Sprint with ID {} updated successfully", id);
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
                 "Sprint updated successfully", null));

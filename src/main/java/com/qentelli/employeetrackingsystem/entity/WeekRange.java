@@ -24,12 +24,9 @@ public class WeekRange {
 	private Integer weekId;
 	private LocalDate weekFromDate;
 	private LocalDate weekToDate;
-//	private boolean isActive = true;
 	private Boolean  softDelete = false;
-	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "sprint_id")
-	private Sprint sprint;
-	
-	private Boolean enabled = false; // default false
+	private Sprint sprint;	
+	private Boolean enabled = false; 
 }

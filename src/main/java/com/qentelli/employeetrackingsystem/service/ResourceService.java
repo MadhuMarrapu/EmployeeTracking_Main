@@ -9,7 +9,10 @@ import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.response.CombinedResourceSummaryResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.ProjectSummaryResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.TechStackSummaryResponse;
 
 public interface ResourceService {
 
@@ -24,5 +27,8 @@ public interface ResourceService {
 			String projectName, Pageable pageable);
 	public GroupedResourceResponse getGroupedResourcesBySprintId(Long sprintId);
 	public List<ResourceResponse> getAllResourcesBySprintId(Long sprintId);
-	public List<ResourceResponse> getResourcesByPreviousSprint(Long currentSprintId);
+	public List<ResourceResponse> getResourcesByPreviousSprint(Long currentSprintId);	
+	public List<TechStackSummaryResponse> getTechStackSummary();
+	public List<ProjectSummaryResponse> getProjectSummary();
+	public CombinedResourceSummaryResponse getCombinedSummary();
 }

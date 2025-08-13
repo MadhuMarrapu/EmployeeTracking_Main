@@ -14,7 +14,10 @@ import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
+import com.qentelli.employeetrackingsystem.models.client.response.CombinedResourceSummaryResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.ProjectSummaryResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.TechStackSummaryResponse;
 import com.qentelli.employeetrackingsystem.repository.ProjectRepository;
 import com.qentelli.employeetrackingsystem.repository.ResourceRepository;
 import com.qentelli.employeetrackingsystem.repository.SprintRepository;
@@ -66,31 +69,52 @@ public class ResourceServiceImpl implements ResourceService {
 
 	@Override
 	public GroupedResourceResponse getGroupedResourcesBySprintId(Long sprintId) {
-	    List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
-	    List<ResourceResponse> techStackResources = resources.stream()
-	        .filter(r -> r.getResourceType() == ResourceType.TECHSTACK)
-	        .map(this::mapToResponse)
-	        .toList();
-	    List<ResourceResponse> projectResources = resources.stream()
-	        .filter(r -> r.getResourceType() == ResourceType.PROJECT)
-	        .map(this::mapToResponse)
-	        .toList();
-	    int techOnsite = techStackResources.stream().mapToInt(ResourceResponse::getOnsite).sum();
-	    int techOffsite = techStackResources.stream().mapToInt(ResourceResponse::getOffsite).sum();
-	    String techRatio = calculateRatio(techOnsite, techOffsite);
-	    int projOnsite = projectResources.stream().mapToInt(ResourceResponse::getOnsite).sum();
-	    int projOffsite = projectResources.stream().mapToInt(ResourceResponse::getOffsite).sum();
-	    String projRatio = calculateRatio(projOnsite, projOffsite);
-	    GroupedResourceResponse response = new GroupedResourceResponse();
-	    response.setTechStackResources(techStackResources);
-	    response.setTechStackOnsiteTotal(techOnsite);
-	    response.setTechStackOffsiteTotal(techOffsite);
-	    response.setTechStackRatio(techRatio);
-	    response.setProjectResources(projectResources);
-	    response.setProjectOnsiteTotal(projOnsite);
-	    response.setProjectOffsiteTotal(projOffsite);
-	    response.setProjectRatio(projRatio);
-	    return response;
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
+		List<ResourceResponse> techStackResources = resources.stream()
+				.filter(r -> r.getResourceType() == ResourceType.TECHSTACK).map(this::mapToResponse).toList();
+		List<ResourceResponse> projectResources = resources.stream()
+				.filter(r -> r.getResourceType() == ResourceType.PROJECT).map(this::mapToResponse).toList();
+		int techOnsite = techStackResources.stream().mapToInt(ResourceResponse::getOnsite).sum();
+		int techOffsite = techStackResources.stream().mapToInt(ResourceResponse::getOffsite).sum();
+		String techRatio = calculateRatio(techOnsite, techOffsite);
+		int projOnsite = projectResources.stream().mapToInt(ResourceResponse::getOnsite).sum();
+		int projOffsite = projectResources.stream().mapToInt(ResourceResponse::getOffsite).sum();
+		String projRatio = calculateRatio(projOnsite, projOffsite);
+		GroupedResourceResponse response = new GroupedResourceResponse();
+		response.setTechStackResources(techStackResources);
+		response.setTechStackOnsiteTotal(techOnsite);
+		response.setTechStackOffsiteTotal(techOffsite);
+		response.setTechStackRatio(techRatio);
+		response.setProjectResources(projectResources);
+		response.setProjectOnsiteTotal(projOnsite);
+		response.setProjectOffsiteTotal(projOffsite);
+		response.setProjectRatio(projRatio);
+		return response;
+	}
+
+	@Override
+	public List<TechStackSummaryResponse> getTechStackSummary() {
+		return resourceRepository.aggregateTechStackResources().stream().map(row -> {
+			int onsite = ((Number) row[1]).intValue();
+			int offsite = ((Number) row[2]).intValue();
+			return new TechStackSummaryResponse((TechStack) row[0], onsite, offsite, onsite + offsite);
+		}).toList();
+	}
+
+	@Override
+	public List<ProjectSummaryResponse> getProjectSummary() {
+		return resourceRepository.aggregateProjectResources().stream().map(row -> {
+			int onsite = ((Number) row[2]).intValue();
+			int offsite = ((Number) row[3]).intValue();
+			return new ProjectSummaryResponse((Integer) row[0], (String) row[1], onsite, offsite, onsite + offsite);
+		}).toList();
+	}
+
+	@Override
+	public CombinedResourceSummaryResponse getCombinedSummary() {
+		List<TechStackSummaryResponse> techStackSummary = getTechStackSummary();
+		List<ProjectSummaryResponse> projectSummary = getProjectSummary();
+		return new CombinedResourceSummaryResponse(techStackSummary, projectSummary);
 	}
 
 	@Override
@@ -98,19 +122,17 @@ public class ResourceServiceImpl implements ResourceService {
 		Page<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId, pageable);
 		return resources.map(this::mapToResponse);
 	}
-	
+
 	@Override
 	public List<ResourceResponse> getAllResourcesBySprintId(Long sprintId) {
-	    List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
-	    return resources.stream()
-	            .map(this::mapToResponse)
-	            .toList();
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
+		return resources.stream().map(this::mapToResponse).toList();
 	}
-	
+
 	@Override
 	public List<ResourceResponse> getResourcesByPreviousSprint(Long currentSprintId) {
-	    Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId); // resolves previous sprint
-	    return getAllResourcesBySprintId(previousSprint.getSprintId()); // fetches resources by resolved ID
+		Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId); // resolves previous sprint
+		return getAllResourcesBySprintId(previousSprint.getSprintId()); // fetches resources by resolved ID
 	}
 
 	@Override
