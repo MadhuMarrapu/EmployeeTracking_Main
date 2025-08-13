@@ -2,6 +2,7 @@ package com.qentelli.employeetrackingsystem.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +16,7 @@ import com.qentelli.employeetrackingsystem.entity.WeekRange;
 @Repository
 public interface WeekRangeRepository extends JpaRepository<WeekRange, Integer> {
 
-	// public Page<WeekRange> findByWeekFromDateBetweenAndSoftDeleteFalse(LocalDate
-	// weekFromDate, LocalDate weekToDate, Pageable pageable);
-	// public boolean existsByIdAndSoftDelete(Integer id, Boolean softDelete);
+	
 	@Query("SELECT w FROM WeekRange w WHERE w.weekFromDate BETWEEN :start AND :end AND w.softDelete = false")
 	Page<WeekRange> findActiveWeeksInRange(@Param("start") LocalDate start, @Param("end") LocalDate end,
 			Pageable pageable);
@@ -26,4 +25,18 @@ public interface WeekRangeRepository extends JpaRepository<WeekRange, Integer> {
 
 	@Query("SELECT w.weekId FROM WeekRange w WHERE w.softDelete = false")
 	public List<Integer> findActiveWeekIds();
+	@Query("""
+		    SELECT w FROM WeekRange w
+		    WHERE w.weekId = :weekId
+		    AND w.softDelete = false
+		""")
+		Optional<WeekRange> findActiveById(@Param("weekId") Integer weekId);
+	@Query("""
+		    SELECT w.weekId FROM WeekRange w
+		    WHERE w.sprint.sprintId = :sprintId
+		    AND w.softDelete = false
+		    AND w.weekId < :currentWeekId
+		""")
+		List<Integer> findValidHistoricalWeekIds(@Param("sprintId") Long sprintId, @Param("currentWeekId") Integer currentWeekId);
+	
 }

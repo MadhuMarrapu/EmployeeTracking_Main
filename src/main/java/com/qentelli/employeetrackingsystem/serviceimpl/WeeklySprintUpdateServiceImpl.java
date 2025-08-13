@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
+import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
@@ -139,21 +140,20 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 
 	@Override
 	public List<WeeklySprintUpdate> getHistoricalUpdates(int currentWeekId) {
-	    // Validate currentWeekId and ensure it's not soft-deleted
-	    if (currentWeekId <= 1 || !weekRangeRepository.existsByWeekIdAndSoftDelete(currentWeekId,false)) {
+	    Optional<WeekRange> currentWeekOpt = weekRangeRepository.findActiveById(currentWeekId);
+	    if (currentWeekOpt.isEmpty()) {
 	        return Collections.emptyList();
 	    }
-	    // Generate all previous week IDs using IntStream
-	    List<Integer> previousWeekIds = IntStream.rangeClosed(1, currentWeekId - 1).boxed().toList();
-	    // Filter out soft-deleted week IDs
-	    Set<Integer> activeWeekIds = new HashSet<>(weekRangeRepository.findActiveWeekIds());
-	    List<Integer> validPreviousWeekIds = previousWeekIds.stream()
-	        .filter(activeWeekIds::contains)
-	        .toList();
-	    if (validPreviousWeekIds.isEmpty()) {
+	    WeekRange currentWeek = currentWeekOpt.get();
+	    Sprint sprint = currentWeek.getSprint();
+	    if (sprint == null || Boolean.FALSE.equals(sprint.getSprintStatus())) {
 	        return Collections.emptyList();
-	    }  
-	    return  weeklySprintUpdateRepository.findActiveByWeekIds(validPreviousWeekIds);
+	    }
+	    List<Integer> validWeekIds = weekRangeRepository.findValidHistoricalWeekIds(sprint.getSprintId(), currentWeekId);
+	    if (validWeekIds.isEmpty()) {
+	        return Collections.emptyList();
+	    }
+	    return weeklySprintUpdateRepository.findActiveByWeekIds(validWeekIds);
 	}
 
 	public WeeklySprintUpdateDto toDto(WeeklySprintUpdate update) {

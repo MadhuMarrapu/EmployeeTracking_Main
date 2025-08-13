@@ -69,16 +69,17 @@ public class WeekRangeServiceImpl implements WeekRangeService {
 		return new PageImpl<>(filteredResponses, pageable, filteredResponses.size());
 	}
    
+
+	
 	@Override
-	public WeekRangeResponse getById(int id) {	  
-	    WeekRange weekRange = weekRangeRepository.findById(id)
-	            .orElseThrow(() -> {	              
-	                return new SprintNotFoundException("WeekRange not found with ID: " + id);
-	            });  
+	public WeekRangeResponse getById(int id) {
+	    WeekRange weekRange = weekRangeRepository.findActiveById(id)
+	        .orElseThrow(() -> new SprintNotFoundException("WeekRange not found or soft-deleted with ID: " + id));
+
 	    return new WeekRangeResponse(
-	            weekRange.getWeekId(),
-	            weekRange.getWeekFromDate(),
-	            weekRange.getWeekToDate()
+	        weekRange.getWeekId(),
+	        weekRange.getWeekFromDate(),
+	        weekRange.getWeekToDate()
 	    );
 	}
 
