@@ -1,6 +1,5 @@
 package com.qentelli.employeetrackingsystem.serviceimpl;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,30 +124,38 @@ public class SprintServiceImpl implements SprintService {
 				.findFirst()
 				.orElseThrow(() -> new SprintNotFoundException("No previous sprint found before ID: " + sprintId));
 	}
-	
-	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
-		List<WeekRange> weekRanges = new ArrayList<>();
-		LocalDate current = start;
-		if (current.getDayOfWeek() != DayOfWeek.WEDNESDAY) {
-			int daysUntilWednesday = (DayOfWeek.WEDNESDAY.getValue() - current.getDayOfWeek().getValue() + 7) % 7;
-			current = current.plusDays(daysUntilWednesday);
-		}
-		for (int i = 0; i < 3; i++) {
-			LocalDate weekStart = current.plusWeeks(i);
-			LocalDate weekEnd = weekStart.plusDays(6);
-			if (weekEnd.isAfter(end)) {
-				weekEnd = end;
-			}
-			WeekRange week = new WeekRange();
-			week.setWeekFromDate(weekStart);
-			week.setWeekToDate(weekEnd);
-			week.setSoftDelete(false);
-			week.setSprint(sprint);	
-			weekRanges.add(week);
-		}
 
-		return weekRanges;
+	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
+	    List<WeekRange> weekRanges = new ArrayList<>();
+
+	    // Always cap the end date to 21 days from start
+	    LocalDate expectedEnd = start.plusDays(20); // 21 days total
+	    if (end.isAfter(expectedEnd)) {
+	        end = expectedEnd;
+	    }
+
+	    for (int i = 0; i < 3; i++) {
+	        LocalDate weekStart = start.plusDays(i * 7);
+	        LocalDate weekEnd = weekStart.plusDays(6);
+
+	        // If weekEnd goes past allowed end date, trim it
+	        if (weekEnd.isAfter(end)) {
+	            weekEnd = end;
+	        }
+
+	        WeekRange week = new WeekRange();
+	        week.setWeekFromDate(weekStart);
+	        week.setWeekToDate(weekEnd);
+	        week.setSoftDelete(false);
+	        week.setEnabled(false); // Ensure DB non-null constraint
+	        week.setSprint(sprint);
+
+	        weekRanges.add(week);
+	    }
+
+	    return weekRanges;
 	}
+
 	
 	private SprintResponse mapToResponse(Sprint sprint) {
 	    List<WeekRangeResponse> weekResponses = new ArrayList<>();
