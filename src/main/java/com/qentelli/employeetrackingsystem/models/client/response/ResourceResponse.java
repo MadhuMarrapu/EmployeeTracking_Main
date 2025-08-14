@@ -27,8 +27,5 @@ public class ResourceResponse {
 	private int onsite;
 	private int offsite;
 	private int total;
-	private int totalOnsiteCount;
-	private int totalOffsiteCount;
-	private String totalRatio;
 	private String ratio;
 }
