@@ -143,13 +143,13 @@ public class SprintServiceImpl implements SprintService {
 			week.setWeekFromDate(weekStart);
 			week.setWeekToDate(weekEnd);
 			week.setSoftDelete(false);
-			week.setSprint(sprint);
+			week.setSprint(sprint);	
 			weekRanges.add(week);
 		}
 
 		return weekRanges;
 	}
-
+	
 	private SprintResponse mapToResponse(Sprint sprint) {
 	    List<WeekRangeResponse> weekResponses = new ArrayList<>();
 
