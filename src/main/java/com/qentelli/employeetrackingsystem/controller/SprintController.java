@@ -44,7 +44,7 @@ public class SprintController {
     @PostMapping("/createSprint")
     public ResponseEntity<AuthResponse<Void>> create(@Valid @RequestBody SprintRequest request) {
         logger.info("Creating new sprint: {}", request);
-        sprintService.createSprint1(request);
+        sprintService.createSprint(request);
         logger.info("Sprint created successfully");
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
                 "Sprint created successfully", null));

@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
 	
 	private static final String TOKEN_PREFIX = "Bearer ";
 
@@ -60,4 +61,5 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		filterChain.doFilter(request, response);
 	}
+
 }
