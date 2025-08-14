@@ -42,7 +42,6 @@ public class SecurityConfig {
             User.withUsername("superadmin2@gmail.com").password(passwordEncoder().encode("Madhu123@")).roles("SUPERADMIN").build(),
             User.withUsername("Anil@qentelli.com").password(passwordEncoder().encode("Anil123@")).roles("SUPERADMIN").build()
         );
-
         return username -> {
             try {
                 return inMemoryManager.loadUserByUsername(username);
