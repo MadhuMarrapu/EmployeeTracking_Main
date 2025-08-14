@@ -2,7 +2,6 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 
 import java.util.List;
 
-import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
@@ -14,7 +13,7 @@ public class PIStandingRequest {
     private int piNumber;
     private Integer projectId;
     private String feature;
-    private List<SprintOrdinal> selectedSprints;
+    private List<String> selectedSprint;
     private double completionPercentage;
     private String statusReport;
 }
