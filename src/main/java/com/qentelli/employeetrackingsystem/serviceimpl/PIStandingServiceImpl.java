@@ -128,11 +128,14 @@ public class PIStandingServiceImpl implements PIStandingService {
 	private PIStandingResponse toResponse(PIStanding e) {
 		List<SprintOrdinal> sprints = e.getSelectedSprints();
 
+		List<String> clientFormattedSprints = sprints.stream().map(s -> s.name().replace("SPRINT_", "Sprint-"))
+				.collect(Collectors.toList());
+
 		return new PIStandingResponse(e.getId(), e.getPiNumber(), e.getProject().getProjectId(),
 				e.getProject().getProjectName(), e.getFeature(), sprints.contains(SprintOrdinal.SPRINT_0),
 				sprints.contains(SprintOrdinal.SPRINT_1), sprints.contains(SprintOrdinal.SPRINT_2),
 				sprints.contains(SprintOrdinal.SPRINT_3), sprints.contains(SprintOrdinal.SPRINT_4),
-				e.getCompletionPercentage(), e.getStatusReport(), sprints);
+				e.getCompletionPercentage(), e.getStatusReport(), clientFormattedSprints);
 	}
 
 	private List<SprintOrdinal> mapToSprintOrdinals(List<String> rawSprints) {

@@ -26,5 +26,5 @@ public class PIStandingResponse {
     private boolean sprint4;
     private double completionPercentage;
     private String statusReport;
-    private List<SprintOrdinal> selectedSprints;
+    private List<String> selectedSprints;
 }
