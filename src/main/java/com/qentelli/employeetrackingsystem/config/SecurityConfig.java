@@ -2,14 +2,11 @@ package com.qentelli.employeetrackingsystem.config;
 
 import java.util.Collections;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -25,21 +22,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.qentelli.employeetrackingsystem.serviceimpl.PersonDetailService;
 
-
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtFilter jwtFilter;
+    private final JwtFilter jwtFilter;
+    private final PersonDetailService personDetailService;
 
-    @Autowired
-    PersonDetailService personDetailService;
+    public SecurityConfig(JwtFilter jwtFilter, PersonDetailService personDetailService) {
+        this.jwtFilter = jwtFilter;
+        this.personDetailService = personDetailService;
+    }
 
     // 🔐 Composite UserDetailsService: In-Memory + DB fallback
-    @Bean(name = "userDetailsService")
-    public UserDetailsService userDetailsService() {
+    @Bean(name = "customUserDetailsService")
+    public UserDetailsService customUserDetailsService() {
         InMemoryUserDetailsManager inMemoryManager = new InMemoryUserDetailsManager(
             User.withUsername("superadmin@gmail.com").password(passwordEncoder().encode("Sarath11@")).roles("SUPERADMIN").build(),
             User.withUsername("superadmin2@gmail.com").password(passwordEncoder().encode("Madhu123@")).roles("SUPERADMIN").build(),
@@ -50,30 +47,28 @@ public class SecurityConfig {
             try {
                 return inMemoryManager.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
-                return personDetailService.loadUserByUsername(username);
+                return personDetailService.loadUserDetails(username); // ✅ renamed method
             }
         };
     }
 
-    // 🔐 AuthenticationManager wired with composite service
+    // 🔐 AuthenticationManager via AuthenticationConfiguration
     @Bean
-    public AuthenticationManager authenticationManager(@Qualifier("userDetailsService") UserDetailsService uds) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(uds);
-        provider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(provider);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     // 🔓 Security filter chain
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Qualifier("userDetailsService") UserDetailsService uds) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
-                .anyRequest().authenticated())
-            .userDetailsService(uds)
+                .anyRequest().authenticated()
+            )
+            .userDetailsService(customUserDetailsService()) // ✅ Explicitly wired
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
