@@ -1,5 +1,8 @@
 package com.qentelli.employeetrackingsystem.models.client.response;
 
+import java.util.List;
+
+import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
@@ -11,18 +14,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PIStandingResponse {
-
-	private Long id;
-	private int piNumber;
-	private Integer projectId;
-	private String projectName;
-	private String feature;
-	private String selectedSprint; // "sprint0" to "sprint4"
-	private boolean sprint0;
-	private boolean sprint1;
-	private boolean sprint2;
-	private boolean sprint3;
-	private boolean sprint4;
-	private double completionPercentage;
-	private String statusReport;
+    private Long id;
+    private int piNumber;
+    private Integer projectId;
+    private String projectName;
+    private String feature;
+    private boolean sprint0;
+    private boolean sprint1;
+    private boolean sprint2;
+    private boolean sprint3;
+    private boolean sprint4;
+    private double completionPercentage;
+    private String statusReport;
+    private List<SprintOrdinal> selectedSprints;
 }

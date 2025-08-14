@@ -1,23 +1,15 @@
 package com.qentelli.employeetrackingsystem.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,25 +26,24 @@ public class PIStanding {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Which Program‑Increment / Quarter (1 – 4) */
     @Column(nullable = false)
     private int piNumber;
 
-    /** The project that owns this feature (was “Team” column) */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", referencedColumnName = "projectId")
     private Project project;
 
-    private String feature; // “Rebate Tool” …
+    private String feature;
 
-    /** Active sprint marker (replaces sprint0–sprint4 booleans) */
+    @ElementCollection(targetClass = SprintOrdinal.class)
+    @CollectionTable(name = "pi_selected_sprints", joinColumns = @JoinColumn(name = "pi_standing_id"))
+    @Column(name = "sprint")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SprintOrdinal currentSprint;
+    private List<SprintOrdinal> selectedSprints = new ArrayList<>();
 
-    private double completionPercentage; // 99
+    private double completionPercentage;
 
-    private String statusReport; // Waiting for Release
+    private String statusReport;
 
     @CreatedDate
     private LocalDateTime createdAt;
