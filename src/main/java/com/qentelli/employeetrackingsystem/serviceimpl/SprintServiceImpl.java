@@ -30,7 +30,7 @@ public class SprintServiceImpl implements SprintService {
 
 	@Override
 	public SprintResponse createSprint(SprintRequest request) {
-		validateSprintDates(request.getFromDate(), request.getToDate());
+		//validateSprintDates(request.getFromDate(), request.getToDate());
 
 		Sprint sprint = new Sprint();
 		sprint.setSprintNumber(request.getSprintNumber());
@@ -47,18 +47,7 @@ public class SprintServiceImpl implements SprintService {
 		return mapToResponse(savedSprint);
 	}
 
-	private void validateSprintDates(LocalDate fromDate, LocalDate toDate) {
-		LocalDate today = LocalDate.now();
-		if (fromDate.isBefore(today)) {
-			throw new IllegalArgumentException("From date must be today or a future date.");
-		}
-		if (toDate.isBefore(today)) {
-			throw new IllegalArgumentException("To date must be today or a future date.");
-		}
-		if (toDate.isBefore(fromDate)) {
-			throw new IllegalArgumentException("To date must be after or equal to From date.");
-		}
-	}
+	
 
 	@Override
 	public Page<SprintResponse> getAllSprints(Pageable pageable) {

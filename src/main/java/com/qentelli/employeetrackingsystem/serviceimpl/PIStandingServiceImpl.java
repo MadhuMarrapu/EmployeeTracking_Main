@@ -1,7 +1,6 @@
 package com.qentelli.employeetrackingsystem.serviceimpl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -115,7 +114,7 @@ public class PIStandingServiceImpl implements PIStandingService {
     public List<PIStandingResponse> list() {
         return repo.findByStatusFlag(StatusFlag.ACTIVE).stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -136,7 +135,7 @@ public class PIStandingServiceImpl implements PIStandingService {
 
         List<String> clientFormattedSprints = sprints.stream()
                 .map(s -> s.name().replace("SPRINT_", "Sprint-"))
-                .collect(Collectors.toList());
+                .toList();
 
         return new PIStandingResponse(
                 e.getId(),
@@ -165,6 +164,6 @@ public class PIStandingServiceImpl implements PIStandingService {
             } catch (IllegalArgumentException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sprint value: " + s);
             }
-        }).collect(Collectors.toList());
+        }).toList();
     }
 }
