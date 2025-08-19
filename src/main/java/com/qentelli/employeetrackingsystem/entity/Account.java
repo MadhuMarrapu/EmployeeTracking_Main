@@ -9,7 +9,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,7 +44,7 @@ public class Account {
     private LocalDate accountEndDate;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+    private Status status;
 
     @CreatedDate
     private LocalDateTime createdAt;

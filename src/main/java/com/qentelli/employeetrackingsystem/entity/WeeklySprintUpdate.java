@@ -4,7 +4,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 import com.qentelli.employeetrackingsystem.entity.enums.HealthStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -71,7 +71,7 @@ public class WeeklySprintUpdate {
     private Integer injectionPercentage;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag weeklySprintUpdateStatus = StatusFlag.ACTIVE;
+    private Status weeklySprintUpdateStatus ;
 
     @Enumerated(EnumType.STRING)
     private EnableStatus enableStatus = EnableStatus.DISABLED;

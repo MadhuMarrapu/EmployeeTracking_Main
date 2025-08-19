@@ -9,7 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import jakarta.persistence.CascadeType;
@@ -56,7 +56,7 @@ public class Person implements UserDetails {
 	private Roles role;
 
 	@Enumerated(EnumType.STRING)
-	private StatusFlag statusFlag = StatusFlag.ACTIVE;
+	private Status statusFlag;
 
 	@ManyToMany
 	@JoinTable(name = "person_project", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
@@ -99,8 +99,5 @@ public class Person implements UserDetails {
 		return true;
 	}
 
-	@Override
-	public boolean isEnabled() {
-		return this.statusFlag == StatusFlag.ACTIVE;
-	}
+
 }

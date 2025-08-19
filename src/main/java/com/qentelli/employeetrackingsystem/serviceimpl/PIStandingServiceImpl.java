@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.qentelli.employeetrackingsystem.entity.PIStanding;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.models.client.request.PIStandingRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.PIStandingResponse;
 import com.qentelli.employeetrackingsystem.repository.PIStandingRepository;
@@ -24,146 +24,121 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PIStandingServiceImpl implements PIStandingService {
 
-    private final PIStandingRepository repo;
-    private final ProjectRepository projectRepo;
+	private static final String PI_STANDING_NOT_FOUND = "PI Standing not found with id: ";
+	private static final String INVALID_PI_NUMBER = "piNumber must be between 1 and 4";
+	private final PIStandingRepository repo;
+	private final ProjectRepository projectRepo;
 
-    @Override
-    public PIStandingResponse create(PIStandingRequest dto) {
-        if (dto.getId() != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New record must not contain id");
-        }
+	@Override
+	public PIStandingResponse create(PIStandingRequest dto) {
+		if (dto.getId() != null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New record must not contain id");
+		}
+		List<SprintOrdinal> sprintEnums = mapToSprintOrdinals(dto.getSelectedSprint());
+		if (sprintEnums.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one sprint must be selected");
+		}
+		if (dto.getPiNumber() < 1 || dto.getPiNumber() > 4) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_PI_NUMBER);
+		}
+		Project project = projectRepo.findById(dto.getProjectId()).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found " + dto.getProjectId()));
+		PIStanding e = new PIStanding();
+		e.setPiNumber(dto.getPiNumber());
+		e.setProject(project);
+		e.setFeature(dto.getFeature());
+		e.setCompletionPercentage(dto.getCompletionPercentage());
+		e.setStatusReport(dto.getStatusReport());
+		e.setSelectedSprints(sprintEnums);
+		e.setStatusFlag(Status.ACTIVE);
+		PIStanding saved = repo.save(e);
+		return toResponse(saved);
+	}
 
-        List<SprintOrdinal> sprintEnums = mapToSprintOrdinals(dto.getSelectedSprint());
+	@Override
+	public PIStandingResponse update(Long id, PIStandingRequest dto) {
+		PIStanding existing = repo.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PI_STANDING_NOT_FOUND + id));
+		List<SprintOrdinal> sprintEnums = mapToSprintOrdinals(dto.getSelectedSprint());
+		if (sprintEnums.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one sprint must be selected");
+		}
+		if (dto.getPiNumber() < 1 || dto.getPiNumber() > 4) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_PI_NUMBER);
+		}
+		Project project = projectRepo.findById(dto.getProjectId()).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found " + dto.getProjectId()));
+		existing.setPiNumber(dto.getPiNumber());
+		existing.setProject(project);
+		existing.setFeature(dto.getFeature());
+		existing.setCompletionPercentage(dto.getCompletionPercentage());
+		existing.setStatusReport(dto.getStatusReport());
+		existing.setSelectedSprints(sprintEnums);
+		PIStanding saved = repo.save(existing);
+		return toResponse(saved);
+	}
 
-        if (sprintEnums.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one sprint must be selected");
-        }
+	@Override
+	public PIStandingResponse get(Long id) {
+		PIStanding e = repo.findById(id).filter(p -> p.getStatusFlag() == Status.ACTIVE)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PI_STANDING_NOT_FOUND + id));
+		return toResponse(e);
+	}
 
-        if (dto.getPiNumber() < 1 || dto.getPiNumber() > 4) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "piNumber must be between 1 and 4");
-        }
+	@Override
+	public void delete(Long id) {
+		PIStanding e = repo.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PI_STANDING_NOT_FOUND + id));
+		e.setStatusFlag(Status.INACTIVE);
+		repo.save(e);
+	}
 
-        Project project = projectRepo.findById(dto.getProjectId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found " + dto.getProjectId()));
+	@Override
+	public Page<PIStandingResponse> list(Pageable pg) {
+		return repo.findByStatusFlag(Status.ACTIVE, pg).map(this::toResponse);
+	}
 
-        PIStanding e = new PIStanding();
-        e.setPiNumber(dto.getPiNumber());
-        e.setProject(project);
-        e.setFeature(dto.getFeature());
-        e.setCompletionPercentage(dto.getCompletionPercentage());
-        e.setStatusReport(dto.getStatusReport());
-        e.setSelectedSprints(sprintEnums);
-        e.setStatusFlag(StatusFlag.ACTIVE); // ✅ set lifecycle status
+	@Override
+	public List<PIStandingResponse> list() {
+		return repo.findByStatusFlag(Status.ACTIVE).stream().map(this::toResponse).toList();
+	}
 
-        PIStanding saved = repo.save(e);
-        return toResponse(saved);
-    }
+	@Override
+	public Page<PIStandingResponse> listByPi(int pi, Pageable pg) {
+		if (pi < 1 || pi > 4) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_PI_NUMBER);
+		}
+		return repo.findByPiNumberAndStatusFlag(pi, Status.ACTIVE, pg).map(this::toResponse);
+	}
 
-    @Override
-    public PIStandingResponse update(Long id, PIStandingRequest dto) {
-        PIStanding existing = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Standing not found " + id));
+	@Override
+	public Page<PIStandingResponse> listByProject(int projId, Pageable pg) {
+		return repo.findByProject_ProjectIdAndStatusFlag(projId, Status.ACTIVE, pg).map(this::toResponse);
+	}
 
-        List<SprintOrdinal> sprintEnums = mapToSprintOrdinals(dto.getSelectedSprint());
+	private PIStandingResponse toResponse(PIStanding e) {
+		List<SprintOrdinal> sprints = e.getSelectedSprints();
 
-        if (sprintEnums.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one sprint must be selected");
-        }
+		List<String> clientFormattedSprints = sprints.stream().map(s -> s.name().replace("SPRINT_", "Sprint-"))
+				.toList();
 
-        if (dto.getPiNumber() < 1 || dto.getPiNumber() > 4) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "piNumber must be between 1 and 4");
-        }
+		return new PIStandingResponse(e.getId(), e.getPiNumber(), e.getProject().getProjectId(),
+				e.getProject().getProjectName(), e.getFeature(), sprints.contains(SprintOrdinal.SPRINT_0),
+				sprints.contains(SprintOrdinal.SPRINT_1), sprints.contains(SprintOrdinal.SPRINT_2),
+				sprints.contains(SprintOrdinal.SPRINT_3), sprints.contains(SprintOrdinal.SPRINT_4),
+				e.getCompletionPercentage(), e.getStatusReport(), clientFormattedSprints, e.getStatusFlag());
+	}
 
-        Project project = projectRepo.findById(dto.getProjectId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found " + dto.getProjectId()));
+	private List<SprintOrdinal> mapToSprintOrdinals(List<String> rawSprints) {
+		if (rawSprints == null)
+			return List.of();
 
-        existing.setPiNumber(dto.getPiNumber());
-        existing.setProject(project);
-        existing.setFeature(dto.getFeature());
-        existing.setCompletionPercentage(dto.getCompletionPercentage());
-        existing.setStatusReport(dto.getStatusReport());
-        existing.setSelectedSprints(sprintEnums);
-   
-
-        PIStanding saved = repo.save(existing);
-        return toResponse(saved);
-    }
-
-    @Override
-    public PIStandingResponse get(Long id) {
-        PIStanding e = repo.findById(id)
-                .filter(p -> p.getStatusFlag() == StatusFlag.ACTIVE)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Standing not found " + id));
-        return toResponse(e);
-    }
-
-    @Override
-    public void delete(Long id) {
-        PIStanding e = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Standing not found " + id));
-        e.setStatusFlag(StatusFlag.INACTIVE); // ✅ soft delete
-        repo.save(e);
-    }
-
-    @Override
-    public Page<PIStandingResponse> list(Pageable pg) {
-        return repo.findByStatusFlag(StatusFlag.ACTIVE, pg).map(this::toResponse);
-    }
-
-    @Override
-    public List<PIStandingResponse> list() {
-        return repo.findByStatusFlag(StatusFlag.ACTIVE).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @Override
-    public Page<PIStandingResponse> listByPi(int pi, Pageable pg) {
-        if (pi < 1 || pi > 4) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "piNumber must be between 1 and 4");
-        }
-        return repo.findByPiNumberAndStatusFlag(pi, StatusFlag.ACTIVE, pg).map(this::toResponse);
-    }
-
-    @Override
-    public Page<PIStandingResponse> listByProject(int projId, Pageable pg) {
-        return repo.findByProject_ProjectIdAndStatusFlag(projId, StatusFlag.ACTIVE, pg).map(this::toResponse);
-    }
-
-    private PIStandingResponse toResponse(PIStanding e) {
-        List<SprintOrdinal> sprints = e.getSelectedSprints();
-
-        List<String> clientFormattedSprints = sprints.stream()
-                .map(s -> s.name().replace("SPRINT_", "Sprint-"))
-                .toList();
-
-        return new PIStandingResponse(
-                e.getId(),
-                e.getPiNumber(),
-                e.getProject().getProjectId(),
-                e.getProject().getProjectName(),
-                e.getFeature(),
-                sprints.contains(SprintOrdinal.SPRINT_0),
-                sprints.contains(SprintOrdinal.SPRINT_1),
-                sprints.contains(SprintOrdinal.SPRINT_2),
-                sprints.contains(SprintOrdinal.SPRINT_3),
-                sprints.contains(SprintOrdinal.SPRINT_4),
-                e.getCompletionPercentage(),
-                e.getStatusReport(),
-                clientFormattedSprints,
-                e.getStatusFlag() // ✅ include lifecycle status in response
-        );
-    }
-
-    private List<SprintOrdinal> mapToSprintOrdinals(List<String> rawSprints) {
-        if (rawSprints == null) return List.of();
-
-        return rawSprints.stream().map(s -> {
-            try {
-                return SprintOrdinal.valueOf(s.trim().toUpperCase().replace("-", "_"));
-            } catch (IllegalArgumentException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sprint value: " + s);
-            }
-        }).toList();
-    }
+		return rawSprints.stream().map(s -> {
+			try {
+				return SprintOrdinal.valueOf(s.trim().toUpperCase().replace("-", "_"));
+			} catch (IllegalArgumentException e) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sprint value: " + s);
+			}
+		}).toList();
+	}
 }

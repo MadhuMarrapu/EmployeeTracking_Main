@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
@@ -20,17 +20,17 @@ public interface ResourceService {
     void deleteResource(Long id); // Soft delete: sets statusFlag = INACTIVE
 
     // ✅ Lifecycle-aware fetches
-    Page<ResourceResponse> getResourcesBySprintIdAndStatusFlag(Long sprintId, StatusFlag statusFlag, Pageable pageable);
-    List<ResourceResponse> getResourcesBySprintIdAndStatusFlag(Long sprintId, StatusFlag statusFlag);
+    Page<ResourceResponse> getResourcesBySprintIdAndStatusFlag(Long sprintId, Status statusFlag, Pageable pageable);
+    List<ResourceResponse> getResourcesBySprintIdAndStatusFlag(Long sprintId, Status statusFlag);
 
     // ✅ Type-based filtering
-    Page<ResourceResponse> getResourcesByTypeAndStatusFlag(Long sprintId, ResourceType resourceType, StatusFlag statusFlag, Pageable pageable);
+    Page<ResourceResponse> getResourcesByTypeAndStatusFlag(Long sprintId, ResourceType resourceType, Status statusFlag, Pageable pageable);
 
     // ✅ Tech stack filtering
-    Page<ResourceResponse> searchResourcesByTechStack(Long sprintId, ResourceType resourceType, TechStack techStack, StatusFlag statusFlag, Pageable pageable);
+    Page<ResourceResponse> searchResourcesByTechStack(Long sprintId, ResourceType resourceType, TechStack techStack, Status statusFlag, Pageable pageable);
 
     // ✅ Project name filtering
-    Page<ResourceResponse> searchResourcesByProjectName(Long sprintId, ResourceType resourceType, String projectName, StatusFlag statusFlag, Pageable pageable);
+    Page<ResourceResponse> searchResourcesByProjectName(Long sprintId, ResourceType resourceType, String projectName, Status statusFlag, Pageable pageable);
 
     // ✅ Grouping and summaries
     GroupedResourceResponse getGroupedResourcesBySprintId(Long sprintId);

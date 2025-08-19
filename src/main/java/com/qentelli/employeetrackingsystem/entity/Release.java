@@ -1,6 +1,6 @@
 package com.qentelli.employeetrackingsystem.entity;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -43,5 +43,5 @@ public class Release {
     private String releaseInformation;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE; // ✅ Default to ACTIVE
+    private Status statusFlag;
 }

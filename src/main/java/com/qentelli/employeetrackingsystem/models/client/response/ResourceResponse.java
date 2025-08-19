@@ -2,7 +2,7 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import lombok.AllArgsConstructor;
@@ -27,5 +27,5 @@ public class ResourceResponse {
     private int total;
     private String ratio;
 
-    private StatusFlag statusFlag; // ✅ Lifecycle state
+    private Status statusFlag; // ✅ Lifecycle state
 }

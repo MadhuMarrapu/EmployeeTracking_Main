@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.entity;
 import java.time.LocalDateTime;
 
 import com.qentelli.employeetrackingsystem.entity.enums.RagStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -43,7 +43,7 @@ public class ProgressReport {
     private Double completionPercentage;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE; // ✅ replaces progressReportStatus
+    private Status statusFlag;
 
     private LocalDateTime snapshotDate; // Optional tracking date
 }

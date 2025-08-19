@@ -14,7 +14,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Task;
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
@@ -60,9 +60,8 @@ public class ViewReportServiceImpl implements ViewReportService {
 		report.setPerson(person);
 		report.setWeekRange(weekRange);
 		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));
-		report.setStatusFlag(StatusFlag.ACTIVE); // ✅
+		report.setStatusFlag(Status.ACTIVE); 
 		ViewReports saved = viewReportRepository.save(report);
-
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(saved.getViewReportId());
 		response.setTaskName(saved.getTaskName());
@@ -76,7 +75,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 		response.setTaskEndDate(saved.getTaskEndDate());
 		response.setCreatedAt(saved.getCreatedAt());
 		response.setCreatedBy(saved.getCreatedBy());
-		response.setStatusFlag(saved.getStatusFlag()); // ✅ Include lifecycle state in response
+		response.setStatusFlag(saved.getStatusFlag()); 
 		return response;
 	}
 
@@ -84,14 +83,12 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public ViewReportResponse updateReport(ViewReportRequest request) {
 		ViewReports report = viewReportRepository.findById(request.getViewReportId())
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND));
-
 		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
 				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + request.getWeekId()));
 		Project project = projectRepository.findById(request.getProjectId())
 				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + request.getProjectId()));
 		Person person = personRepository.findByPersonId(request.getPersonId())
 				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND + request.getPersonId()));
-
 		report.setTaskName(request.getTaskName());
 		report.setTaskStatus(request.getTaskStatus());
 		report.setTaskStartDate(request.getTaskStartDate());
@@ -99,11 +96,8 @@ public class ViewReportServiceImpl implements ViewReportService {
 		report.setProject(project);
 		report.setPerson(person);
 		report.setWeekRange(weekRange);
-		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));
-																													// Lifecycle-aware
-
+		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));															
 		ViewReports updated = viewReportRepository.save(report);
-
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(updated.getViewReportId());
 		response.setTaskName(updated.getTaskName());
@@ -117,8 +111,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 		response.setTaskEndDate(updated.getTaskEndDate());
 		response.setCreatedAt(updated.getCreatedAt());
 		response.setCreatedBy(updated.getCreatedBy());
-		response.setStatusFlag(updated.getStatusFlag()); // ✅ Include lifecycle state
-
+		response.setStatusFlag(updated.getStatusFlag());
 		return response;
 	}
 
@@ -126,15 +119,12 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public ViewReportResponse getReportById(Integer id) {
 		ViewReports report = viewReportRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + id));
-
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(report.getViewReportId());
-
 		if (report.getWeekRange() != null) {
 			response.setWeekRange(new WeekRangeResponse(report.getWeekRange().getWeekId(),
 					report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate()));
 		}
-
 		response.setTaskName(report.getTaskName());
 		response.setTaskStatus(report.getTaskStatus());
 
@@ -157,15 +147,13 @@ public class ViewReportServiceImpl implements ViewReportService {
 		response.setTaskEndDate(report.getTaskEndDate());
 		response.setCreatedAt(report.getCreatedAt());
 		response.setCreatedBy(report.getCreatedBy());
-		response.setStatusFlag(report.getStatusFlag()); // ✅ Lifecycle state
-
+		response.setStatusFlag(report.getStatusFlag()); 
 		return response;
 	}
 
 	@Override
 	public Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable) {
-		Page<ViewReports> page = viewReportRepository.findByStatusFlag(StatusFlag.ACTIVE, pageable); // ✅
-																										// Lifecycle-aware
+		Page<ViewReports> page = viewReportRepository.findByStatusFlag(Status.ACTIVE, pageable); 																									// Lifecycle-aware
 		return page.map(this::mapToResponse);
 	}
 
@@ -173,7 +161,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public ViewReports softDeleteSummery(Integer viewReportId) {
 		ViewReports viewReports = viewReportRepository.findById(viewReportId)
 				.orElseThrow(() -> new ResourceNotFoundException("viewReportId not found"));
-		viewReports.setStatusFlag(StatusFlag.INACTIVE); // ✅ Soft delete
+		viewReports.setStatusFlag(Status.INACTIVE); 
 		return viewReportRepository.save(viewReports);
 	}
 
@@ -181,14 +169,14 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public void deleteReport(Integer id) {
 		ViewReports report = viewReportRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + id));
-		viewReportRepository.delete(report); // ✅ Hard delete
+		viewReportRepository.delete(report); 
 	}
 
 	@Override
 	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page,
 			int size) {
 		List<ViewReports> reports = viewReportRepository.findByWeekRangeAndStatusFlag(fromDate, toDate,
-				StatusFlag.ACTIVE); // ✅ Lifecycle-aware
+				Status.ACTIVE); 
 		List<ViewReportResponse> allResponses = reports.stream().map(this::mapToResponse).toList();
 
 		int start = Math.min(page * size, allResponses.size());
@@ -201,7 +189,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 
 	@Override
 	public List<ViewReportResponse> getAllReports() {
-		List<ViewReports> reports = viewReportRepository.findByStatusFlag(StatusFlag.ACTIVE); // ✅ Lifecycle-aware
+		List<ViewReports> reports = viewReportRepository.findByStatusFlag(Status.ACTIVE); // ✅ Lifecycle-aware
 		return reports.stream().map(this::mapToResponse).toList();
 	}
 
@@ -222,12 +210,12 @@ public class ViewReportServiceImpl implements ViewReportService {
 				report.getPerson() != null ? report.getPerson().getFirstName() + " " + report.getPerson().getLastName()
 						: null,
 				report.getTaskStartDate(), report.getTaskEndDate(), report.getCreatedAt(), report.getCreatedBy(),
-				report.getStatusFlag() // ✅ Include lifecycle state
+				report.getStatusFlag() 
 		);
 	}
 
 	@Override
-	public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, StatusFlag statusFlag, int page,
+	public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, Status statusFlag, int page,
 			int size) {
 		Pageable pageable = PageRequest.of(page, size, Sort.by("viewReportId").descending());
 

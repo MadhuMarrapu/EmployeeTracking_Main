@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import lombok.Data;
 

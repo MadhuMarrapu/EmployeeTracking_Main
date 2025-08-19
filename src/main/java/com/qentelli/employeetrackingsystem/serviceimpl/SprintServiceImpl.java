@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.SprintNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.SprintRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintResponse;
@@ -30,19 +30,15 @@ public class SprintServiceImpl implements SprintService {
 
 	@Override
 	public SprintResponse createSprint(SprintRequest request) {
-		//validateSprintDates(request.getFromDate(), request.getToDate());
-
 		Sprint sprint = new Sprint();
 		sprint.setSprintNumber(request.getSprintNumber());
 		sprint.setSprintName(request.getSprintName());
 		sprint.setFromDate(request.getFromDate());
 		sprint.setToDate(request.getToDate());
-		sprint.setStatusFlag(StatusFlag.ACTIVE);
+		sprint.setStatusFlag(Status.ACTIVE);
 		sprint.setEnableStatus(EnableStatus.DISABLED);
-
 		List<WeekRange> generatedWeeks = generateWeekRanges(request.getFromDate(), request.getToDate(), sprint);
 		sprint.setWeeks(generatedWeeks);
-
 		Sprint savedSprint = sprintRepository.save(sprint);
 		return mapToResponse(savedSprint);
 	}
@@ -51,7 +47,7 @@ public class SprintServiceImpl implements SprintService {
 
 	@Override
 	public Page<SprintResponse> getAllSprints(Pageable pageable) {
-		return sprintRepository.findByStatusFlag(StatusFlag.ACTIVE, pageable).map(this::mapToResponse);
+		return sprintRepository.findByStatusFlag(Status.ACTIVE, pageable).map(this::mapToResponse);
 	}
 
 	@Override
@@ -63,7 +59,7 @@ public class SprintServiceImpl implements SprintService {
 	@Override
 	public SprintResponse updateSprint(Long id, SprintRequest request) {
 		 Sprint sprint = sprintRepository.findById(id)
-				.orElseThrow(() -> new SprintNotFoundException("Active sprint not found with id: " + id));
+				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + id));
 		sprint.setSprintNumber(request.getSprintNumber());
 		sprint.setSprintName(request.getSprintName());
 		sprint.setFromDate(request.getFromDate());
@@ -76,7 +72,7 @@ public class SprintServiceImpl implements SprintService {
 	public void deleteSprint(Long id) {
 		Sprint sprint = sprintRepository.findById(id)
 				.orElseThrow(() -> new SprintNotFoundException(SPRINT_NOT_FOUND + id));
-		sprint.setStatusFlag(StatusFlag.INACTIVE);
+		sprint.setStatusFlag(Status.INACTIVE);
 		sprintRepository.save(sprint);
 	}
 
@@ -94,13 +90,13 @@ public class SprintServiceImpl implements SprintService {
 	public Sprint getPreviousSprint(Long sprintId) {
 		Sprint currentSprint = getActiveSprintById(sprintId);
 		List<Sprint> previousSprints = sprintRepository.findPreviousActiveSprints(currentSprint.getFromDate());
-		return previousSprints.stream().filter(s -> s.getStatusFlag() == StatusFlag.ACTIVE).findFirst().orElseThrow(
+		return previousSprints.stream().filter(s -> s.getStatusFlag() == Status.ACTIVE).findFirst().orElseThrow(
 				() -> new SprintNotFoundException("No active previous sprint found before ID: " + sprintId));
 	}
 
 	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
 		List<WeekRange> weekRanges = new ArrayList<>();
-		LocalDate expectedEnd = start.plusDays(20); // max 3 weeks (21 days)
+		LocalDate expectedEnd = start.plusDays(20); 
 		if (end.isAfter(expectedEnd)) {
 			end = expectedEnd;
 		}
@@ -113,7 +109,7 @@ public class SprintServiceImpl implements SprintService {
 			WeekRange week = new WeekRange();
 			week.setWeekFromDate(weekStart);
 			week.setWeekToDate(weekEnd);
-			week.setStatusFlag(StatusFlag.ACTIVE);
+			week.setStatusFlag(Status.ACTIVE);
 			week.setEnableStatus(EnableStatus.DISABLED);
 			week.setSprint(sprint);
 			weekRanges.add(week);
@@ -126,7 +122,7 @@ public class SprintServiceImpl implements SprintService {
 
 		if (sprint.getWeeks() != null) {
 			for (WeekRange week : sprint.getWeeks()) {
-				if (week.getStatusFlag() == StatusFlag.ACTIVE) {
+				if (week.getStatusFlag() == Status.ACTIVE) {
 					weekResponses.add(new WeekRangeResponse(week.getWeekId(), week.getWeekFromDate(),
 							week.getWeekToDate(), week.getStatusFlag(), week.getEnableStatus()));
 				}
@@ -139,7 +135,7 @@ public class SprintServiceImpl implements SprintService {
 	}
 
 	private Sprint getActiveSprintById(Long id) {
-		return sprintRepository.findById(id).filter(s -> s.getStatusFlag() == StatusFlag.ACTIVE)
+		return sprintRepository.findById(id).filter(s -> s.getStatusFlag() == Status.ACTIVE)
 				.orElseThrow(() -> new SprintNotFoundException("Active sprint not found with id: " + id));
 	}
 }

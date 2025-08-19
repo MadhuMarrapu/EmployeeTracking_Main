@@ -8,7 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.*;
 
@@ -50,5 +50,5 @@ public class PIStanding {
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+    private Status statusFlag ;
 }

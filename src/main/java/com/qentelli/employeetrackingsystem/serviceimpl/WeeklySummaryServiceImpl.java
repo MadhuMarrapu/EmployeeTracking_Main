@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.WeeklySummaryRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.WeeklySummaryResponse;
@@ -50,7 +50,7 @@ public class WeeklySummaryServiceImpl implements WeeklySummaryService {
             WeeklySummary summary = new WeeklySummary();
             summary.setWeekStartDate(weekStart);
             summary.setWeekEndDate(weekEnd);
-            summary.setStatusFlag(StatusFlag.ACTIVE);
+            summary.setStatusFlag(Status.ACTIVE);
             summary.setCreatedAt(LocalDateTime.now());
             summary.setWeekRange(WEEK + ": " + weekStart + " To " + weekEnd);
             summary.setUpcomingTasks(new ArrayList<>());
@@ -71,7 +71,7 @@ public class WeeklySummaryServiceImpl implements WeeklySummaryService {
         summary.setWeekEndDate(request.getWeekEndDate());
         summary.setUpcomingTasks(request.getUpcomingTasks());
         summary.setListProject(projects);
-        summary.setStatusFlag(StatusFlag.ACTIVE);
+        summary.setStatusFlag(Status.ACTIVE);
         summary.setCreatedAt(LocalDateTime.now());
         String weekRange = WEEK + ": " + request.getWeekStartDate().format(DateTimeFormatter.ofPattern("dd-MMMM-yyyy"))
                 + " To " + request.getWeekEndDate().format(DateTimeFormatter.ofPattern("dd-MMMM-yyyy"));
@@ -107,7 +107,7 @@ public class WeeklySummaryServiceImpl implements WeeklySummaryService {
 
     @Override
     public List<WeeklySummaryResponse> getAllSummaries() {
-        return weeklySummaryRepository.findAllByStatusFlag(StatusFlag.ACTIVE, Pageable.unpaged())
+        return weeklySummaryRepository.findAllByStatusFlag(Status.ACTIVE, Pageable.unpaged())
                 .stream().map(this::mapToResponse).toList();
     }
 
@@ -121,7 +121,7 @@ public class WeeklySummaryServiceImpl implements WeeklySummaryService {
         }
         LocalDate adjustedFrom = from.with(DayOfWeek.MONDAY);
         Page<WeeklySummary> resultPage = weeklySummaryRepository
-                .findByWeekStartDateBetweenAndStatusFlag(adjustedFrom, to, StatusFlag.ACTIVE, Pageable.unpaged());
+                .findByWeekStartDateBetweenAndStatusFlag(adjustedFrom, to, Status.ACTIVE, Pageable.unpaged());
         List<WeeklySummaryResponse> responseList = resultPage.getContent().stream().map(this::mapToResponse).toList();
         return new PageImpl<>(responseList, pageable, responseList.size());
     }
@@ -130,7 +130,7 @@ public class WeeklySummaryServiceImpl implements WeeklySummaryService {
     public WeeklySummary softDelete(int id) {
         WeeklySummary summary = weeklySummaryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(WEEKLY_SUMMARY_NOT_FOUND + id));
-        summary.setStatusFlag(StatusFlag.INACTIVE);
+        summary.setStatusFlag(Status.INACTIVE);
         return weeklySummaryRepository.save(summary);
     }
 
@@ -144,7 +144,7 @@ public class WeeklySummaryServiceImpl implements WeeklySummaryService {
     @Override
     public List<WeeklySummaryResponse> getFormattedWeekRanges() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
-        return weeklySummaryRepository.findAllByStatusFlag(StatusFlag.ACTIVE, Pageable.unpaged())
+        return weeklySummaryRepository.findAllByStatusFlag(Status.ACTIVE, Pageable.unpaged())
                 .stream().map(summary -> {
                     WeeklySummaryResponse res = new WeeklySummaryResponse();
                     res.setWeekId(summary.getWeekId());

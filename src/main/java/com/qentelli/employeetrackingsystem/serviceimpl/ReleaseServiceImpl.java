@@ -13,7 +13,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Release;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.ReleaseNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
@@ -57,8 +57,7 @@ public class ReleaseServiceImpl implements ReleaseService {
         release.setMinor(dto.getMinor());
         release.setIncidentCreated(dto.getIncidentCreated());
         release.setReleaseInformation(dto.getReleaseInformation());
-        release.setStatusFlag(StatusFlag.ACTIVE); // ✅ lifecycle
-
+        release.setStatusFlag(Status.ACTIVE); 
         Release savedRelease = releaseRepository.save(release);
         logger.info("Release created with ID: {}", savedRelease.getReleaseId());
         return savedRelease;
@@ -67,28 +66,28 @@ public class ReleaseServiceImpl implements ReleaseService {
     @Override
     public List<ReleaseResponseDTO> getAllReleases() {
         logger.info("Fetching all ACTIVE releases");
-        List<Release> releases = releaseRepository.findByStatusFlag(StatusFlag.ACTIVE);
+        List<Release> releases = releaseRepository.findByStatusFlag(Status.ACTIVE);
         return releases.stream().map(this::mapToResponseDTO).toList();
     }
 
     @Override
     public Page<ReleaseResponseDTO> getPaginatedReleases(Pageable pageable) {
         logger.info("Fetching paginated ACTIVE releases");
-        Page<Release> releasePage = releaseRepository.findByStatusFlag(StatusFlag.ACTIVE, pageable);
+        Page<Release> releasePage = releaseRepository.findByStatusFlag(Status.ACTIVE, pageable);
         return releasePage.map(this::mapToResponseDTO);
     }
 
     @Override
     public List<ReleaseResponseDTO> getReleasesByWeekId(int weekId) {
         logger.info("Fetching ACTIVE releases for weekId: {}", weekId);
-        List<Release> releases = releaseRepository.findByWeek_WeekIdAndStatusFlag(weekId, StatusFlag.ACTIVE);
+        List<Release> releases = releaseRepository.findByWeek_WeekIdAndStatusFlag(weekId, Status.ACTIVE);
         return releases.stream().map(this::mapToResponseDTO).toList();
     }
 
     @Override
     public List<ReleaseResponseDTO> getReleasesBySprintId(int sprintId) {
         logger.info("Fetching ACTIVE releases for sprintId: {}", sprintId);
-        List<Release> releases = releaseRepository.findBySprint_SprintIdAndStatusFlag(sprintId, StatusFlag.ACTIVE);
+        List<Release> releases = releaseRepository.findBySprint_SprintIdAndStatusFlag(sprintId, Status.ACTIVE);
         return releases.stream().map(this::mapToResponseDTO).toList();
     }
 
@@ -124,13 +123,13 @@ public class ReleaseServiceImpl implements ReleaseService {
         logger.info("Soft deleting release ID: {}", id);
         Release release = releaseRepository.findById(id)
                 .orElseThrow(() -> new ReleaseNotFoundException("Release not found with ID: " + id));
-        release.setStatusFlag(StatusFlag.INACTIVE); // ✅ soft delete
+        release.setStatusFlag(Status.INACTIVE); 
         releaseRepository.save(release);
         logger.info("Release marked as INACTIVE. ID: {}", id);
     }
 
     @Override
-    public List<ReleaseResponseDTO> getReleasesByStatusFlag(StatusFlag statusFlag) {
+    public List<ReleaseResponseDTO> getReleasesByStatusFlag(Status statusFlag) {
         logger.info("Fetching releases with statusFlag: {}", statusFlag);
         return releaseRepository.findByStatusFlag(statusFlag).stream()
                 .map(this::mapToResponseDTO).toList();
@@ -147,7 +146,7 @@ public class ReleaseServiceImpl implements ReleaseService {
                 release.getSprint() != null ? release.getSprint().getSprintId() : 0,
                 release.getReleaseId(),
                 release.getProject().getProjectId(),
-                release.getStatusFlag() // ✅ include lifecycle
+                release.getStatusFlag() 
         );
     }
 }

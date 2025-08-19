@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Integer> {
@@ -20,17 +20,17 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
     boolean existsByEmployeeCode(String employeeCode);
 
     List<Person> findByRole(Roles role);
-    Page<Person> findByRoleAndStatusFlag(Roles role, StatusFlag statusFlag, Pageable pageable);
+    Page<Person> findByRoleAndStatusFlag(Roles role, Status statusFlag, Pageable pageable);
 
     List<Person> findByProjectsContaining(Project project);
     Optional<Person> findByPersonId(Integer personId);
 
-    Page<Person> findByProjects_ProjectIdAndStatusFlag(Integer projectId, StatusFlag statusFlag, Pageable pageable);
+    Page<Person> findByProjects_ProjectIdAndStatusFlag(Integer projectId, Status statusFlag, Pageable pageable);
 
     Page<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseAndStatusFlag(
-            String firstName, String lastName, StatusFlag statusFlag, Pageable pageable);
+            String firstName, String lastName, Status statusFlag, Pageable pageable);
 
     Optional<Person> findByEmail(String email);
 
-    List<Person> findByStatusFlag(StatusFlag statusFlag);
+    List<Person> findByStatusFlag(Status statusFlag);
 }

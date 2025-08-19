@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.DuplicatePersonException;
 import com.qentelli.employeetrackingsystem.exception.PersonNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
@@ -44,8 +44,7 @@ public class PersonServiceImpl implements PersonService {
         Person person = modelMapper.map(dto, Person.class);
         person.setPassword(passwordEncoder.encode(dto.getPassword()));
         person.setConfirmPassword(passwordEncoder.encode(dto.getConfirmPassword()));
-        person.setStatusFlag(StatusFlag.ACTIVE);
-
+        person.setStatusFlag(Status.ACTIVE);
         if (dto.getProjectIds() != null && !dto.getProjectIds().isEmpty()) {
             List<Project> projects = projectRepo.findAllById(dto.getProjectIds());
             List<Integer> foundIds = projects.stream().map(Project::getProjectId).toList();
@@ -81,20 +80,20 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Page<PersonDTO> searchPersonsByName(String name, Pageable pageable) {
         Page<Person> page = personRepo.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseAndStatusFlag(
-                name, name, StatusFlag.ACTIVE, pageable);
+                name, name, Status.ACTIVE, pageable);
         return page.map(this::convertToDTO);
     }
 
     @Override
     public List<PersonDTO> getAllResponses() {
-        return personRepo.findByStatusFlag(StatusFlag.ACTIVE).stream()
+        return personRepo.findByStatusFlag(Status.ACTIVE).stream()
                 .map(this::convertToDTO).toList();
     }
 
     @Override
     public PersonDTO getByIdResponse(Integer id) {
         return personRepo.findById(id)
-                .filter(p -> p.getStatusFlag() == StatusFlag.ACTIVE)
+                .filter(p -> p.getStatusFlag() == Status.ACTIVE)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND));
     }
@@ -102,19 +101,19 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public List<PersonDTO> getByRoleResponse(Roles role) {
         return personRepo.findByRole(role).stream()
-                .filter(p -> p.getStatusFlag() == StatusFlag.ACTIVE)
+                .filter(p -> p.getStatusFlag() == Status.ACTIVE)
                 .map(this::convertToDTO).toList();
     }
 
     @Override
     public Page<PersonDTO> getByRoleResponse(Roles role, Pageable pageable) {
-        Page<Person> page = personRepo.findByRoleAndStatusFlag(role, StatusFlag.ACTIVE, pageable);
+        Page<Person> page = personRepo.findByRoleAndStatusFlag(role, Status.ACTIVE, pageable);
         return page.map(this::convertToDTO);
     }
 
     @Override
     public Page<PersonDTO> getPersonsByProjectId(Integer projectId, Pageable pageable) {
-        Page<Person> page = personRepo.findByProjects_ProjectIdAndStatusFlag(projectId, StatusFlag.ACTIVE, pageable);
+        Page<Person> page = personRepo.findByProjects_ProjectIdAndStatusFlag(projectId, Status.ACTIVE, pageable);
         return page.map(this::convertToDTO);
     }
 
@@ -150,14 +149,14 @@ public class PersonServiceImpl implements PersonService {
     public void softDeletePersonById(Integer personId) {
         Person person = personRepo.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(PERSON_NOT_FOUND + " with id :" + personId));
-        person.setStatusFlag(StatusFlag.INACTIVE);
+        person.setStatusFlag(Status.INACTIVE);
         personRepo.save(person);
     }
 
     @Override
     public Person getPersonEntity(String email) {
         return personRepo.findByEmail(email)
-                .filter(p -> p.getStatusFlag() == StatusFlag.ACTIVE)
+                .filter(p -> p.getStatusFlag() == Status.ACTIVE)
                 .orElseThrow(() -> new PersonNotFoundException("Person not found with email: " + email));
     }
 

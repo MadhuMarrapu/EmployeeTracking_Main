@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.qentelli.employeetrackingsystem.entity.Release;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
 
@@ -19,5 +19,5 @@ public interface ReleaseService {
     List<ReleaseResponseDTO> getReleasesBySprintId(int sprintId);
     Release updateRelease(Long id, ReleaseRequestDTO dto);
     void deleteRelease(Long id); // soft delete
-    List<ReleaseResponseDTO> getReleasesByStatusFlag(StatusFlag statusFlag);
+    List<ReleaseResponseDTO> getReleasesByStatusFlag(Status statusFlag);
 }

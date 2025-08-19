@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.models.client.request.SprintDependencyRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.SprintDependencyResponse;
 
@@ -21,6 +21,6 @@ public interface SprintDependencyService {
     List<SprintDependencyResponse> getAllBySprintId(Long sprintId);
 
     // ✅ Lifecycle-aware fetches
-    Page<SprintDependencyResponse> getBySprintIdAndStatusFlag(Long sprintId, StatusFlag statusFlag, Pageable pageable);
-    List<SprintDependencyResponse> getAllBySprintIdAndStatusFlag(Long sprintId, StatusFlag statusFlag);
+    Page<SprintDependencyResponse> getBySprintIdAndStatusFlag(Long sprintId, Status statusFlag, Pageable pageable);
+    List<SprintDependencyResponse> getAllBySprintIdAndStatusFlag(Long sprintId, Status statusFlag);
 }

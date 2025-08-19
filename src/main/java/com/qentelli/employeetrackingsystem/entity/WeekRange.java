@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.entity;
 import java.time.LocalDate;
 
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,11 +25,11 @@ public class WeekRange {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+    private Status statusFlag ;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EnableStatus enableStatus = EnableStatus.DISABLED;
+    private EnableStatus enableStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sprint_id")

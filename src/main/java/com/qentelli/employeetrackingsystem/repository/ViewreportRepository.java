@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface ViewreportRepository extends JpaRepository<ViewReports, Integer> {
@@ -19,17 +19,17 @@ public interface ViewreportRepository extends JpaRepository<ViewReports, Integer
 	// 🔹 Week range filter with lifecycle awareness
 	@Query("SELECT v FROM ViewReports v WHERE v.statusFlag = :statusFlag AND v.weekRange.weekFromDate = :fromDate AND v.weekRange.weekToDate = :toDate")
 	List<ViewReports> findByWeekRangeAndStatusFlag(@Param("fromDate") LocalDate fromDate,
-			@Param("toDate") LocalDate toDate, @Param("statusFlag") StatusFlag statusFlag);
+			@Param("toDate") LocalDate toDate, @Param("statusFlag") Status statusFlag);
 
 	// 🔹 Lifecycle-aware fetches
-	List<ViewReports> findByStatusFlag(StatusFlag statusFlag);
+	List<ViewReports> findByStatusFlag(Status statusFlag);
 
-	Page<ViewReports> findByStatusFlag(StatusFlag statusFlag, Pageable pageable);
+	Page<ViewReports> findByStatusFlag(Status statusFlag, Pageable pageable);
 
-	Page<ViewReports> findByStatusFlagAndPerson_PersonId(StatusFlag statusFlag, Integer personId, Pageable pageable);
+	Page<ViewReports> findByStatusFlagAndPerson_PersonId(Status statusFlag, Integer personId, Pageable pageable);
 
-	Page<ViewReports> findByStatusFlagAndProject_ProjectId(StatusFlag statusFlag, Integer projectId, Pageable pageable);
+	Page<ViewReports> findByStatusFlagAndProject_ProjectId(Status statusFlag, Integer projectId, Pageable pageable);
 
-	Page<ViewReports> findByStatusFlagAndPerson_PersonIdAndProject_ProjectId(StatusFlag statusFlag, Integer personId,
+	Page<ViewReports> findByStatusFlagAndPerson_PersonIdAndProject_ProjectId(Status statusFlag, Integer personId,
 			Integer projectId, Pageable pageable);
 }

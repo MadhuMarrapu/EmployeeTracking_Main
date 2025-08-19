@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface WeekRangeRepository extends JpaRepository<WeekRange, Integer> {
@@ -25,7 +25,7 @@ public interface WeekRangeRepository extends JpaRepository<WeekRange, Integer> {
 	Page<WeekRange> findActiveWeeksInRange(@Param("start") LocalDate start, @Param("end") LocalDate end,
 			Pageable pageable);
 
-	boolean existsByWeekIdAndStatusFlag(Integer weekId, StatusFlag statusFlag);
+	boolean existsByWeekIdAndStatusFlag(Integer weekId, Status statusFlag);
 
 	@Query("SELECT w.weekId FROM WeekRange w WHERE w.statusFlag = 'ACTIVE'")
 	List<Integer> findActiveWeekIds();

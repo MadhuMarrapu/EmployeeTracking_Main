@@ -2,7 +2,7 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import java.time.LocalDate;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import jakarta.persistence.Entity;
@@ -40,7 +40,7 @@ public class SprintDependency {
     private String actionTaken;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE; // Default lifecycle state
+    private Status statusFlag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")

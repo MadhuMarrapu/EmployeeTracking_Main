@@ -8,16 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.PIStanding;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface PIStandingRepository extends JpaRepository<PIStanding, Long> {
 
-    List<PIStanding> findByStatusFlag(StatusFlag statusFlag);
+    List<PIStanding> findByStatusFlag(Status statusFlag);
 
-    Page<PIStanding> findByStatusFlag(StatusFlag statusFlag, Pageable pageable);
+    Page<PIStanding> findByStatusFlag(Status statusFlag, Pageable pageable);
 
-    Page<PIStanding> findByPiNumberAndStatusFlag(int piNumber, StatusFlag statusFlag, Pageable pageable);
+    Page<PIStanding> findByPiNumberAndStatusFlag(int piNumber, Status statusFlag, Pageable pageable);
 
-    Page<PIStanding> findByProject_ProjectIdAndStatusFlag(int projectId, StatusFlag statusFlag, Pageable pageable);
+    Page<PIStanding> findByProject_ProjectIdAndStatusFlag(int projectId, Status statusFlag, Pageable pageable);
 }

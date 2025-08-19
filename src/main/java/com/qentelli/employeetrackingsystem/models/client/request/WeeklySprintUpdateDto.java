@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 import com.qentelli.employeetrackingsystem.entity.enums.HealthStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

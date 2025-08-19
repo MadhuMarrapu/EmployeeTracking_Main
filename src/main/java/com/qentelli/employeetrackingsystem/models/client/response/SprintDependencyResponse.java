@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,5 +27,5 @@ public class SprintDependencyResponse {
     private Long sprintId;         // ✅ Newly added
     private String sprintName;
 
-    private StatusFlag statusFlag; // ✅ Lifecycle state
+    private Status statusFlag; // ✅ Lifecycle state
 }

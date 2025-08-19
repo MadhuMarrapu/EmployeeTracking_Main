@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +22,7 @@ public class SprintResponse {
     private LocalDate toDate;
     private List<WeekRangeResponse> weeks;
 
-    private StatusFlag statusFlag;
+    private Status statusFlag;
 
     private EnableStatus enableStatus;
 }

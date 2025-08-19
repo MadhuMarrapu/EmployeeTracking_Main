@@ -7,7 +7,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -46,7 +46,7 @@ public class Sprint {
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+    private Status statusFlag;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

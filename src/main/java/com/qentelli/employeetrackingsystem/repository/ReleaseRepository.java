@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.Release;
 import com.qentelli.employeetrackingsystem.entity.ReleaseCountProjection;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface ReleaseRepository extends JpaRepository<Release, Long> {
@@ -31,10 +31,10 @@ public interface ReleaseRepository extends JpaRepository<Release, Long> {
     List<Release> findBySprint_SprintId(long sprintId);
 
     // ✅ Lifecycle-aware queries
-    List<Release> findByStatusFlag(StatusFlag statusFlag);
-    List<Release> findByWeek_WeekIdAndStatusFlag(int weekId, StatusFlag statusFlag);
-    List<Release> findBySprint_SprintIdAndStatusFlag(long sprintId, StatusFlag statusFlag);
+    List<Release> findByStatusFlag(Status statusFlag);
+    List<Release> findByWeek_WeekIdAndStatusFlag(int weekId, Status statusFlag);
+    List<Release> findBySprint_SprintIdAndStatusFlag(long sprintId, Status statusFlag);
 
     // ✅ Paginated lifecycle-aware query
-    Page<Release> findByStatusFlag(StatusFlag statusFlag, Pageable pageable);
+    Page<Release> findByStatusFlag(Status statusFlag, Pageable pageable);
 }

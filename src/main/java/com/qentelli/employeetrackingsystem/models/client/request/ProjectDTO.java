@@ -3,7 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +24,7 @@ public class ProjectDTO {
     @Size(max = 50, message = "Project name must not exceed 50 characters")
     private String projectName;
 
-    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+    private Status statusFlag = Status.ACTIVE;
 
     private LocalDateTime createdAt;
     private String createdBy;

@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import lombok.AllArgsConstructor;
@@ -30,7 +30,7 @@ public class ViewReportResponse {
     private LocalDateTime createdAt;
     private String createdBy;
 
-    private StatusFlag statusFlag; // ✅ Lifecycle state
+    private Status statusFlag; // ✅ Lifecycle state
 
     public ViewReportResponse(int viewReportId,
                               String projectName,

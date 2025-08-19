@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.ProgressReport;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.ReportNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ProgressReportDTO;
 import com.qentelli.employeetrackingsystem.repository.ProgressReportRepository;
@@ -22,7 +22,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ProgressReportServiceImpl implements ProgressReportService {
-
+	
+	private static final String REPORT_NOT_FOUND = "No progress report found for ID: ";
     private final ProgressReportRepository reportRepository;
     private final ProjectRepository projectRepository;
 
@@ -39,40 +40,37 @@ public class ProgressReportServiceImpl implements ProgressReportService {
     @Override
     public void create(ProgressReportDTO dto) {
         ProgressReport entity = toEntity(dto);
-        entity.setStatusFlag(StatusFlag.ACTIVE); // ✅ default to ACTIVE
+        entity.setStatusFlag(Status.ACTIVE); 
         reportRepository.save(entity);
     }
 
     @Override
     public Page<ProgressReportDTO> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("snapshotDate").descending());
-        return reportRepository.findByStatusFlag(StatusFlag.ACTIVE, pageable)
-                .map(this::toDTO); // ✅ filter by ACTIVE
+        return reportRepository.findByStatusFlag(Status.ACTIVE, pageable)
+                .map(this::toDTO); 
     }
 
     @Override
     public void update(Long id, ProgressReportDTO dto) {
         ProgressReport existingReport = reportRepository.findById(id)
-                .orElseThrow(() -> new ReportNotFoundException("No progress report found for ID: " + id));
-
+                .orElseThrow(() -> new ReportNotFoundException(REPORT_NOT_FOUND + id));
         existingReport.setTeamLead(dto.getTeamLead());
         existingReport.setAssignedSP(dto.getAssignedSP());
         existingReport.setCompletedSP(dto.getCompletedSP());
-        existingReport.setRag(dto.getRag());
-       
+        existingReport.setRag(dto.getRag());     
         existingReport.setSnapshotDate(LocalDateTime.now());
         existingReport.setCompletionPercentage(
                 calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));
         existingReport.setProject(resolveProject(dto.getProjectId()));
-
         reportRepository.save(existingReport);
     }
 
     @Override
     public void softDelete(Long id) {
         ProgressReport existingReport = reportRepository.findById(id)
-                .orElseThrow(() -> new ReportNotFoundException("Cannot delete. No report with ID: " + id));
-        existingReport.setStatusFlag(StatusFlag.INACTIVE); // ✅ soft delete
+                .orElseThrow(() -> new ReportNotFoundException(REPORT_NOT_FOUND + id));
+        existingReport.setStatusFlag(Status.INACTIVE);
         reportRepository.save(existingReport);
     }
 
@@ -83,7 +81,6 @@ public class ProgressReportServiceImpl implements ProgressReportService {
         entity.setAssignedSP(dto.getAssignedSP());
         entity.setCompletedSP(dto.getCompletedSP());
         entity.setRag(dto.getRag());
-        entity.setStatusFlag(StatusFlag.ACTIVE); // ✅ lifecycle
         entity.setSnapshotDate(LocalDateTime.now());
         entity.setCompletionPercentage(
                 calculateCompletionPercentage(dto.getAssignedSP(), dto.getCompletedSP()));

@@ -1,7 +1,7 @@
 package com.qentelli.employeetrackingsystem.entity;
 
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import jakarta.persistence.Column;
@@ -52,7 +52,7 @@ public class Resource {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE; // ✅ Lifecycle-aware field
+    private Status statusFlag; 
 
     @Transient
     public int getTotal() {

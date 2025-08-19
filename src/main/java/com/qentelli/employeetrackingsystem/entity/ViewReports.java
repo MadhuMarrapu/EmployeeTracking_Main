@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import jakarta.persistence.ElementCollection;
@@ -68,7 +68,7 @@ public class ViewReports {
     private LocalDate taskEndDate;
 
     @Enumerated(EnumType.STRING)
-    private StatusFlag statusFlag = StatusFlag.ACTIVE; // ✅ Lifecycle-aware
+    private Status statusFlag ;
 
     @CreatedDate
     private LocalDateTime createdAt;

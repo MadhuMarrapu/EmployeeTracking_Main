@@ -1,5 +1,5 @@
 package com.qentelli.employeetrackingsystem.entity.enums;
-public enum StatusFlag {
+public enum Status {
     ACTIVE,
     INACTIVE
 }

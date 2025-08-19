@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.qentelli.employeetrackingsystem.entity.Account;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.DuplicateProjectException;
 import com.qentelli.employeetrackingsystem.exception.ProjectNotFoundException;
@@ -48,7 +48,7 @@ public class ProjectServiceImpl implements ProjectService {
         Account account = accountRepo.findById(dto.getAccountId())
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + dto.getAccountId()));
         Project project = modelMapper.map(dto, Project.class);
-        project.setStatusFlag(StatusFlag.ACTIVE);
+        project.setStatusFlag(Status.ACTIVE);
         project.setAccount(account);
         Project saved = projectRepo.save(project);
         ProjectDTO responseDto = modelMapper.map(saved, ProjectDTO.class);
@@ -58,7 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDTO> getAll() {
-        return projectRepo.findByStatusFlag(StatusFlag.ACTIVE).stream()
+        return projectRepo.findByStatusFlag(Status.ACTIVE).stream()
                 .map(project -> {
                     ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
                     dto.setAccountName(project.getAccount().getAccountName());
@@ -85,7 +85,7 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Integer projectId) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(PROJECT_NOT_FOUND + projectId));
-        project.setStatusFlag(StatusFlag.INACTIVE);
+        project.setStatusFlag(Status.INACTIVE);
         project.setUpdatedAt(LocalDateTime.now());
         project.setUpdatedBy(getAuthenticatedUserFullName());
         projectRepo.save(project);
@@ -93,7 +93,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Page<ProjectDTO> searchProjectsByExactName(String name, Pageable pageable) {
-        return projectRepo.findByProjectNameContainingIgnoreCaseAndStatusFlag(name, StatusFlag.ACTIVE, pageable)
+        return projectRepo.findByProjectNameContainingIgnoreCaseAndStatusFlag(name, Status.ACTIVE, pageable)
                 .map(project -> {
                     ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
                     dto.setAccountName(project.getAccount().getAccountName());
@@ -103,7 +103,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Page<ProjectDTO> getActiveProjects(Pageable pageable) {
-        return projectRepo.findByStatusFlag(StatusFlag.ACTIVE, pageable)
+        return projectRepo.findByStatusFlag(Status.ACTIVE, pageable)
                 .map(project -> {
                     ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
                     dto.setAccountName(project.getAccount().getAccountName());

@@ -9,13 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.WeeklySummary;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface WeeklySummaryRepository extends JpaRepository<WeeklySummary, Integer> {
     Optional<WeeklySummary> findByWeekStartDateAndWeekEndDate(LocalDate startDate, LocalDate endDate);
 
-    Page<WeeklySummary> findAllByStatusFlag(StatusFlag statusFlag, Pageable pageable);
+    Page<WeeklySummary> findAllByStatusFlag(Status statusFlag, Pageable pageable);
 
-    Page<WeeklySummary> findByWeekStartDateBetweenAndStatusFlag(LocalDate start, LocalDate end, StatusFlag statusFlag, Pageable pageable);
+    Page<WeeklySummary> findByWeekStartDateBetweenAndStatusFlag(LocalDate start, LocalDate end, Status statusFlag, Pageable pageable);
 }

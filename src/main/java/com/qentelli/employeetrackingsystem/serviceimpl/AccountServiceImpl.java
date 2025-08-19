@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.qentelli.employeetrackingsystem.entity.Account;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.AccountNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.DuplicateAccountException;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
@@ -44,20 +44,20 @@ public class AccountServiceImpl implements AccountService {
             throw new DuplicateAccountException("An account with this name already exists.");
         }
         Account account = modelMapper.map(dto, Account.class);
-        account.setStatusFlag(StatusFlag.ACTIVE); 
+        account.setStatus(Status.ACTIVE); 
         return accountRepository.save(account);
     }
 
     @Override
     public List<AccountDetailsDto> getAllAccounts() {
-        return accountRepository.findByStatusFlag(StatusFlag.ACTIVE).stream()
+        return accountRepository.findByStatus(Status.ACTIVE).stream()
                 .map(account -> modelMapper.map(account, AccountDetailsDto.class))
                 .toList();
     }
 
     @Override
     public Page<AccountDetailsDto> getAllActiveAccounts(Pageable pageable) {
-        return accountRepository.findByStatusFlag(StatusFlag.ACTIVE, pageable)
+        return accountRepository.findByStatus(Status.ACTIVE, pageable)
                 .map(account -> modelMapper.map(account, AccountDetailsDto.class));
     }
 
@@ -81,13 +81,13 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + id));
         if (account.getProjects() != null) {
             for (Project project : account.getProjects()) {
-                project.setStatusFlag(StatusFlag.INACTIVE); 
+                project.setStatusFlag(Status.INACTIVE); 
                 project.setUpdatedAt(LocalDateTime.now());
                 project.setUpdatedBy(getAuthenticatedUserFullName());
                 projectRepository.save(project);
             }
         }
-        account.setStatusFlag(StatusFlag.INACTIVE);
+        account.setStatus(Status.INACTIVE);
         account.setUpdatedAt(LocalDateTime.now());
         account.setUpdatedBy(getAuthenticatedUserFullName());
         accountRepository.save(account);

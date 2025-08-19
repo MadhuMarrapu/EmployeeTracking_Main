@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -52,8 +52,7 @@ public class WeeklySummary {
     private List<String> upcomingTasks;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_flag")
-    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+    private Status statusFlag ;
 
     @CreatedDate
     private LocalDateTime createdAt;

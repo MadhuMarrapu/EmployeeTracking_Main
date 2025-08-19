@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ViewReportResponse;
@@ -21,7 +21,7 @@ public interface ViewReportService {
     // ✅ Returns only ACTIVE reports by default
     Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable);
 
-    // ✅ Soft delete using StatusFlag.INACTIVE
+    // ✅ Soft delete using Status.INACTIVE
     ViewReports softDeleteSummery(Integer viewReportId);
 
     // ✅ Optional hard delete
@@ -37,5 +37,5 @@ public interface ViewReportService {
    // Page<ViewReports> searchViewReports(Integer personId, Integer projectId, int page, int size);
 
     // ✅ Optional: lifecycle-aware search
-    Page<ViewReports> searchViewReports(Integer personId, Integer projectId, StatusFlag statusFlag, int page, int size);
+    Page<ViewReports> searchViewReports(Integer personId, Integer projectId, Status statusFlag, int page, int size);
 }

@@ -10,14 +10,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
-import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprintUpdate, Integer> {
 
-	Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatus(StatusFlag statusFlag, Pageable pageable);
+	Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatus(Status statusFlag, Pageable pageable);
 
-	List<WeeklySprintUpdate> findByWeeklySprintUpdateStatus(StatusFlag statusFlag);
+	List<WeeklySprintUpdate> findByWeeklySprintUpdateStatus(Status statusFlag);
 
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
@@ -25,7 +25,7 @@ public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprint
 			    AND wsu.weeklySprintUpdateStatus = :statusFlag
 			""")
 	List<WeeklySprintUpdate> findByWeekIdAndStatusFlag(@Param("weekId") int weekId,
-			@Param("statusFlag") StatusFlag statusFlag);
+			@Param("statusFlag") Status statusFlag);
 
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
@@ -33,7 +33,7 @@ public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprint
 			    AND wsu.weeklySprintUpdateStatus = :statusFlag
 			""")
 	List<WeeklySprintUpdate> findBySprintIdAndStatusFlag(@Param("sprintId") Long sprintId,
-			@Param("statusFlag") StatusFlag statusFlag);
+			@Param("statusFlag") Status statusFlag);
 
 	@Query("""
 			    SELECT w FROM WeeklySprintUpdate w
@@ -41,5 +41,5 @@ public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprint
 			    AND w.weeklySprintUpdateStatus = :statusFlag
 			""")
 	List<WeeklySprintUpdate> findByWeekIdsAndStatusFlag(@Param("weekIds") List<Integer> weekIds,
-			@Param("statusFlag") StatusFlag statusFlag);
+			@Param("statusFlag") Status statusFlag);
 }

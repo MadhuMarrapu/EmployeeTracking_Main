@@ -13,7 +13,7 @@ public interface WeeklySprintUpdateService {
 
     WeeklySprintUpdateDto updateUpdate(Integer id, WeeklySprintUpdateDto dto);
 
-    void deleteUpdate(Integer id); // soft delete using StatusFlag
+    void deleteUpdate(Integer id); // soft delete using Status
 
     boolean setWeeklySprintUpdateEnabled(Integer weeklySprintUpdateId);
 
