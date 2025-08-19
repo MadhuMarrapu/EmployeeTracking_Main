@@ -6,9 +6,14 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,21 +34,22 @@ public class Sprint {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long sprintId;
-
     private String sprintNumber;
     private String sprintName;
     private LocalDate fromDate;
-    private LocalDate toDate;
-   
+    private LocalDate toDate; 
     @OneToMany(mappedBy = "sprint", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<WeekRange> weeks;
-    
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
     
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusFlag statusFlag = StatusFlag.ACTIVE;
     
-    private Boolean sprintStatus = true; // default true, indicates active sprint
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EnableStatus enableStatus = EnableStatus.DISABLED; 
     
-    private Boolean enabled = false; // default false
 }

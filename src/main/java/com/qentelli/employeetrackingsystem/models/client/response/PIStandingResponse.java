@@ -2,8 +2,8 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 
 import java.util.List;
 
-import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,4 +27,5 @@ public class PIStandingResponse {
     private double completionPercentage;
     private String statusReport;
     private List<String> selectedSprints;
+    private StatusFlag statusFlag; 
 }

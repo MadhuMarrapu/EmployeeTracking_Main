@@ -1,5 +1,7 @@
 package com.qentelli.employeetrackingsystem.models.client.response;
 
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,4 +20,5 @@ public class ReleaseResponseDTO {
     private long sprintId;
     private long releaseId;
     private Integer projectId;
+    private StatusFlag statusFlag; // ✅ Lifecycle state
 }

@@ -1,15 +1,20 @@
 package com.qentelli.employeetrackingsystem.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.Project;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-	public boolean existsByProjectName(String projectName);
-	public Page<Project> findByProjectNameContainingIgnoreCase(String projectName, Pageable pageable);
-	public Page<Project> findByProjectStatusTrue(Pageable pageable);
+    boolean existsByProjectName(String projectName);
+    Page<Project> findByProjectNameContainingIgnoreCase(String projectName, Pageable pageable);
+    List<Project> findByStatusFlag(StatusFlag statusFlag);
+    Page<Project> findByStatusFlag(StatusFlag statusFlag, Pageable pageable);
+    Page<Project> findByProjectNameContainingIgnoreCaseAndStatusFlag(String name, StatusFlag statusFlag, Pageable pageable);
 }

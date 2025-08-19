@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -133,9 +134,10 @@ public class ViewReportController {
 
 	@GetMapping("/search")
 	public ResponseEntity<Page<ViewReports>> searchReports(@RequestParam(required = false) Integer personId,
-			@RequestParam(required = false) Integer projectId, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		Page<ViewReports> result = viewReportService.searchViewReports(personId, projectId, page, size);
+			@RequestParam(required = false) Integer projectId,
+			@RequestParam(required = false, defaultValue = "ACTIVE") StatusFlag statusFlag,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		Page<ViewReports> result = viewReportService.searchViewReports(personId, projectId, statusFlag, page, size);
 		return ResponseEntity.ok(result);
 	}
 

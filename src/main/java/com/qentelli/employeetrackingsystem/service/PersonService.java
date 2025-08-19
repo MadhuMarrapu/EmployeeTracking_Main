@@ -11,16 +11,18 @@ import com.qentelli.employeetrackingsystem.models.client.request.PersonDTO;
 
 public interface PersonService {
 
-	public  PersonDTO create(PersonDTO dto);
-	public PersonDTO update(Integer id, PersonDTO dto);
-	public void softDeletePersonById(Integer personId);
-	public void tagProjectsToEmployee(Integer personId, List<Integer> projectIds);
-	public Page<PersonDTO> searchPersonsByName(String name, Pageable pageable);
-	public List<PersonDTO> getAllResponses();
-	public PersonDTO getByIdResponse(Integer id);
-	public List<PersonDTO> getByRoleResponse(Roles role);
-	public Page<PersonDTO> getByRoleResponse(Roles role, Pageable pageable);
-	public Page<PersonDTO> getPersonsByProjectId(Integer projectId, Pageable pageable);
-	public boolean isProjectExists(Integer projectId);
-	public Person getPersonEntity(String email);
+    PersonDTO create(PersonDTO dto);
+    PersonDTO update(Integer id, PersonDTO dto);
+    void softDeletePersonById(Integer personId);
+    void tagProjectsToEmployee(Integer personId, List<Integer> projectIds);
+
+    Page<PersonDTO> searchPersonsByName(String name, Pageable pageable);
+    List<PersonDTO> getAllResponses();
+    PersonDTO getByIdResponse(Integer id);
+    List<PersonDTO> getByRoleResponse(Roles role);
+    Page<PersonDTO> getByRoleResponse(Roles role, Pageable pageable);
+    Page<PersonDTO> getPersonsByProjectId(Integer projectId, Pageable pageable);
+
+    boolean isProjectExists(Integer projectId);
+    Person getPersonEntity(String email);
 }

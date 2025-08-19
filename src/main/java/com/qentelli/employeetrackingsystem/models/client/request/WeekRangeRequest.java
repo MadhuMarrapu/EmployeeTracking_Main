@@ -3,6 +3,7 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,13 +14,9 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class WeekRangeRequest {
 
-	private int weekId;
-	private LocalDate weekFromDate;
-	private LocalDate weekToDate;
-	//private boolean isActive=true;
-	private Boolean softDelete=false;
+    private int weekId;
+    private LocalDate weekFromDate;
+    private LocalDate weekToDate;
 
-	// You can either expose Sprint ID or a nested SprintDto
-	private Long sprintId;
-	private Boolean enabled = false; // default false
+    private Long sprintId;
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.qentelli.employeetrackingsystem.config.FlexibleTechStackDeserializer;
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import lombok.AllArgsConstructor;
@@ -25,9 +26,12 @@ public class PersonDTO {
     private String password;
     private String confirmPassword;
     private Roles role;
-    private Boolean personStatus=true; 
+
+ 
+
     @JsonDeserialize(using = FlexibleTechStackDeserializer.class)
-    private TechStack techStack;  
-    private List<Integer> projectIds;   
-    private List<String> projectNames;  
- }
+    private TechStack techStack;
+
+    private List<Integer> projectIds;
+    private List<String> projectNames;
+}

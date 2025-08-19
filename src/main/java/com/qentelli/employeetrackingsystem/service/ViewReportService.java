@@ -7,19 +7,35 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ViewReportResponse;
 
 public interface ViewReportService {
 
-	public ViewReportResponse saveReport(ViewReportRequest request);
-	public ViewReportResponse updateReport(ViewReportRequest request);
-	public ViewReportResponse getReportById(Integer id);
-	public Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable);
-	public ViewReports softDeleteSummery(Integer viewReportId);
-	public void deleteReport(Integer id);
-	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page, int size);
-	public List<ViewReportResponse> getAllReports();
-	public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, int page, int size);
+    ViewReportResponse saveReport(ViewReportRequest request);
+    ViewReportResponse updateReport(ViewReportRequest request);
+    ViewReportResponse getReportById(Integer id);
+
+    // ✅ Returns only ACTIVE reports by default
+    Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable);
+
+    // ✅ Soft delete using StatusFlag.INACTIVE
+    ViewReports softDeleteSummery(Integer viewReportId);
+
+    // ✅ Optional hard delete
+    void deleteReport(Integer id);
+
+    // ✅ Returns ACTIVE reports for given week range
+    PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page, int size);
+
+    // ✅ Returns only ACTIVE reports by default
+    List<ViewReportResponse> getAllReports();
+
+    // ✅ Returns only ACTIVE reports by default
+   // Page<ViewReports> searchViewReports(Integer personId, Integer projectId, int page, int size);
+
+    // ✅ Optional: lifecycle-aware search
+    Page<ViewReports> searchViewReports(Integer personId, Integer projectId, StatusFlag statusFlag, int page, int size);
 }

@@ -9,14 +9,19 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,29 +33,28 @@ import lombok.NoArgsConstructor;
 @EntityListeners(AuditingEntityListener.class)
 public class Account {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)	
-	private int accountId;
-	@Column(unique = true)
-	private String accountName;
-	private LocalDate accountStartDate;
-	private LocalDate accountEndDate;
-	
-	private Boolean accountStatus= true; // true means active, false means inactive
-	
-	@CreatedDate
-	private LocalDateTime createdAt;
-	
-	@CreatedBy
-	private String createdBy;
-	
-	private LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int accountId;
 
-	private String updatedBy;
+    @Column(unique = true)
+    private String accountName;
 
-	// Add this inside your Account class
+    private LocalDate accountStartDate;
+    private LocalDate accountEndDate;
 
-	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Project> projects = new ArrayList<>();	
-	
+    @Enumerated(EnumType.STRING)
+    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @CreatedBy
+    private String createdBy;
+
+    private LocalDateTime updatedAt;
+    private String updatedBy;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
 }

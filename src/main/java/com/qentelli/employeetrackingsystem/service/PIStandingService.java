@@ -10,12 +10,12 @@ import com.qentelli.employeetrackingsystem.models.client.response.PIStandingResp
 
 public interface PIStandingService {
 
-	public PIStandingResponse create(PIStandingRequest dto);
-	public PIStandingResponse update(Long id, PIStandingRequest dto);
-	public PIStandingResponse get(Long id);
-	public Page<PIStandingResponse> list(Pageable pg);
-	public List<PIStandingResponse> list();
-	public Page<PIStandingResponse> listByPi(int pi, Pageable pg);
-	public Page<PIStandingResponse> listByProject(int projId, Pageable pg);
-	public void delete(Long id);
+    PIStandingResponse create(PIStandingRequest dto);
+    PIStandingResponse update(Long id, PIStandingRequest dto);
+    PIStandingResponse get(Long id);
+    Page<PIStandingResponse> list(Pageable pg);
+    List<PIStandingResponse> list();
+    Page<PIStandingResponse> listByPi(int pi, Pageable pg);
+    Page<PIStandingResponse> listByProject(int projId, Pageable pg);
+    void delete(Long id);
 }

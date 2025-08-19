@@ -6,16 +6,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.qentelli.employeetrackingsystem.entity.Release;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.models.client.request.ReleaseRequestDTO;
 import com.qentelli.employeetrackingsystem.models.client.response.ReleaseResponseDTO;
 
 public interface ReleaseService {
 
-	public Release createRelease(ReleaseRequestDTO dto);
-	public List<ReleaseResponseDTO> getAllReleases();
-	public Page<ReleaseResponseDTO> getPaginatedReleases(Pageable pageable);
-	public List<ReleaseResponseDTO> getReleasesByWeekId(int weekId);
-	public List<ReleaseResponseDTO> getReleasesBySprintId(int sprintId);
-	public Release updateRelease(Long id, ReleaseRequestDTO dto);
-	public void deleteRelease(Long id);
+    Release createRelease(ReleaseRequestDTO dto);
+    List<ReleaseResponseDTO> getAllReleases();
+    Page<ReleaseResponseDTO> getPaginatedReleases(Pageable pageable);
+    List<ReleaseResponseDTO> getReleasesByWeekId(int weekId);
+    List<ReleaseResponseDTO> getReleasesBySprintId(int sprintId);
+    Release updateRelease(Long id, ReleaseRequestDTO dto);
+    void deleteRelease(Long id); // soft delete
+    List<ReleaseResponseDTO> getReleasesByStatusFlag(StatusFlag statusFlag);
 }

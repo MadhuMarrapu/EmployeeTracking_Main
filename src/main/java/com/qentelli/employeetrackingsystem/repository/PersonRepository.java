@@ -11,18 +11,26 @@ import org.springframework.stereotype.Repository;
 import com.qentelli.employeetrackingsystem.entity.Person;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Integer> {
 
-	public boolean existsByEmail(String email);
-	public boolean existsByEmployeeCode(String employeeCode);
-	public List<Person> findByRole(Roles role);	
-	public Page<Person> findByRoleAndPersonStatusTrue(Roles role, Pageable pageable);	
-	public List<Person> findByProjectsContaining(Project project);	
-	public Optional<Person> findByPersonId(Integer personId);		 
-	public Page<Person> findByProjects_ProjectId(Integer projectId, Pageable pageable);		 
-	public Page<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-			    String firstName, String lastName, Pageable pageable);	
-	public Optional<Person> findByEmail(String email);
+    boolean existsByEmail(String email);
+    boolean existsByEmployeeCode(String employeeCode);
+
+    List<Person> findByRole(Roles role);
+    Page<Person> findByRoleAndStatusFlag(Roles role, StatusFlag statusFlag, Pageable pageable);
+
+    List<Person> findByProjectsContaining(Project project);
+    Optional<Person> findByPersonId(Integer personId);
+
+    Page<Person> findByProjects_ProjectIdAndStatusFlag(Integer projectId, StatusFlag statusFlag, Pageable pageable);
+
+    Page<Person> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseAndStatusFlag(
+            String firstName, String lastName, StatusFlag statusFlag, Pageable pageable);
+
+    Optional<Person> findByEmail(String email);
+
+    List<Person> findByStatusFlag(StatusFlag statusFlag);
 }

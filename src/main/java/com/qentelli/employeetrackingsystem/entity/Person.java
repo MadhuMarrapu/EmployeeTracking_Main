@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import jakarta.persistence.CascadeType;
@@ -33,22 +34,30 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Person implements UserDetails {
 
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer personId;
 
 	private String firstName;
 	private String lastName;
+
 	@Column(unique = true, nullable = false)
 	private String email;
+
 	@Column(unique = true, nullable = false)
 	private String employeeCode;
+
 	private String password;
 	private String confirmPassword;
 
 	@Enumerated(EnumType.STRING)
 	private Roles role;
-	private Boolean personStatus = true; // true for active, false for inactive;
+
+	@Enumerated(EnumType.STRING)
+	private StatusFlag statusFlag = StatusFlag.ACTIVE;
+
 	@ManyToMany
 	@JoinTable(name = "person_project", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
 	private List<Project> projects = new ArrayList<>();
@@ -62,7 +71,7 @@ public class Person implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of(new SimpleGrantedAuthority(role.name())); // Adjust based on your setup
+		return List.of(new SimpleGrantedAuthority(role.name()));
 	}
 
 	@Override
@@ -72,12 +81,12 @@ public class Person implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return email; // Or employeeCode, depending on your login field
+		return email;
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return true; // Customize if needed
+		return true;
 	}
 
 	@Override
@@ -90,4 +99,8 @@ public class Person implements UserDetails {
 		return true;
 	}
 
+	@Override
+	public boolean isEnabled() {
+		return this.statusFlag == StatusFlag.ACTIVE;
+	}
 }

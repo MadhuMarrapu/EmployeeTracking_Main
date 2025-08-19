@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.ProgressReport;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+
 @Repository
 public interface ProgressReportRepository extends JpaRepository<ProgressReport, Long> {
-	public Page<ProgressReport> findByProgressReportStatusTrue(Pageable pageable);
+    Page<ProgressReport> findByStatusFlag(StatusFlag statusFlag, Pageable pageable); // ✅ updated
 }

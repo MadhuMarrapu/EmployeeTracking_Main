@@ -11,15 +11,25 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 
 @Repository
 public interface ViewreportRepository extends JpaRepository<ViewReports, Integer> {
 
-	@Query("SELECT v FROM ViewReports v WHERE v.softDelete = false AND v.weekRange.weekFromDate = :fromDate AND v.weekRange.weekToDate = :toDate")
-	public List<ViewReports> findByWeekRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
-	public List<ViewReports> findBySoftDeleteFalse();	
-	public Page<ViewReports> findBySoftDeleteFalse(Pageable pageable);
-	public Page<ViewReports> findBySoftDeleteFalseAndPerson_PersonId(Integer personId, Pageable pageable);
-	public Page<ViewReports> findBySoftDeleteFalseAndProject_ProjectId(Integer projectId, Pageable pageable);
-	public Page<ViewReports> findBySoftDeleteFalseAndPerson_PersonIdAndProject_ProjectId(Integer personId, Integer projectId, Pageable pageable);
+	// 🔹 Week range filter with lifecycle awareness
+	@Query("SELECT v FROM ViewReports v WHERE v.statusFlag = :statusFlag AND v.weekRange.weekFromDate = :fromDate AND v.weekRange.weekToDate = :toDate")
+	List<ViewReports> findByWeekRangeAndStatusFlag(@Param("fromDate") LocalDate fromDate,
+			@Param("toDate") LocalDate toDate, @Param("statusFlag") StatusFlag statusFlag);
+
+	// 🔹 Lifecycle-aware fetches
+	List<ViewReports> findByStatusFlag(StatusFlag statusFlag);
+
+	Page<ViewReports> findByStatusFlag(StatusFlag statusFlag, Pageable pageable);
+
+	Page<ViewReports> findByStatusFlagAndPerson_PersonId(StatusFlag statusFlag, Integer personId, Pageable pageable);
+
+	Page<ViewReports> findByStatusFlagAndProject_ProjectId(StatusFlag statusFlag, Integer projectId, Pageable pageable);
+
+	Page<ViewReports> findByStatusFlagAndPerson_PersonIdAndProject_ProjectId(StatusFlag statusFlag, Integer personId,
+			Integer projectId, Pageable pageable);
 }

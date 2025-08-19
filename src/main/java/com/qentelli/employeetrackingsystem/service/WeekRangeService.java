@@ -10,9 +10,13 @@ import com.qentelli.employeetrackingsystem.models.client.response.WeekRangeRespo
 
 public interface WeekRangeService {
 
-	public void saveWeeklyData(WeekRangeRequest request);
-	public Page<WeekRangeResponse> generateReport(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable);
-	public WeekRangeResponse getById(int id);
-	public void softDelete(int id);
-	public boolean setWeekRangeEnabled(Integer id);
+	void saveWeeklyData(WeekRangeRequest request);
+
+	Page<WeekRangeResponse> generateReport(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable);
+
+	WeekRangeResponse getById(int id);
+
+	void softDelete(int id);
+
+	boolean setWeekRangeEnabled(Integer id);
 }

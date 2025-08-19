@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
+import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.exception.MissingRequestDateException;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.exception.SprintNotFoundException;
@@ -27,78 +29,83 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WeekRangeServiceImpl implements WeekRangeService {
 
-	private final WeekRangeRepository weekRangeRepository;
-	private final SprintRepository sprintRepository;
+    private final WeekRangeRepository weekRangeRepository;
+    private final SprintRepository sprintRepository;
 
-	@Override
-	public void saveWeeklyData(WeekRangeRequest request) {
-		LocalDate currentDate = request.getWeekFromDate();
-		Sprint sprint = sprintRepository.findById(request.getSprintId())
-				.orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + request.getSprintId()));
-		while (!currentDate.isAfter(request.getWeekToDate())) {
-			LocalDate weekStart = currentDate.with(DayOfWeek.MONDAY);
-			LocalDate weekEnd = weekStart.plusDays(4);
-			WeekRange weekRange = new WeekRange();
-			weekRange.setWeekFromDate(weekStart);
-			weekRange.setWeekToDate(weekEnd);
-			weekRange.setSoftDelete(false);
-			weekRange.setSprint(sprint);
-			weekRangeRepository.save(weekRange);
-			currentDate = currentDate.plusWeeks(1);
-		}
-	}
+    @Override
+    public void saveWeeklyData(WeekRangeRequest request) {
+        LocalDate currentDate = request.getWeekFromDate();
+        Sprint sprint = sprintRepository.findById(request.getSprintId())
+                .orElseThrow(() -> new SprintNotFoundException("Sprint not found with ID: " + request.getSprintId()));
+        while (!currentDate.isAfter(request.getWeekToDate())) {
+            LocalDate weekStart = currentDate.with(DayOfWeek.MONDAY);
+            LocalDate weekEnd = weekStart.plusDays(4);
+            WeekRange weekRange = new WeekRange();
+            weekRange.setWeekFromDate(weekStart);
+            weekRange.setWeekToDate(weekEnd);
+            weekRange.setStatusFlag(StatusFlag.ACTIVE);
+            weekRange.setEnableStatus(EnableStatus.DISABLED);
+            weekRange.setSprint(sprint);
+            weekRangeRepository.save(weekRange);
+            currentDate = currentDate.plusWeeks(1);
+        }
+    }
 
-	@Override
-	public Page<WeekRangeResponse> generateReport(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable) {
-		if (weekFromDate == null || weekToDate == null) {
-			throw new MissingRequestDateException("weekFromDate/weekToDate",
-					"Both weekFromDate and weekToDate must be provided.");
-		}
-		if (weekFromDate.isAfter(weekToDate)) {
-			throw new MissingRequestDateException("weekFromDate",
-					"weekFromDate must be before or equal to weekToDate.");
-		}
-		LocalDate adjustedWeekFromDate = weekFromDate.with(DayOfWeek.MONDAY);
-		List<WeekRange> weekRanges = weekRangeRepository
-				.findActiveWeeksInRange(adjustedWeekFromDate, weekToDate, Pageable.unpaged())
-				.getContent();
-		List<WeekRangeResponse> filteredResponses = weekRanges.stream()
-				.map(weekRange -> new WeekRangeResponse(weekRange.getWeekId(), weekRange.getWeekFromDate(),
-						weekRange.getWeekToDate()))
-				.toList();
-		return new PageImpl<>(filteredResponses, pageable, filteredResponses.size());
-	}
-   
+    @Override
+    public Page<WeekRangeResponse> generateReport(LocalDate weekFromDate, LocalDate weekToDate, Pageable pageable) {
+        if (weekFromDate == null || weekToDate == null) {
+            throw new MissingRequestDateException("weekFromDate/weekToDate",
+                    "Both weekFromDate and weekToDate must be provided.");
+        }
+        if (weekFromDate.isAfter(weekToDate)) {
+            throw new MissingRequestDateException("weekFromDate",
+                    "weekFromDate must be before or equal to weekToDate.");
+        }
+        LocalDate adjustedWeekFromDate = weekFromDate.with(DayOfWeek.MONDAY);
+        List<WeekRange> weekRanges = weekRangeRepository
+                .findActiveWeeksInRange(adjustedWeekFromDate, weekToDate, Pageable.unpaged())
+                .getContent();
+        List<WeekRangeResponse> filteredResponses = weekRanges.stream()
+                .filter(w -> w.getStatusFlag() == StatusFlag.ACTIVE)
+                .map(w -> new WeekRangeResponse(
+                        w.getWeekId(),
+                        w.getWeekFromDate(),
+                        w.getWeekToDate(),
+                        w.getStatusFlag(),
+                        w.getEnableStatus()))
+                .toList();
+        return new PageImpl<>(filteredResponses, pageable, filteredResponses.size());
+    }
 
-	
-	@Override
-	public WeekRangeResponse getById(int id) {
-	    WeekRange weekRange = weekRangeRepository.findActiveById(id)
-	        .orElseThrow(() -> new SprintNotFoundException("WeekRange not found or soft-deleted with ID: " + id));
+    @Override
+    public WeekRangeResponse getById(int id) {
+        WeekRange weekRange = weekRangeRepository.findById(id)
+                .filter(w -> w.getStatusFlag() == StatusFlag.ACTIVE)
+                .orElseThrow(() -> new SprintNotFoundException("WeekRange not found or inactive with ID: " + id));
+        return new WeekRangeResponse(
+                weekRange.getWeekId(),
+                weekRange.getWeekFromDate(),
+                weekRange.getWeekToDate(),
+                weekRange.getStatusFlag(),
+                weekRange.getEnableStatus()
+        );
+    }
 
-	    return new WeekRangeResponse(
-	        weekRange.getWeekId(),
-	        weekRange.getWeekFromDate(),
-	        weekRange.getWeekToDate()
-	    );
-	}
+    @Override
+    public void softDelete(int id) {
+        WeekRange range = weekRangeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("WeekRange not found with ID: " + id));
+        range.setStatusFlag(StatusFlag.INACTIVE);
+        weekRangeRepository.save(range);
+    }
 
-	@Override
-	public void softDelete(int id) {
-		WeekRange range = weekRangeRepository.findById(id).orElseThrow();
-		range.setSoftDelete(true);
-		weekRangeRepository.save(range);
-	}
-	
-	@Transactional
-	@Override
-	public boolean setWeekRangeEnabled(Integer id) {
-		WeekRange weekRange = weekRangeRepository.findById(id)
-	            .orElseThrow(() -> new ResourceNotFoundException("WeekRange not found with ID: " + id));
-
-		weekRange.setEnabled(true);
-	    weekRangeRepository.save(weekRange);
-		return true;
-	}
-
+    @Transactional
+    @Override
+    public boolean setWeekRangeEnabled(Integer id) {
+        WeekRange weekRange = weekRangeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Active WeekRange not found with ID: " + id));
+        weekRange.setEnableStatus(EnableStatus.ENABLED);
+        weekRangeRepository.save(weekRange);
+        return true;
+    }
 }

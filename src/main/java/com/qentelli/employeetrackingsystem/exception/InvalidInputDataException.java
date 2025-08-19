@@ -4,10 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class InvalidInputDataException extends RuntimeException {
 
-	
 	private static final long serialVersionUID = 1L;
-
-	
 
 	private HttpStatus status;
 

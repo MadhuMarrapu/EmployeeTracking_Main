@@ -12,16 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.SprintRequest;
@@ -38,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/sprints")
 public class SprintController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SprintController.class);   
+    private static final Logger logger = LoggerFactory.getLogger(SprintController.class);
     private final SprintService sprintService;
 
     @PostMapping("/createSprint")
@@ -84,7 +77,7 @@ public class SprintController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<SprintResponse>> getById(@PathVariable Long id) {
-        logger.info("Fetching sprint with ID {}", id);
+        logger.info("Fetching active sprint with ID {}", id);
         SprintResponse response = sprintService.getSprintById(id);
         logger.info("Sprint with ID {} retrieved successfully", id);
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
@@ -95,10 +88,10 @@ public class SprintController {
     public ResponseEntity<AuthResponse<SprintResponse>> update(@PathVariable Long id,
                                                                @Valid @RequestBody SprintRequest request) {
         logger.info("Updating sprint with ID {}: {}", id, request);
-        sprintService.updateSprint(id, request);
+        SprintResponse updated = sprintService.updateSprint(id, request);
         logger.info("Sprint with ID {} updated successfully", id);
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
-                "Sprint updated successfully", null));
+                "Sprint updated successfully", updated));
     }
 
     /**
@@ -112,20 +105,23 @@ public class SprintController {
         return ResponseEntity.ok(new AuthResponse<>(200, RequestProcessStatus.SUCCESS, LocalDateTime.now(),
                 "Sprint soft deleted successfully", null));
     }
-    
-	@PutMapping("/toggle-enabled/{id}")
-	public ResponseEntity<AuthResponse<Void>> toggleIsEnabled(@PathVariable Long id) {
-		logger.info("Toggling isEnabled status for sprint with ID {}", id);
-		boolean newStatus = sprintService.setSprintEnabled(id);
-		logger.info("Sprint with ID {} isEnabled set to {}", id, newStatus);
 
-		String message = newStatus ? "Sprint enabled successfully" : "Sprint disabled successfully";
-		return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-				LocalDateTime.now(), message, null));
-	}
+    @PutMapping("/toggle-enabled/{id}")
+    public ResponseEntity<AuthResponse<EnableStatus>> toggleEnableStatus(@PathVariable Long id) {
+        logger.info("Toggling enableStatus for sprint with ID {}", id);
+        EnableStatus newStatus = sprintService.toggleSprintEnabled(id);
+        logger.info("Sprint with ID {} enableStatus set to {}", id, newStatus);
+        String message = newStatus == EnableStatus.ENABLED
+                ? "Sprint enabled successfully"
+                : "Sprint disabled successfully";
+        return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+                LocalDateTime.now(), message, newStatus));
+    }
 
-	@GetMapping("/sprint-options")
-	public List<String> getSprintOptions() {
-		return Arrays.stream(SprintOrdinal.values()).map(s -> "Sprint-" + s.name().split("_")[1]).toList();
-	}
+    @GetMapping("/sprint-options")
+    public List<String> getSprintOptions() {
+        return Arrays.stream(SprintOrdinal.values())
+                .map(s -> "Sprint-" + s.name().split("_")[1])
+                .toList();
+    }
 }

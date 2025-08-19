@@ -31,7 +31,6 @@ public class WeeklySummaryRequest {
     @Size(min = 1, message = "At least one upcoming task is required")
     private List<String> upcomingTasks;
 
-    private boolean status; // assuming this is optional and defaults to false
 
     @NotEmpty(message = "Project IDs must not be empty")
     @Size(min = 1, message = "At least one project ID is required")

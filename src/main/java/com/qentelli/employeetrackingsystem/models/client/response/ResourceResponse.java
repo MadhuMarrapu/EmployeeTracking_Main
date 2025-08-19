@@ -2,6 +2,7 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import lombok.AllArgsConstructor;
@@ -14,18 +15,17 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResourceResponse {
 
-	private Long resourceId;
-	private ResourceType resourceType;
-	private TechStack techStack;
+    private Long resourceId;
+    private ResourceType resourceType;
+    private TechStack techStack;
+    private Integer projectId;
+    private String projectName;
+    private Long sprintId;
+    private String sprintName;
+    private int onsite;
+    private int offsite;
+    private int total;
+    private String ratio;
 
-	private Integer projectId;
-	private String projectName;
-
-	private Long sprintId; // 🆕 Added for sprint reference
-	private String sprintName; // 🆕 Optional, for display
-
-	private int onsite;
-	private int offsite;
-	private int total;
-	private String ratio;
+    private StatusFlag statusFlag; // ✅ Lifecycle state
 }

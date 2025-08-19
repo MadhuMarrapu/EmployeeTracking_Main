@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +21,7 @@ public class WeeklySummaryResponse {
     private List<String> upcomingTasks;
     private List<String> projectNames;
     private String weekRange;
+    private StatusFlag statusFlag;
 
     public WeeklySummaryResponse(int weekId, String weekRange) {
         this.weekId = weekId;

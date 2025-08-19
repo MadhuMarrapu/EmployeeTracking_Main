@@ -2,13 +2,10 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,14 +16,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WeekRange {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer weekId;
-	private LocalDate weekFromDate;
-	private LocalDate weekToDate;
-	private Boolean  softDelete = false;
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sprint_id")
-	private Sprint sprint;	
-	private Boolean enabled = false; 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer weekId;
+
+    private LocalDate weekFromDate;
+    private LocalDate weekToDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusFlag statusFlag = StatusFlag.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EnableStatus enableStatus = EnableStatus.DISABLED;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    private Sprint sprint;
 }

@@ -46,7 +46,7 @@ public class PersonController {
 		PersonDTO responseDto = personService.create(personDto);
 		logger.debug("Person created: {}", responseDto);
 		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
-				"Person created successfully");
+				LocalDateTime.now(), "Person created successfully", responseDto);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
@@ -153,8 +153,8 @@ public class PersonController {
 		logger.info("Updating person with ID: {}", id);
 		PersonDTO responseDto = personService.update(id, updatedDto);
 		logger.debug("Person updated: {}", responseDto);
-		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-				"Person updated successfully");
+		AuthResponse<PersonDTO> response = new AuthResponse<>(HttpStatus.CREATED.value(), RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Person created successfully", responseDto);
 		return ResponseEntity.ok(response);
 	}
 

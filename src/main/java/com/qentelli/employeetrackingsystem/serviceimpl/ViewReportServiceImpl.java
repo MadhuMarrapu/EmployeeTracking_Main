@@ -14,6 +14,7 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Task;
 import com.qentelli.employeetrackingsystem.entity.ViewReports;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
+import com.qentelli.employeetrackingsystem.entity.enums.StatusFlag;
 import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ViewReportRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
@@ -59,7 +60,9 @@ public class ViewReportServiceImpl implements ViewReportService {
 		report.setPerson(person);
 		report.setWeekRange(weekRange);
 		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));
+		report.setStatusFlag(StatusFlag.ACTIVE); // ✅
 		ViewReports saved = viewReportRepository.save(report);
+
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(saved.getViewReportId());
 		response.setTaskName(saved.getTaskName());
@@ -73,6 +76,7 @@ public class ViewReportServiceImpl implements ViewReportService {
 		response.setTaskEndDate(saved.getTaskEndDate());
 		response.setCreatedAt(saved.getCreatedAt());
 		response.setCreatedBy(saved.getCreatedBy());
+		response.setStatusFlag(saved.getStatusFlag()); // ✅ Include lifecycle state in response
 		return response;
 	}
 
@@ -80,12 +84,14 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public ViewReportResponse updateReport(ViewReportRequest request) {
 		ViewReports report = viewReportRepository.findById(request.getViewReportId())
 				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND));
+
 		WeekRange weekRange = weekRangeRepository.findById(request.getWeekId())
-				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND  + request.getWeekId()));
+				.orElseThrow(() -> new RuntimeException(WEEKLY_SUMMARY_NOT_FOUND + request.getWeekId()));
 		Project project = projectRepository.findById(request.getProjectId())
-				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND  + request.getProjectId()));
+				.orElseThrow(() -> new RuntimeException(PROJECT_NOT_FOUND + request.getProjectId()));
 		Person person = personRepository.findByPersonId(request.getPersonId())
-				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND  + request.getPersonId()));
+				.orElseThrow(() -> new RuntimeException(PERSON_NOT_FOUND + request.getPersonId()));
+
 		report.setTaskName(request.getTaskName());
 		report.setTaskStatus(request.getTaskStatus());
 		report.setTaskStartDate(request.getTaskStartDate());
@@ -94,7 +100,10 @@ public class ViewReportServiceImpl implements ViewReportService {
 		report.setPerson(person);
 		report.setWeekRange(weekRange);
 		report.setTask(new Task(request.getSummary(), request.getKeyAccomplishment(), request.getComments()));
+																													// Lifecycle-aware
+
 		ViewReports updated = viewReportRepository.save(report);
+
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(updated.getViewReportId());
 		response.setTaskName(updated.getTaskName());
@@ -108,34 +117,55 @@ public class ViewReportServiceImpl implements ViewReportService {
 		response.setTaskEndDate(updated.getTaskEndDate());
 		response.setCreatedAt(updated.getCreatedAt());
 		response.setCreatedBy(updated.getCreatedBy());
+		response.setStatusFlag(updated.getStatusFlag()); // ✅ Include lifecycle state
+
 		return response;
 	}
 
 	@Override
 	public ViewReportResponse getReportById(Integer id) {
 		ViewReports report = viewReportRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND  + id));
+				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + id));
+
 		ViewReportResponse response = new ViewReportResponse();
 		response.setViewReportId(report.getViewReportId());
-		response.setWeekRange(new WeekRangeResponse(report.getWeekRange().getWeekId(),
-				report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate()));
+
+		if (report.getWeekRange() != null) {
+			response.setWeekRange(new WeekRangeResponse(report.getWeekRange().getWeekId(),
+					report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate()));
+		}
+
 		response.setTaskName(report.getTaskName());
 		response.setTaskStatus(report.getTaskStatus());
-		response.setSummary(report.getTask().getSummary());
-		response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
+
+		if (report.getTask() != null) {
+			response.setSummary(report.getTask().getSummary());
+			response.setKeyAccomplishment(report.getTask().getKeyAccomplishment());
+		}
+
 		response.setComments(report.getComments());
-		response.setProjectName(report.getProject().getProjectName());
-		response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
+
+		if (report.getProject() != null) {
+			response.setProjectName(report.getProject().getProjectName());
+		}
+
+		if (report.getPerson() != null) {
+			response.setPersonName(report.getPerson().getFirstName() + " " + report.getPerson().getLastName());
+		}
+
 		response.setTaskStartDate(report.getTaskStartDate());
 		response.setTaskEndDate(report.getTaskEndDate());
 		response.setCreatedAt(report.getCreatedAt());
 		response.setCreatedBy(report.getCreatedBy());
+		response.setStatusFlag(report.getStatusFlag()); // ✅ Lifecycle state
+
 		return response;
 	}
 
 	@Override
 	public Page<ViewReportResponse> getAllReportsPaginated(Pageable pageable) {
-		Page<ViewReports> page = viewReportRepository.findAll(pageable);
+		Page<ViewReports> page = viewReportRepository.findByStatusFlag(StatusFlag.ACTIVE, pageable); // ✅
+																										// Lifecycle-aware
 		return page.map(this::mapToResponse);
 	}
 
@@ -143,63 +173,76 @@ public class ViewReportServiceImpl implements ViewReportService {
 	public ViewReports softDeleteSummery(Integer viewReportId) {
 		ViewReports viewReports = viewReportRepository.findById(viewReportId)
 				.orElseThrow(() -> new ResourceNotFoundException("viewReportId not found"));
-		viewReports.setSoftDelete(true);
+		viewReports.setStatusFlag(StatusFlag.INACTIVE); // ✅ Soft delete
 		return viewReportRepository.save(viewReports);
 	}
 
 	@Override
 	public void deleteReport(Integer id) {
 		ViewReports report = viewReportRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND  + id));
-		viewReportRepository.delete(report);
+				.orElseThrow(() -> new RuntimeException(REPORT_NOT_FOUND + id));
+		viewReportRepository.delete(report); // ✅ Hard delete
 	}
 
 	@Override
 	public PaginatedResponse<ViewReportResponse> getTasksByWeek(LocalDate fromDate, LocalDate toDate, int page,
 			int size) {
-		List<ViewReports> reports = viewReportRepository.findByWeekRange(fromDate, toDate);
+		List<ViewReports> reports = viewReportRepository.findByWeekRangeAndStatusFlag(fromDate, toDate,
+				StatusFlag.ACTIVE); // ✅ Lifecycle-aware
 		List<ViewReportResponse> allResponses = reports.stream().map(this::mapToResponse).toList();
+
 		int start = Math.min(page * size, allResponses.size());
 		int end = Math.min(start + size, allResponses.size());
 		List<ViewReportResponse> pagedResponses = allResponses.subList(start, end);
+
 		return new PaginatedResponse<>(pagedResponses, page, size, allResponses.size(),
 				(int) Math.ceil((double) allResponses.size() / size), end == allResponses.size());
 	}
 
 	@Override
 	public List<ViewReportResponse> getAllReports() {
-		List<ViewReports> reports = viewReportRepository.findBySoftDeleteFalse();
+		List<ViewReports> reports = viewReportRepository.findByStatusFlag(StatusFlag.ACTIVE); // ✅ Lifecycle-aware
 		return reports.stream().map(this::mapToResponse).toList();
 	}
 
 	private ViewReportResponse mapToResponse(ViewReports report) {
-		return new ViewReportResponse(report.getViewReportId(),
-				report.getWeekRange() != null
-						? new WeekRangeResponse(report.getWeekRange().getWeekId(),
-								report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate())
-						: null,
-				report.getTaskName(), report.getTaskStatus(),
-				report.getTask() != null ? report.getTask().getSummary() : null,
+		WeekRangeResponse weekRangeResponse = null;
+		if (report.getWeekRange() != null) {
+			weekRangeResponse = new WeekRangeResponse(report.getWeekRange().getWeekId(),
+					report.getWeekRange().getWeekFromDate(), report.getWeekRange().getWeekToDate());
+			weekRangeResponse.setStatusFlag(report.getWeekRange().getStatusFlag());
+			weekRangeResponse.setEnableStatus(report.getWeekRange().getEnableStatus());
+		}
+
+		return new ViewReportResponse(report.getViewReportId(), weekRangeResponse, report.getTaskName(),
+				report.getTaskStatus(), report.getTask() != null ? report.getTask().getSummary() : null,
 				report.getTask() != null ? report.getTask().getKeyAccomplishment() : null, report.getComments(),
 				report.getTask() != null ? report.getTask().getUpcomingTasks() : null,
 				report.getProject() != null ? report.getProject().getProjectName() : null,
 				report.getPerson() != null ? report.getPerson().getFirstName() + " " + report.getPerson().getLastName()
 						: null,
-				report.getTaskStartDate(), report.getTaskEndDate(), report.getCreatedAt(), report.getCreatedBy());
+				report.getTaskStartDate(), report.getTaskEndDate(), report.getCreatedAt(), report.getCreatedBy(),
+				report.getStatusFlag() // ✅ Include lifecycle state
+		);
 	}
 
 	@Override
-	public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, int page, int size) {
+	public Page<ViewReports> searchViewReports(Integer personId, Integer projectId, StatusFlag statusFlag, int page,
+			int size) {
 		Pageable pageable = PageRequest.of(page, size, Sort.by("viewReportId").descending());
+
 		if (personId != null && projectId != null) {
-			return viewReportRepository.findBySoftDeleteFalseAndPerson_PersonIdAndProject_ProjectId(personId, projectId,
-					pageable);
+			return viewReportRepository.findByStatusFlagAndPerson_PersonIdAndProject_ProjectId(statusFlag, personId,
+					projectId, pageable);
 		} else if (personId != null) {
-			return viewReportRepository.findBySoftDeleteFalseAndPerson_PersonId(personId, pageable);
+			return viewReportRepository.findByStatusFlagAndPerson_PersonId(statusFlag, personId, pageable);
 		} else if (projectId != null) {
-			return viewReportRepository.findBySoftDeleteFalseAndProject_ProjectId(projectId, pageable);
+			return viewReportRepository.findByStatusFlagAndProject_ProjectId(statusFlag, projectId, pageable);
 		} else {
-			return viewReportRepository.findBySoftDeleteFalse(pageable);
+			return viewReportRepository.findByStatusFlag(statusFlag, pageable);
 		}
 	}
+
+	
+
 }
