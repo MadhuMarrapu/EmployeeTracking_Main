@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
 import com.qentelli.employeetrackingsystem.models.client.request.WeeklySprintUpdateDto;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
@@ -45,9 +44,10 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<WeeklySprintUpdateDto>> create(@Valid @RequestBody WeeklySprintUpdateDto dto) {
 		logger.info("Creating WeeklySprintUpdate for projectId={}, weekRangeId={}", dto.getProjectId(),
 				dto.getWeeekRangeId());
-		service.createUpdate(dto);
+		WeeklySprintUpdateDto createdDto = service.createUpdate(dto);
 		AuthResponse<WeeklySprintUpdateDto> response = new AuthResponse<>(HttpStatus.CREATED.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly sprint update created successfully");
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly sprint update created successfully",
+				createdDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
@@ -57,10 +57,10 @@ public class WeeklySprintUpdateController {
 			@RequestParam(defaultValue = "weekSprintId") String sortBy) {
 		logger.info("Fetching active WeeklySprintUpdates: page={}, size={}, sortBy={}", page, size, sortBy);
 		Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy.trim()));
-		Page<WeeklySprintUpdate> updatePage = service.getAllUpdates(pageable);
-		List<WeeklySprintUpdateDto> dtoList = service.toDtoList(updatePage.getContent());
-		PaginatedResponse<WeeklySprintUpdateDto> paginated = new PaginatedResponse<>(dtoList, updatePage.getNumber(),
-				updatePage.getSize(), updatePage.getTotalElements(), updatePage.getTotalPages(), updatePage.isLast());
+		Page<WeeklySprintUpdateDto> updatePage = service.getAllUpdates(pageable);
+		PaginatedResponse<WeeklySprintUpdateDto> paginated = new PaginatedResponse<>(updatePage.getContent(),
+				updatePage.getNumber(), updatePage.getSize(), updatePage.getTotalElements(), updatePage.getTotalPages(),
+				updatePage.isLast());
 		AuthResponse<PaginatedResponse<WeeklySprintUpdateDto>> response = new AuthResponse<>(HttpStatus.OK.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Active WeeklySprintUpdates fetched successfully",
 				paginated);
@@ -71,7 +71,7 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>>> getUpdatesBySprintId(
 			@RequestParam Long sprintId) {
 		logger.info("Fetching WeeklySprintUpdates for sprintId: {}", sprintId);
-		List<WeeklySprintUpdateDto> dtoList = service.toDtoList(service.getAllBySprintId(sprintId));
+		List<WeeklySprintUpdateDto> dtoList = service.getAllBySprintId(sprintId);
 		String message = dtoList.isEmpty() ? "No weekly sprint updates available"
 				: "Weekly sprint updates fetched successfully for sprintId: " + sprintId;
 		AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>> response = new AuthResponse<>(HttpStatus.OK.value(),
@@ -84,7 +84,7 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>>> getUpdatesByWeekId(
 			@RequestParam int weekId) {
 		logger.info("Fetching active WeeklySprintUpdates for weekId: {}", weekId);
-		List<WeeklySprintUpdateDto> dtoList = service.toDtoList(service.getActiveUpdatesByWeekId(weekId));
+		List<WeeklySprintUpdateDto> dtoList = service.getActiveUpdatesByWeekId(weekId);
 		String message = dtoList.isEmpty() ? "No active WeeklySprintUpdates found for weekId: " + weekId
 				: "Active WeeklySprintUpdates fetched successfully for weekId: " + weekId;
 		AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>> response = new AuthResponse<>(HttpStatus.OK.value(),
@@ -97,9 +97,11 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>>> getHistoricalUpdatesByWeekId(
 			@RequestParam int weekId) {
 		logger.info("Fetching historical WeeklySprintUpdates for weekId: {}", weekId);
-		List<WeeklySprintUpdateDto> dtoList = service.toDtoList(service.getHistoricalUpdates(weekId));
+		List<WeeklySprintUpdateDto> dtoList = service.getHistoricalUpdates(weekId);
+
 		String message = dtoList.isEmpty() ? "No historical WeeklySprintUpdates available before weekId: " + weekId
 				: "Historical WeeklySprintUpdates fetched successfully for weekId: " + weekId;
+
 		AuthResponse<ListContentWrapper<WeeklySprintUpdateDto>> response = new AuthResponse<>(HttpStatus.OK.value(),
 				RequestProcessStatus.SUCCESS, LocalDateTime.now(), message,
 				new ListContentWrapper<>(dtoList.size(), dtoList));
@@ -110,9 +112,11 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<WeeklySprintUpdateDto>> update(@PathVariable Integer id,
 			@Valid @RequestBody WeeklySprintUpdateDto dto) {
 		logger.info("Updating WeeklySprintUpdate ID: {}", id);
-		service.updateUpdate(id, dto);
+		WeeklySprintUpdateDto updatedDto = service.updateUpdate(id, dto);
+
 		AuthResponse<WeeklySprintUpdateDto> response = new AuthResponse<>(HttpStatus.OK.value(),
-				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly sprint update modified successfully");
+				RequestProcessStatus.SUCCESS, LocalDateTime.now(), "Weekly sprint update modified successfully",
+				updatedDto);
 		return ResponseEntity.ok(response);
 	}
 
@@ -120,6 +124,7 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<Void>> softDelete(@PathVariable Integer id) {
 		logger.info("Soft-deleting WeeklySprintUpdate ID: {}", id);
 		service.deleteUpdate(id);
+
 		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				"Weekly sprint update deactivated");
 		return ResponseEntity.ok(response);
@@ -129,6 +134,7 @@ public class WeeklySprintUpdateController {
 	public ResponseEntity<AuthResponse<Void>> enable(@PathVariable Integer id) {
 		logger.info("Enabling WeeklySprintUpdate ID: {}", id);
 		service.setWeeklySprintUpdateEnabled(id);
+
 		AuthResponse<Void> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
 				"Weekly sprint update enabled successfully");
 		return ResponseEntity.ok(response);
