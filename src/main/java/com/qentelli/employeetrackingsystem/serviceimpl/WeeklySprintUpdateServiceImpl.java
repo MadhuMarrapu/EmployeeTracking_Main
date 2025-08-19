@@ -173,31 +173,36 @@ public class WeeklySprintUpdateServiceImpl implements WeeklySprintUpdateService 
 	// Entity to DTO converter
 	// -----------------------
 	private WeeklySprintUpdateDto convertToDto(WeeklySprintUpdate update) {
-		WeeklySprintUpdateDto dto = new WeeklySprintUpdateDto();
-		dto.setWeekSprintId(update.getWeekSprintId());
-		dto.setProjectId(update.getProject().getProjectId());
-		dto.setWeeekRangeId(update.getWeek().getWeekId());
-		dto.setAssignedPoints(update.getAssignedPoints());
-		dto.setAssignedStoriesCount(update.getAssignedStoriesCount());
-		dto.setInDevPoints(update.getInDevPoints());
-		dto.setInDevStoriesCount(update.getInDevStoriesCount());
-		dto.setInQaPoints(update.getInQaPoints());
-		dto.setInQaStoriesCount(update.getInQaStoriesCount());
-		dto.setCompletePoints(update.getCompletePoints());
-		dto.setCompleteStoriesCount(update.getCompleteStoriesCount());
-		dto.setBlockedPoints(update.getBlockedPoints());
-		dto.setBlockedStoriesCount(update.getBlockedStoriesCount());
-		dto.setCompletePercentage(update.getCompletePercentage());
-		dto.setEstimationHealth(update.getEstimationHealth());
-		dto.setGroomingHealth(update.getGroomingHealth());
-		dto.setDifficultCount1(update.getDifficultCount1());
-		dto.setDifficultCount2(update.getDifficultCount2());
-		dto.setEstimationHealthStatus(update.getEstimationHealthStatus());
-		dto.setGroomingHealthStatus(update.getGroomingHealthStatus());
-		dto.setRiskPoints(update.getRiskPoints());
-		dto.setRiskStoryCounts(update.getRiskStoryCounts());
-		dto.setComments(update.getComments());
-		dto.setInjectionPercentage(update.getInjectionPercentage());
-		return dto;
+	    WeeklySprintUpdateDto dto = new WeeklySprintUpdateDto();
+	    dto.setWeekSprintId(update.getWeekSprintId());
+	    dto.setProjectId(update.getProject().getProjectId());
+	    dto.setProjectName(update.getProject().getProjectName()); // ✅ Add this
+	    dto.setWeeekRangeId(update.getWeek().getWeekId());    
+	    Sprint sprint = update.getWeek().getSprint();
+	    if (sprint != null) {
+	        dto.setSprintNumber(sprint.getSprintNumber()); // ✅ Add this
+	    }
+	    dto.setAssignedPoints(update.getAssignedPoints());
+	    dto.setAssignedStoriesCount(update.getAssignedStoriesCount());
+	    dto.setInDevPoints(update.getInDevPoints());
+	    dto.setInDevStoriesCount(update.getInDevStoriesCount());
+	    dto.setInQaPoints(update.getInQaPoints());
+	    dto.setInQaStoriesCount(update.getInQaStoriesCount());
+	    dto.setCompletePoints(update.getCompletePoints());
+	    dto.setCompleteStoriesCount(update.getCompleteStoriesCount());
+	    dto.setBlockedPoints(update.getBlockedPoints());
+	    dto.setBlockedStoriesCount(update.getBlockedStoriesCount());
+	    dto.setCompletePercentage(update.getCompletePercentage());
+	    dto.setEstimationHealth(update.getEstimationHealth());
+	    dto.setGroomingHealth(update.getGroomingHealth());
+	    dto.setDifficultCount1(update.getDifficultCount1());
+	    dto.setDifficultCount2(update.getDifficultCount2());
+	    dto.setEstimationHealthStatus(update.getEstimationHealthStatus()); // ✅ Add this
+	    dto.setGroomingHealthStatus(update.getGroomingHealthStatus());     // ✅ Add this
+	    dto.setRiskPoints(update.getRiskPoints());
+	    dto.setRiskStoryCounts(update.getRiskStoryCounts());
+	    dto.setComments(update.getComments());
+	    dto.setInjectionPercentage(update.getInjectionPercentage());
+	    return dto;
 	}
 }
