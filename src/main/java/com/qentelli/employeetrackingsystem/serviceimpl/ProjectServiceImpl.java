@@ -45,6 +45,7 @@ public class ProjectServiceImpl implements ProjectService {
         Account account = accountRepo.findById(dto.getAccountId())
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + dto.getAccountId()));
         Project project = toEntity(dto, account);
+        project.setStatusFlag(Status.ACTIVE);
         Project saved = projectRepo.save(project);
         return toDto(saved);
     }

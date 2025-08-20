@@ -3,8 +3,10 @@ package com.qentelli.employeetrackingsystem.serviceimpl;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
+import com.qentelli.employeetrackingsystem.entity.enums.CloneState;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
@@ -133,15 +136,40 @@ public class ResourceServiceImpl implements ResourceService {
 		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, Status.ACTIVE);
 		return resources.stream().map(this::mapToResponse).toList();
 	}
+	
+	
 
 	@Override
 	public Page<ResourceResponse> getPaginatedResourcesByPreviousSprint(Long currentSprintId, Pageable pageable) {
-		Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId);
-		Page<Resource> resourcePage = resourceRepository
-				.findBySprint_SprintIdAndStatusFlag(previousSprint.getSprintId(), Status.ACTIVE, pageable);
-		return resourcePage.map(this::mapToResponse);
-	}
+	    Sprint currentSprint = sprintService.getSprintEntityById(currentSprintId);
+	    if (currentSprint.getCloneState() == CloneState.CLONED) {
+	        throw new IllegalStateException("Resources already cloned for sprint ID: " + currentSprintId);
+	    }
+	    Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId);
 
+	    Page<Resource> previousResources = resourceRepository
+	            .findBySprint_SprintIdAndStatusFlag(previousSprint.getSprintId(), Status.ACTIVE, pageable);
+	    return previousResources.map(this::mapToResponse);
+	}
+	
+	@Override
+	public Page<ResourceResponse> getResourcesIncludingPreviousSprint(Long sprintId, Pageable pageable) {
+	    Sprint sprint = sprintService.getSprintEntityById(sprintId);
+	    if (sprint.getCloneState() != CloneState.CLONED) {
+	        return getAllResourcesBySprintId(sprintId, pageable);
+	    }
+	    Sprint previousSprint = sprintService.getPreviousSprint(sprintId);
+	    Page<Resource> currentResources = resourceRepository
+	            .findBySprint_SprintIdAndStatusFlag(sprint.getSprintId(), Status.ACTIVE, pageable);
+
+	    Page<Resource> previousResources = resourceRepository
+	            .findBySprint_SprintIdAndStatusFlag(previousSprint.getSprintId(), Status.ACTIVE, pageable);
+	    List<ResourceResponse> combined = Stream.concat(currentResources.stream(), previousResources.stream())
+	            .map(this::mapToResponse)
+	            .toList();
+	    return new PageImpl<>(combined, pageable, combined.size());
+	}
+	
 	@Override
 	public Page<ResourceResponse> getActiveResourcesByType(Long sprintId, ResourceType resourceType,
 			Pageable pageable) {

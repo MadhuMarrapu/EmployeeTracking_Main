@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.qentelli.employeetrackingsystem.entity.enums.CloneState;
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
@@ -50,6 +51,9 @@ public class Sprint {
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EnableStatus enableStatus = EnableStatus.DISABLED; 
+    private EnableStatus enableStatus;
+    
+    @Enumerated(EnumType.STRING)
+    private CloneState cloneState;
     
 }

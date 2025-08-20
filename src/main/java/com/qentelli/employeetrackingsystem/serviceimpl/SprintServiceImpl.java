@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.WeekRange;
+import com.qentelli.employeetrackingsystem.entity.enums.CloneState;
 import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.exception.SprintNotFoundException;
@@ -37,6 +38,7 @@ public class SprintServiceImpl implements SprintService {
 		sprint.setToDate(request.getToDate());
 		sprint.setStatusFlag(Status.ACTIVE);
 		sprint.setEnableStatus(EnableStatus.DISABLED);
+		sprint.setCloneState(CloneState.NOT_CLONED);
 		List<WeekRange> generatedWeeks = generateWeekRanges(request.getFromDate(), request.getToDate(), sprint);
 		sprint.setWeeks(generatedWeeks);
 		Sprint savedSprint = sprintRepository.save(sprint);
@@ -93,6 +95,24 @@ public class SprintServiceImpl implements SprintService {
 		return previousSprints.stream().filter(s -> s.getStatusFlag() == Status.ACTIVE).findFirst().orElseThrow(
 				() -> new SprintNotFoundException("No active previous sprint found before ID: " + sprintId));
 	}
+	
+	@Override
+	public Sprint getSprintEntityById(Long sprintId) {
+	    return sprintRepository.findById(sprintId)
+	            .filter(sprint -> sprint.getStatusFlag() == Status.ACTIVE)
+	            .orElseThrow(() -> new SprintNotFoundException("Active sprint not found with id: " + sprintId));
+	}
+	
+	@Override
+	public void markSprintAsCloned(Long sprintId) {
+		Sprint currentSprint =getSprintEntityById(sprintId);
+	    if (currentSprint.getCloneState() == CloneState.CLONED) {
+	        throw new IllegalStateException("Sprint ID " + sprintId + " is already marked as CLONED.");
+	    }
+	    currentSprint.setCloneState(CloneState.CLONED);
+	    sprintRepository.save(currentSprint);
+	}
+
 
 	private List<WeekRange> generateWeekRanges(LocalDate start, LocalDate end, Sprint sprint) {
 		List<WeekRange> weekRanges = new ArrayList<>();
@@ -131,9 +151,10 @@ public class SprintServiceImpl implements SprintService {
 
 		return new SprintResponse(sprint.getSprintId(), sprint.getSprintNumber(), sprint.getSprintName(),
 				sprint.getFromDate(), sprint.getToDate(), weekResponses, sprint.getStatusFlag(),
-				sprint.getEnableStatus());
+				sprint.getEnableStatus(),sprint.getCloneState());
 	}
-
+	
+	
 	private Sprint getActiveSprintById(Long id) {
 		return sprintRepository.findById(id).filter(s -> s.getStatusFlag() == Status.ACTIVE)
 				.orElseThrow(() -> new SprintNotFoundException("Active sprint not found with id: " + id));

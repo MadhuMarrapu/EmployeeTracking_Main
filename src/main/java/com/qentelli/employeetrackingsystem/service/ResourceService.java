@@ -48,4 +48,5 @@ public interface ResourceService {
   
 	public Page<ResourceResponse> searchActiveProjectsByName(Long sprintId, ResourceType resourceType,
 	        String projectName, Pageable pageable);
+	public Page<ResourceResponse> getResourcesIncludingPreviousSprint(Long sprintId, Pageable pageable) ;
     }

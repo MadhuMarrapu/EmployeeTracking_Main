@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.qentelli.employeetrackingsystem.entity.Sprint;
+import com.qentelli.employeetrackingsystem.entity.enums.CloneState;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
@@ -30,6 +32,7 @@ import com.qentelli.employeetrackingsystem.models.client.response.GroupedResourc
 import com.qentelli.employeetrackingsystem.models.client.response.PaginatedResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 import com.qentelli.employeetrackingsystem.service.ResourceService;
+import com.qentelli.employeetrackingsystem.service.SprintService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,7 @@ public class ResourceController {
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
 	private final ResourceService resourceService;
+	private final SprintService sprintService;
 
 	@PostMapping
 	public ResponseEntity<AuthResponse<ResourceResponse>> createResource(@Valid @RequestBody ResourceRequest request) {
@@ -56,6 +60,23 @@ public class ResourceController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
 							"Failed to create resource", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+		}
+	}
+
+	@PutMapping("/sprint/clone/{sprintId}")
+	public ResponseEntity<AuthResponse<String>> cloneSprint(@PathVariable Long sprintId) {
+		try {
+			sprintService.markSprintAsCloned(sprintId);
+			String message = "Sprint ID " + sprintId + " marked as CLONED successfully.";
+			AuthResponse<String> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+					LocalDateTime.now(), message, "CLONED");
+			return ResponseEntity.ok(response);
+		} catch (Exception ex) {
+			String errorMsg = "Failed to clone sprint ID: " + sprintId;
+			logger.error("{} - {}", errorMsg, ex.getMessage(), ex);
+			AuthResponse<String> errorResponse = new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					RequestProcessStatus.FAILURE, errorMsg, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 		}
 	}
 
@@ -117,11 +138,21 @@ public class ResourceController {
 				"Fetched project resources", "No project resources found");
 	}
 
+	// clone
 	@GetMapping("/sprint/page/all")
 	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesBySprintId(
 			@RequestParam Long sprintId, Pageable pageable) {
-		Page<ResourceResponse> page = resourceService.getAllResourcesBySprintId(sprintId, pageable);
-		return buildPaginatedResponse(page, "Fetched resources for sprint ID: " + sprintId, "No resources found");
+		Sprint sprint = sprintService.getSprintEntityById(sprintId);
+		Page<ResourceResponse> page;
+		if (sprint.getCloneState() == CloneState.CLONED) {
+			page = resourceService.getResourcesIncludingPreviousSprint(sprintId, pageable);
+		} else {
+			page = resourceService.getAllResourcesBySprintId(sprintId, pageable);
+		}
+		String cloneInfo = sprint.getCloneState() == CloneState.CLONED ? "Resources include previous sprint (CLONED)"
+				: "Resources from current sprint only (NOT_CLONED)";
+		String successMsg = "Fetched resources for sprint ID: " + sprintId + ". " + cloneInfo;
+		return buildPaginatedResponse(page, successMsg, "No resources found");
 	}
 
 	@GetMapping("/sprint/grouped")
@@ -133,34 +164,32 @@ public class ResourceController {
 				LocalDateTime.now(), msg, grouped));
 	}
 
-
-
-	@GetMapping("/previous/sprint/{sprintId}")
-	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesByPreviousSprint(
-			@PathVariable Long sprintId,
-			@PageableDefault(page = 0, size = 10, sort = "resourceId", direction = Sort.Direction.DESC) Pageable pageable) {
-		try {
-			logger.info("Fetching resources for previous sprint of sprint ID: {}", sprintId);
-			Page<ResourceResponse> pagedResources = resourceService.getPaginatedResourcesByPreviousSprint(sprintId,
-					pageable);
-
-			PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(pagedResources.getContent(),
-					pagedResources.getNumber(), pagedResources.getSize(), pagedResources.getTotalElements(),
-					pagedResources.getTotalPages(), pagedResources.isLast());
-
-			String message = response.getContent().isEmpty() ? "No resources found for previous sprint"
-					: "Fetched resources for previous sprint of sprint ID: " + sprintId;
-
-			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-					LocalDateTime.now(), message, response));
-		} catch (Exception ex) {
-			logger.error("Error fetching previous sprint resources: {}", ex.getMessage(), ex);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
-							"Failed to fetch previous sprint resources", HttpStatus.INTERNAL_SERVER_ERROR,
-							ex.getMessage()));
-		}
-	}
+//	@GetMapping("/previous/sprint/{sprintId}")
+//	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesByPreviousSprint(
+//			@PathVariable Long sprintId,
+//			@PageableDefault(page = 0, size = 10, sort = "resourceId", direction = Sort.Direction.DESC) Pageable pageable) {
+//		try {
+//			logger.info("Fetching resources for previous sprint of sprint ID: {}", sprintId);
+//			Page<ResourceResponse> pagedResources = resourceService.getPaginatedResourcesByPreviousSprint(sprintId,
+//					pageable);
+//
+//			PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(pagedResources.getContent(),
+//					pagedResources.getNumber(), pagedResources.getSize(), pagedResources.getTotalElements(),
+//					pagedResources.getTotalPages(), pagedResources.isLast());
+//
+//			String message = response.getContent().isEmpty() ? "No resources found for previous sprint"
+//					: "Fetched resources for previous sprint of sprint ID: " + sprintId;
+//
+//			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+//					LocalDateTime.now(), message, response));
+//		} catch (Exception ex) {
+//			logger.error("Error fetching previous sprint resources: {}", ex.getMessage(), ex);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
+//							"Failed to fetch previous sprint resources", HttpStatus.INTERNAL_SERVER_ERROR,
+//							ex.getMessage()));
+//		}
+//	}
 
 	@GetMapping("/summary/combined/{sprintId}")
 	public ResponseEntity<AuthResponse<CombinedResourceSummaryResponse>> getCombinedResourceSummary(
