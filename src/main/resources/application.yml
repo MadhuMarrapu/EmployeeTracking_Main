@@ -17,7 +17,6 @@ spring:
       jdbc:
         time_zone: Asia/Kolkata
     show-sql: true
-    open-in-view: false
     repositories:
       bootstrap-mode: lazy
 
