@@ -11,6 +11,7 @@ spring:
       password: npg_Zw29qCPMmJSB
       driver-class-name: org.postgresql.Driver
 
+<<<<<<< HEAD
    jpa:
       hibernate:
          ddl-auto: update
@@ -19,9 +20,24 @@ spring:
       show-sql: true
       repositories:
          bootstrap-mode: lazy
+=======
+  jpa:
+    hibernate:
+      ddl-auto: update
+      jdbc:
+        time_zone: Asia/Kolkata
+    show-sql: true
+    repositories:
+      bootstrap-mode: lazy
+>>>>>>> 7a4adb49aaa91529843a06f42830f16b76519d23
 
    jackson:
       time-zone: Asia/Kolkata
 
+<<<<<<< HEAD
    main:
       allow-circular-references: true
+=======
+  main:
+    allow-circular-references: true
+>>>>>>> 7a4adb49aaa91529843a06f42830f16b76519d23
