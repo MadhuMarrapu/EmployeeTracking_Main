@@ -29,36 +29,28 @@ public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resourceId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ResourceType resourceType; // TECH_STACK or PROJECT
-
+    private ResourceType resourceType; 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private TechStack techStack;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = true)
     private Project project;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sprint_id", nullable = true)
     private Sprint sprint;
-
     private int onsite;
     private int offsite;
     private String ratio;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status statusFlag; 
-
     @Transient
     public int getTotal() {
         return onsite + offsite;
     }
-
     public void enforceTypeConstraints() {
         if (this.resourceType == ResourceType.TECHSTACK) {
             this.project = null;

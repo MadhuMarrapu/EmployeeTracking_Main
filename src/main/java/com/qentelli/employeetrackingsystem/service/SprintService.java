@@ -25,5 +25,9 @@ public interface SprintService {
     EnableStatus toggleSprintEnabled(Long sprintId); // ✅ replaces boolean flag
 
     Sprint getPreviousSprint(Long sprintId);
+    
+    public Sprint getSprintEntityById(Long sprintId);
+    
+    public void markSprintAsCloned(Long sprintId) ;
 
 }

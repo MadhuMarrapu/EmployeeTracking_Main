@@ -26,29 +26,21 @@ public class PIStanding {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     private int piNumber;
-
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", referencedColumnName = "projectId")
     private Project project;
-
     private String feature;
-
     @ElementCollection(targetClass = SprintOrdinal.class)
     @CollectionTable(name = "pi_selected_sprints", joinColumns = @JoinColumn(name = "pi_standing_id"))
     @Column(name = "sprint")
     @Enumerated(EnumType.STRING)
     private List<SprintOrdinal> selectedSprints = new ArrayList<>();
-
     private double completionPercentage;
-
     private String statusReport;
-
     @CreatedDate
     private LocalDateTime createdAt;
-
     @Enumerated(EnumType.STRING)
     private Status statusFlag ;
 }

@@ -42,32 +42,23 @@ public class WeeklySummary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int weekId;
-
     private LocalDate weekStartDate;
     private LocalDate weekEndDate;
-
     @ElementCollection
     @CollectionTable(name = "upcoming_tasks", joinColumns = @JoinColumn(name = "week_id"))
     @Column(name = "task")
     private List<String> upcomingTasks;
-
     @Enumerated(EnumType.STRING)
     private Status statusFlag ;
-
     @CreatedDate
     private LocalDateTime createdAt;
-
     @CreatedBy
     private String createdBy;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
     @LastModifiedBy
     private String updatedBy;
-
     private String weekRange;
-
     @ManyToMany
     @JoinTable(name = "weekly_summary_project", joinColumns = @JoinColumn(name = "week_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
     private List<Project> listProject;

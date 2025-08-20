@@ -36,22 +36,16 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer projectId;
-
     @Column(unique = true)
     private String projectName;
-
     @Enumerated(EnumType.STRING)
     private Status statusFlag;
-
     @CreatedDate
     private LocalDateTime createdAt;
-
     @CreatedBy
     private String createdBy;
-
     private LocalDateTime updatedAt;
     private String updatedBy;
-
     @ToString.Exclude
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

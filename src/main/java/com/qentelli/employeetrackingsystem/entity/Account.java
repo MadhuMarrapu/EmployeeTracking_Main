@@ -32,29 +32,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Account {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int accountId;
-
     @Column(unique = true)
     private String accountName;
-
     private LocalDate accountStartDate;
     private LocalDate accountEndDate;
-
     @Enumerated(EnumType.STRING)
     private Status status;
-
     @CreatedDate
     private LocalDateTime createdAt;
-
     @CreatedBy
     private String createdBy;
-
     private LocalDateTime updatedAt;
     private String updatedBy;
-
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Project> projects = new ArrayList<>();
 }

@@ -10,8 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class AdminMetadataConfig {
 	
 	private static final String FIRST_NAME = "firstName";
-	private static final String LAST_NAME = "lastName";
-	
+	private static final String LAST_NAME = "lastName";	
 	@Bean
 	public Map<String, Map<String, String>> adminMetadata() {
 		Map<String, Map<String, String>> details = new HashMap<>();

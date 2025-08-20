@@ -3,6 +3,8 @@ package com.qentelli.employeetrackingsystem.config;
 import java.security.Key;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -14,13 +16,13 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
+	private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 	private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-	private final long EXPIRATION_MILLIS = 24 * 60 * 60 * 1000; // 24 hours
-
+	private static final long EXPIRATION_MILLIS = 24 * 60 * 60 * 1000;
+	
 	public String generateToken(String email) {
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + EXPIRATION_MILLIS);
-
 		return Jwts.builder().setSubject(email).setIssuedAt(now).setExpiration(expiry).signWith(key).compact();
 	}
 
@@ -29,11 +31,21 @@ public class JwtUtil {
 	}
 
 	public String extractUsername(String token) {
-		return parseClaims(token).getSubject();
+		try {
+			return parseClaims(token).getSubject();
+		} catch (JwtException e) {
+			log.warn("Failed to extract username from token: {}", e.getMessage());
+			return null;
+		}
 	}
 
 	public Date extractExpiration(String token) {
-		return parseClaims(token).getExpiration();
+		try {
+			return parseClaims(token).getExpiration();
+		} catch (JwtException e) {
+			log.warn("Failed to extract expiration from token: {}", e.getMessage());
+			return null;
+		}
 	}
 
 	private boolean isTokenExpired(Date expiration) {
@@ -45,10 +57,14 @@ public class JwtUtil {
 			Claims claims = parseClaims(token);
 			String actualUsername = claims.getSubject();
 			Date expiration = claims.getExpiration();
-			return actualUsername != null && actualUsername.equals(expectedUsername) && !isTokenExpired(expiration);
-
+			boolean valid = actualUsername != null && actualUsername.equals(expectedUsername)
+					&& !isTokenExpired(expiration);
+			if (!valid) {
+				log.warn("Token validation failed for user '{}'", expectedUsername);
+			}
+			return valid;
 		} catch (JwtException e) {
-			System.out.println("Token validation failed: " + e.getMessage());
+			log.warn("Token validation exception: {}", e.getMessage());
 			return false;
 		}
 	}

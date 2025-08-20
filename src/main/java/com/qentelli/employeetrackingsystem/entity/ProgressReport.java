@@ -27,23 +27,16 @@ public class ProgressReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
-
     private String teamLead;
-
     private Integer assignedSP;
     private Integer completedSP;
-
     @Enumerated(EnumType.STRING)
     private RagStatus rag;
-
     private Double completionPercentage;
-
     @Enumerated(EnumType.STRING)
     private Status statusFlag;
-
-    private LocalDateTime snapshotDate; // Optional tracking date
+    private LocalDateTime snapshotDate; 
 }

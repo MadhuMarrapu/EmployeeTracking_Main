@@ -41,44 +41,32 @@ public class ViewReports {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer viewReportId;
-
     @Embedded
     private Task task;
-
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
-
     @ElementCollection
     private List<String> comments;
-
     @ManyToOne
     @JoinColumn(name = "week_id")
     private WeekRange weekRange;
-
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
-
     @ManyToOne
     @JoinColumn(name = "personId")
     private Person person;
-
     private String taskName;
     private LocalDate taskStartDate;
     private LocalDate taskEndDate;
-
     @Enumerated(EnumType.STRING)
     private Status statusFlag ;
-
     @CreatedDate
     private LocalDateTime createdAt;
-
     @CreatedBy
     private String createdBy;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
     @LastModifiedBy
     private String updatedBy;
 }

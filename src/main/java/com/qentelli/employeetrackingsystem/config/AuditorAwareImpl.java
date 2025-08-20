@@ -14,7 +14,6 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 	public AuditorAwareImpl(Map<String, Map<String, String>> adminMetadata) {
 		this.adminMetadata = adminMetadata;
 	}
-
 	@Override
 	public Optional<String> getCurrentAuditor() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
