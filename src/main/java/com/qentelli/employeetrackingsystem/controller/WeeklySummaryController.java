@@ -105,8 +105,8 @@ public class WeeklySummaryController {
 
 	@GetMapping("/by-range")
 	public ResponseEntity<AuthResponse<List<WeeklySummaryResponse>>> getByDateRange(
-			@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+			@RequestParam  LocalDate from,
+			@RequestParam  LocalDate to,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
 		Pageable pageable = PageRequest.of(page, size);

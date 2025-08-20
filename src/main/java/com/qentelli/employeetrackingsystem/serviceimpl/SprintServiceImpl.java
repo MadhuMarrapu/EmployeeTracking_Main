@@ -44,6 +44,7 @@ public class SprintServiceImpl implements SprintService {
 				savedSprint.getSprintStatus());
 	}
 
+	/*
 	@Override
 	public SprintResponse createSprint1(SprintRequest request) {
 		LocalDate today = LocalDate.now();
@@ -71,7 +72,7 @@ public class SprintServiceImpl implements SprintService {
 				savedSprint.getFromDate(), savedSprint.getToDate(), weekResponses, savedSprint.getEnabled(),
 				savedSprint.getSprintStatus());
 	}
-
+*/
 	@Override
 	public Page<SprintResponse> getAllSprints(Pageable pageable) {
 		return sprintRepository.findBySprintStatusTrue(pageable).map(this::mapToResponse);
