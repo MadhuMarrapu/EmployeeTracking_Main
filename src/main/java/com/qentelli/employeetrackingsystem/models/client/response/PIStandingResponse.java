@@ -3,7 +3,6 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,5 +26,4 @@ public class PIStandingResponse {
     private double completionPercentage;
     private String statusReport;
     private List<String> selectedSprints;
-    private Status statusFlag; 
 }

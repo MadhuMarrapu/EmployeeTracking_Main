@@ -6,12 +6,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.qentelli.employeetrackingsystem.entity.PIStanding;
 import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.qentelli.employeetrackingsystem.entity.enums.Status;
+import com.qentelli.employeetrackingsystem.exception.PIStandingNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.PIStandingRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.PIStandingResponse;
 import com.qentelli.employeetrackingsystem.repository.PIStandingRepository;
@@ -34,15 +36,20 @@ public class PIStandingServiceImpl implements PIStandingService {
 		if (dto.getId() != null) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New record must not contain id");
 		}
+
 		List<SprintOrdinal> sprintEnums = mapToSprintOrdinals(dto.getSelectedSprint());
+
 		if (sprintEnums.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one sprint must be selected");
 		}
+
 		if (dto.getPiNumber() < 1 || dto.getPiNumber() > 4) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_PI_NUMBER);
 		}
+
 		Project project = projectRepo.findById(dto.getProjectId()).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found " + dto.getProjectId()));
+
 		PIStanding e = new PIStanding();
 		e.setPiNumber(dto.getPiNumber());
 		e.setProject(project);
@@ -56,9 +63,10 @@ public class PIStandingServiceImpl implements PIStandingService {
 	}
 
 	@Override
+	@Transactional
 	public PIStandingResponse update(Long id, PIStandingRequest dto) {
 		PIStanding existing = repo.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PI_STANDING_NOT_FOUND + id));
+				.orElseThrow(() -> new PIStandingNotFoundException(PI_STANDING_NOT_FOUND + id));
 		List<SprintOrdinal> sprintEnums = mapToSprintOrdinals(dto.getSelectedSprint());
 		if (sprintEnums.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one sprint must be selected");
@@ -80,15 +88,13 @@ public class PIStandingServiceImpl implements PIStandingService {
 
 	@Override
 	public PIStandingResponse get(Long id) {
-		PIStanding e = repo.findById(id).filter(p -> p.getStatusFlag() == Status.ACTIVE)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PI_STANDING_NOT_FOUND + id));
+		PIStanding e = repo.findById(id).orElseThrow(() -> new PIStandingNotFoundException(PI_STANDING_NOT_FOUND + id));
 		return toResponse(e);
 	}
 
 	@Override
 	public void delete(Long id) {
-		PIStanding e = repo.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PI_STANDING_NOT_FOUND + id));
+		PIStanding e = repo.findById(id).orElseThrow(() -> new PIStandingNotFoundException(PI_STANDING_NOT_FOUND + id));
 		e.setStatusFlag(Status.INACTIVE);
 		repo.save(e);
 	}
@@ -126,7 +132,7 @@ public class PIStandingServiceImpl implements PIStandingService {
 				e.getProject().getProjectName(), e.getFeature(), sprints.contains(SprintOrdinal.SPRINT_0),
 				sprints.contains(SprintOrdinal.SPRINT_1), sprints.contains(SprintOrdinal.SPRINT_2),
 				sprints.contains(SprintOrdinal.SPRINT_3), sprints.contains(SprintOrdinal.SPRINT_4),
-				e.getCompletionPercentage(), e.getStatusReport(), clientFormattedSprints, e.getStatusFlag());
+				e.getCompletionPercentage(), e.getStatusReport(), clientFormattedSprints);
 	}
 
 	private List<SprintOrdinal> mapToSprintOrdinals(List<String> rawSprints) {
