@@ -1,7 +1,6 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
-import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import jakarta.validation.constraints.Min;

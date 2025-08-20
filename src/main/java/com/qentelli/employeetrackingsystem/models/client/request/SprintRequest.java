@@ -3,8 +3,6 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.entity.enums.Status;
-import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
