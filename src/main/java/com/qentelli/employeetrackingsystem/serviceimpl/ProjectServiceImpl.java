@@ -37,7 +37,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final PersonService personService;
     private final Map<String, Map<String, String>> adminMetadata;
 
-    @Override
+   @Override
     public ProjectDTO create(ProjectDTO dto) throws DuplicateProjectException {
         if (projectRepo.existsByProjectName(dto.getProjectName())) {
             throw new DuplicateProjectException("A project with this name already exists.");
@@ -45,6 +45,7 @@ public class ProjectServiceImpl implements ProjectService {
         Account account = accountRepo.findById(dto.getAccountId())
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + dto.getAccountId()));
         Project project = toEntity(dto, account);
+        project.setStatusFlag(Status.ACTIVE);
         Project saved = projectRepo.save(project);
         return toDto(saved);
     }
