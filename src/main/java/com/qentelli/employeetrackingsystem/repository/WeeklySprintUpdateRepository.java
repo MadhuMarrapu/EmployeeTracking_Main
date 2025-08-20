@@ -10,23 +10,36 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface WeeklySprintUpdateRepository extends JpaRepository<WeeklySprintUpdate, Integer> {
-	public Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue(Pageable pageable);
-	public List<WeeklySprintUpdate> findByWeeklySprintUpdateStatusTrue();
+
+	Page<WeeklySprintUpdate> findByWeeklySprintUpdateStatus(Status statusFlag, Pageable pageable);
+
+	List<WeeklySprintUpdate> findByWeeklySprintUpdateStatus(Status statusFlag);
+
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
 			    WHERE wsu.week.weekId = :weekId
-			    AND wsu.weeklySprintUpdateStatus = true
+			    AND wsu.weeklySprintUpdateStatus = :statusFlag
 			""")
-	public List<WeeklySprintUpdate> findActiveByWeekId(@Param("weekId") int weekId);
+	List<WeeklySprintUpdate> findByWeekIdAndStatusFlag(@Param("weekId") int weekId,
+			@Param("statusFlag") Status statusFlag);
+
 	@Query("""
 			    SELECT wsu FROM WeeklySprintUpdate wsu
 			    WHERE wsu.week.sprint.sprintId = :sprintId
-			    AND wsu.weeklySprintUpdateStatus = true
+			    AND wsu.weeklySprintUpdateStatus = :statusFlag
 			""")
-	List<WeeklySprintUpdate> findActiveBySprintId(@Param("sprintId") Long sprintId);
-	@Query("SELECT w FROM WeeklySprintUpdate w WHERE w.week.weekId IN :weekIds AND w.weeklySprintUpdateStatus = true")
-	List<WeeklySprintUpdate> findActiveByWeekIds(@Param("weekIds") List<Integer> weekIds);
+	List<WeeklySprintUpdate> findBySprintIdAndStatusFlag(@Param("sprintId") Long sprintId,
+			@Param("statusFlag") Status statusFlag);
+
+	@Query("""
+			    SELECT w FROM WeeklySprintUpdate w
+			    WHERE w.week.weekId IN :weekIds
+			    AND w.weeklySprintUpdateStatus = :statusFlag
+			""")
+	List<WeeklySprintUpdate> findByWeekIdsAndStatusFlag(@Param("weekIds") List<Integer> weekIds,
+			@Param("statusFlag") Status statusFlag);
 }

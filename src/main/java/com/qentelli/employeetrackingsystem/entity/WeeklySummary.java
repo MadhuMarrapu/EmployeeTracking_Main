@@ -10,11 +10,15 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +26,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,37 +39,36 @@ import lombok.NoArgsConstructor;
 @EntityListeners(AuditingEntityListener.class)
 public class WeeklySummary {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int weekId;
-	private LocalDate weekStartDate;
-	private LocalDate weekEndDate;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int weekId;
 
-	@ElementCollection
-	@CollectionTable(name = "upcoming_tasks", joinColumns = @JoinColumn(name = "week_id"))
-	@Column(name = "task")
-	private List<String> upcomingTasks;
-    
-	@Column(name = "soft_delete")
-	private Boolean softDelete = false;
+    private LocalDate weekStartDate;
+    private LocalDate weekEndDate;
 
-	@CreatedDate
-	private LocalDateTime createdAt;
-	
-	@CreatedBy
-	private String createdBy;
-	
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
-	
-	@LastModifiedBy
-	private String updatedBy;
-	
-	private String weekRange;
+    @ElementCollection
+    @CollectionTable(name = "upcoming_tasks", joinColumns = @JoinColumn(name = "week_id"))
+    @Column(name = "task")
+    private List<String> upcomingTasks;
 
-	@ManyToMany
-	@JoinTable(name = "weekly_summary_project", joinColumns = @JoinColumn(name = "week_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
-	private List<Project> listProject;
+    @Enumerated(EnumType.STRING)
+    private Status statusFlag ;
 
-	
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @CreatedBy
+    private String createdBy;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @LastModifiedBy
+    private String updatedBy;
+
+    private String weekRange;
+
+    @ManyToMany
+    @JoinTable(name = "weekly_summary_project", joinColumns = @JoinColumn(name = "week_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
+    private List<Project> listProject;
 }

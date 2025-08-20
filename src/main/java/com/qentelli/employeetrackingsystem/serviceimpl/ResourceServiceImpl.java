@@ -13,7 +13,9 @@ import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.Sprint;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
+import com.qentelli.employeetrackingsystem.exception.ResourceNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.CombinedResourceSummaryResponse;
@@ -33,7 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class ResourceServiceImpl implements ResourceService {
-
+	
+	private static final String RESOURCE_NOT_FOUND = "Resource not found with ID: ";
 	private final ResourceRepository resourceRepository;
 	private final ProjectRepository projectRepository;
 	private final SprintRepository sprintRepository;
@@ -45,8 +48,8 @@ public class ResourceServiceImpl implements ResourceService {
 		validateResourceRequest(request);
 		Resource resource = new Resource();
 		populateResourceFromRequest(resource, request);
+		resource.setStatusFlag(Status.ACTIVE);
 		Resource saved = resourceRepository.save(resource);
-		log.info("Resource created with ID: {}", saved.getResourceId());
 		return mapToResponse(saved);
 	}
 
@@ -55,7 +58,7 @@ public class ResourceServiceImpl implements ResourceService {
 	public ResourceResponse updateResource(Long id, ResourceRequest request) {
 		validateResourceRequest(request);
 		Resource resource = resourceRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Resource not found"));
+				.orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND + id));
 		populateResourceFromRequest(resource, request);
 		Resource updated = resourceRepository.save(resource);
 		return mapToResponse(updated);
@@ -64,14 +67,14 @@ public class ResourceServiceImpl implements ResourceService {
 	@Override
 	public void deleteResource(Long id) {
 		Resource resource = resourceRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Resource not found with ID: " + id));
-		resource.setResourceStatus(false);
+				.orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND+ id));
+		resource.setStatusFlag(Status.INACTIVE); 
 		resourceRepository.save(resource);
 	}
 
 	@Override
 	public GroupedResourceResponse getGroupedResourcesBySprintId(Long sprintId) {
-		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, Status.ACTIVE);
 		List<ResourceResponse> techStackResources = resources.stream()
 				.filter(r -> r.getResourceType() == ResourceType.TECHSTACK).map(this::mapToResponse).toList();
 		List<ResourceResponse> projectResources = resources.stream()
@@ -96,24 +99,18 @@ public class ResourceServiceImpl implements ResourceService {
 
 	@Override
 	public CombinedResourceSummaryResponse getCombinedSummaryBySprint(Long sprintId) {
-		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
-
-		// Group by TechStack
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, Status.ACTIVE);
 		Map<TechStack, List<Resource>> techGrouped = resources.stream()
 				.filter(r -> r.getResourceType() == ResourceType.TECHSTACK)
 				.collect(Collectors.groupingBy(Resource::getTechStack));
-
 		List<TechStackSummaryResponse> techStackSummary = techGrouped.entrySet().stream().map(entry -> {
 			int onsite = entry.getValue().stream().mapToInt(Resource::getOnsite).sum();
 			int offsite = entry.getValue().stream().mapToInt(Resource::getOffsite).sum();
 			return new TechStackSummaryResponse(entry.getKey(), onsite, offsite, onsite + offsite);
 		}).toList();
-
-		// Group by Project
 		Map<Project, List<Resource>> projectGrouped = resources.stream()
 				.filter(r -> r.getResourceType() == ResourceType.PROJECT)
 				.collect(Collectors.groupingBy(Resource::getProject));
-
 		List<ProjectSummaryResponse> projectSummary = projectGrouped.entrySet().stream().map(entry -> {
 			Project project = entry.getKey();
 			int onsite = entry.getValue().stream().mapToInt(Resource::getOnsite).sum();
@@ -121,26 +118,28 @@ public class ResourceServiceImpl implements ResourceService {
 			return new ProjectSummaryResponse(project.getProjectId(), project.getProjectName(), onsite, offsite,
 					onsite + offsite);
 		}).toList();
-
 		return new CombinedResourceSummaryResponse(techStackSummary, projectSummary);
 	}
 
 	@Override
 	public Page<ResourceResponse> getAllResourcesBySprintId(Long sprintId, Pageable pageable) {
-		Page<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId, pageable);
+		Page<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, Status.ACTIVE,
+				pageable);
 		return resources.map(this::mapToResponse);
 	}
 
 	@Override
 	public List<ResourceResponse> getAllResourcesBySprintId(Long sprintId) {
-		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndResourceStatusTrue(sprintId);
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, Status.ACTIVE);
 		return resources.stream().map(this::mapToResponse).toList();
 	}
 
 	@Override
-	public List<ResourceResponse> getResourcesByPreviousSprint(Long currentSprintId) {
-		Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId); // resolves previous sprint
-		return getAllResourcesBySprintId(previousSprint.getSprintId()); // fetches resources by resolved ID
+	public Page<ResourceResponse> getPaginatedResourcesByPreviousSprint(Long currentSprintId, Pageable pageable) {
+		Sprint previousSprint = sprintService.getPreviousSprint(currentSprintId);
+		Page<Resource> resourcePage = resourceRepository
+				.findBySprint_SprintIdAndStatusFlag(previousSprint.getSprintId(), Status.ACTIVE, pageable);
+		return resourcePage.map(this::mapToResponse);
 	}
 
 	@Override
@@ -148,10 +147,10 @@ public class ResourceServiceImpl implements ResourceService {
 			Pageable pageable) {
 		Page<Resource> resources;
 		if (sprintId != null) {
-			resources = resourceRepository.findBySprint_SprintIdAndResourceTypeAndResourceStatusTrue(sprintId,
-					resourceType, pageable);
+			resources = resourceRepository.findBySprint_SprintIdAndResourceTypeAndStatusFlag(sprintId, resourceType,
+					Status.ACTIVE, pageable);
 		} else {
-			resources = resourceRepository.findByResourceTypeAndResourceStatus(resourceType, true, pageable);
+			resources = resourceRepository.findByResourceTypeAndStatusFlag(resourceType, Status.ACTIVE, pageable);
 		}
 		return resources.map(this::mapToResponse);
 	}
@@ -161,11 +160,11 @@ public class ResourceServiceImpl implements ResourceService {
 			Pageable pageable) {
 		Page<Resource> resources;
 		if (sprintId != null) {
-			resources = resourceRepository.findBySprint_SprintIdAndResourceTypeAndTechStackAndResourceStatusTrue(
-					sprintId, resourceType, techStack, pageable);
+			resources = resourceRepository.findBySprint_SprintIdAndResourceTypeAndTechStackAndStatusFlag(sprintId,
+					resourceType, techStack, Status.ACTIVE, pageable);
 		} else {
-			resources = resourceRepository.findByResourceStatusTrueAndResourceTypeAndTechStack(resourceType, techStack,
-					pageable);
+			resources = resourceRepository.findByStatusFlagAndResourceTypeAndTechStack(Status.ACTIVE, resourceType,
+					techStack, pageable);
 		}
 		return resources.map(this::mapToResponse);
 	}
@@ -174,8 +173,8 @@ public class ResourceServiceImpl implements ResourceService {
 	public Page<ResourceResponse> searchActiveProjectsByName(Long sprintId, ResourceType resourceType,
 			String projectName, Pageable pageable) {
 		Page<Resource> resources = resourceRepository
-				.findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndResourceStatusTrue(
-						sprintId, resourceType, projectName, pageable);
+				.findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndStatusFlag(sprintId,
+						resourceType, projectName, Status.ACTIVE, pageable);
 		return resources.map(this::mapToResponse);
 	}
 
@@ -208,7 +207,6 @@ public class ResourceServiceImpl implements ResourceService {
 		resource.setOnsite(request.getOnsite());
 		resource.setOffsite(request.getOffsite());
 		resource.setRatio(calculateRatio(request.getOnsite(), request.getOffsite()));
-		resource.setResourceStatus(request.getResourceStatus());
 		if (request.getProjectId() != null) {
 			Project project = projectRepository.findById(request.getProjectId())
 					.orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + request.getProjectId()));
@@ -242,6 +240,7 @@ public class ResourceServiceImpl implements ResourceService {
 		response.setOffsite(resource.getOffsite());
 		response.setTotal(resource.getTotal());
 		response.setRatio(resource.getRatio());
+		response.setStatusFlag(resource.getStatusFlag());
 		return response;
 	}
 
@@ -252,6 +251,55 @@ public class ResourceServiceImpl implements ResourceService {
 		int onsitePercent = (int) ((onsite * 100.0) / total);
 		int offsitePercent = 100 - onsitePercent;
 		return onsitePercent + "% : " + offsitePercent + "%";
+	}
+
+	@Override
+	public Page<ResourceResponse> getResourcesBySprintIdAndStatusFlag(Long sprintId, Status statusFlag,
+			Pageable pageable) {
+		Page<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, statusFlag,
+				pageable);
+		return resources.map(this::mapToResponse);
+	}
+
+	@Override
+	public List<ResourceResponse> getResourcesBySprintIdAndStatusFlag(Long sprintId, Status statusFlag) {
+		List<Resource> resources = resourceRepository.findBySprint_SprintIdAndStatusFlag(sprintId, statusFlag);
+		return resources.stream().map(this::mapToResponse).toList();
+	}
+
+	@Override
+	public Page<ResourceResponse> getResourcesByTypeAndStatusFlag(Long sprintId, ResourceType resourceType,
+			Status statusFlag, Pageable pageable) {
+		if (sprintId != null) {
+			return resourceRepository
+					.findBySprint_SprintIdAndResourceTypeAndStatusFlag(sprintId, resourceType, statusFlag, pageable)
+					.map(this::mapToResponse);
+		} else {
+			return resourceRepository.findByResourceTypeAndStatusFlag(resourceType, statusFlag, pageable)
+					.map(this::mapToResponse);
+		}
+	}
+
+	@Override
+	public Page<ResourceResponse> searchResourcesByTechStack(Long sprintId, ResourceType resourceType,
+			TechStack techStack, Status statusFlag, Pageable pageable) {
+		if (sprintId != null) {
+			return resourceRepository.findBySprint_SprintIdAndResourceTypeAndTechStackAndStatusFlag(sprintId,
+					resourceType, techStack, statusFlag, pageable).map(this::mapToResponse);
+		} else {
+			return resourceRepository
+					.findByStatusFlagAndResourceTypeAndTechStack(statusFlag, resourceType, techStack, pageable)
+					.map(this::mapToResponse);
+		}
+	}
+
+	@Override
+	public Page<ResourceResponse> searchResourcesByProjectName(Long sprintId, ResourceType resourceType,
+			String projectName, Status statusFlag, Pageable pageable) {
+		return resourceRepository
+				.findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndStatusFlag(sprintId,
+						resourceType, projectName, statusFlag, pageable)
+				.map(this::mapToResponse);
 	}
 
 }

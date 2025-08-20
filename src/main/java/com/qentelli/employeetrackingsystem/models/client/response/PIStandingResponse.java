@@ -2,7 +2,6 @@ package com.qentelli.employeetrackingsystem.models.client.response;
 
 import java.util.List;
 
-import com.qentelli.employeetrackingsystem.entity.enums.SprintOrdinal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;

@@ -3,6 +3,8 @@ package com.qentelli.employeetrackingsystem.models.client.request;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
+import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,22 +18,17 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SprintRequest {
 
-	@NotBlank(message = "Sprint number is required")
-	private String sprintNumber;
+    @NotBlank(message = "Sprint number is required")
+    private String sprintNumber;
 
-	@NotBlank(message = "Sprint name is required")
-	private String sprintName;
+    @NotBlank(message = "Sprint name is required")
+    private String sprintName;
 
-	@NotNull
-//	@FutureOrPresent(message = "From date must be today or in the future is required")
-	private LocalDate fromDate;
+    @NotNull
+    private LocalDate fromDate;
 
-	@NotNull
-//	@FutureOrPresent(message = "To date must be today or in the future is required")
-	private LocalDate toDate;
+    @NotNull
+    private LocalDate toDate;
 
-	private Boolean sprintStatus = true;
-
-	private Boolean isEnabled = false; // default false
-
+   
 }

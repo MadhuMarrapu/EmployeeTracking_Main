@@ -5,20 +5,25 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 import com.qentelli.employeetrackingsystem.models.client.request.WeeklySprintUpdateDto;
 
 public interface WeeklySprintUpdateService {
 
-	public WeeklySprintUpdate createUpdate(WeeklySprintUpdateDto dto);
-	public WeeklySprintUpdate updateUpdate(Integer id, WeeklySprintUpdateDto dto);
-	public void deleteUpdate(Integer id);
-	public boolean setWeeklySprintUpdateEnabled(Integer weeklySprintUpdateId);
-	public Page<WeeklySprintUpdate> getAllUpdates(Pageable pageable);
-	public List<WeeklySprintUpdate> getAllActiveUpdates();
-	public List<WeeklySprintUpdate> getAllBySprintId(Long sprintId);
-	public List<WeeklySprintUpdate> getActiveUpdatesByWeekId(int weekId);
-	public List<WeeklySprintUpdate> getHistoricalUpdates(int currentWeekId);
-	public List<WeeklySprintUpdateDto> toDtoList(List<WeeklySprintUpdate> updates);
-	public WeeklySprintUpdateDto toDto(WeeklySprintUpdate update);
+    WeeklySprintUpdateDto createUpdate(WeeklySprintUpdateDto dto);
+
+    WeeklySprintUpdateDto updateUpdate(Integer id, WeeklySprintUpdateDto dto);
+
+    void deleteUpdate(Integer id); // soft delete using Status
+
+    boolean setWeeklySprintUpdateEnabled(Integer weeklySprintUpdateId);
+
+    Page<WeeklySprintUpdateDto> getAllUpdates(Pageable pageable); // returns ACTIVE only
+
+    List<WeeklySprintUpdateDto> getAllActiveUpdates(); // returns ACTIVE only
+
+    List<WeeklySprintUpdateDto> getAllBySprintId(Long sprintId); // returns ACTIVE only
+
+    List<WeeklySprintUpdateDto> getActiveUpdatesByWeekId(int weekId); // returns ACTIVE only
+
+    List<WeeklySprintUpdateDto> getHistoricalUpdates(int currentWeekId); // returns ACTIVE only
 }

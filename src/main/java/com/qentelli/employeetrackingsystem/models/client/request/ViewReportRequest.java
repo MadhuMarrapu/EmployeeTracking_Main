@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import lombok.AllArgsConstructor;
@@ -15,16 +16,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ViewReportRequest {
-	private int viewReportId;
-	private int weekId;
-	private int projectId;
-	private Integer personId;
-	private String taskName;
-	private TaskStatus taskStatus;
-	private List<String> summary;
-	private List<String> keyAccomplishment;
-	private List<String> comments;
-	private LocalDate taskStartDate;
-	private LocalDate taskEndDate;
+    private int viewReportId;
+    private int weekId;
+    private int projectId;
+    private Integer personId;
+    private String taskName;
+    private TaskStatus taskStatus;
+    private List<String> summary;
+    private List<String> keyAccomplishment;
+    private List<String> comments;
+    private LocalDate taskStartDate;
+    private LocalDate taskEndDate;
 
 }

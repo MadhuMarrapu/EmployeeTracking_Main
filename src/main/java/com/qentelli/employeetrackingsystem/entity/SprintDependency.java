@@ -2,9 +2,12 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import java.time.LocalDate;
 
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,19 +27,26 @@ public class SprintDependency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String type; 
+
+    private String type;
     private String description;
     private String owner;
     private LocalDate date;
-    private TaskStatus statusIn; 
+
+    @Enumerated(EnumType.STRING)
+    private TaskStatus statusIn;
+
     private String impact;
     private String actionTaken;
+
+    @Enumerated(EnumType.STRING)
+    private Status statusFlag;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sprint_id")
     private Sprint sprint;
-
 }
-

@@ -27,71 +27,65 @@ import com.qentelli.employeetrackingsystem.serviceimpl.PersonDetailService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
-    private final PersonDetailService personDetailService;
+	private final JwtFilter jwtFilter;
+	private final PersonDetailService personDetailService;
 
-    public SecurityConfig(JwtFilter jwtFilter, PersonDetailService personDetailService) {
-        this.jwtFilter = jwtFilter;
-        this.personDetailService = personDetailService;
-    }
+	public SecurityConfig(JwtFilter jwtFilter, PersonDetailService personDetailService) {
+		this.jwtFilter = jwtFilter;
+		this.personDetailService = personDetailService;
+	}
 
-    // 🔐 Composite UserDetailsService: In-Memory + DB fallback
-    @Bean(name = "customUserDetailsService")
-    public UserDetailsService customUserDetailsService() {
-        InMemoryUserDetailsManager inMemoryManager = new InMemoryUserDetailsManager(
-            User.withUsername("superadmin@gmail.com").password(passwordEncoder().encode("Sarath11@")).roles("SUPERADMIN").build(),
-            User.withUsername("superadmin2@gmail.com").password(passwordEncoder().encode("Madhu123@")).roles("SUPERADMIN").build(),
-            User.withUsername("Anil@qentelli.com").password(passwordEncoder().encode("Anil123@")).roles("SUPERADMIN").build()
-        );
-        return username -> {
-            try {
-                return inMemoryManager.loadUserByUsername(username);
-            } catch (UsernameNotFoundException e) {
-                return personDetailService.loadUserDetails(username); // ✅ renamed method
-            }
-        };
-    }
+	@Bean(name = "customUserDetailsService")
+	public UserDetailsService customUserDetailsService() {
+		InMemoryUserDetailsManager inMemoryManager = new InMemoryUserDetailsManager(
+			User.withUsername("superadmin@gmail.com").password(passwordEncoder().encode("Sarath11@"))
+				.roles("SUPERADMIN").build(),
+			User.withUsername("superadmin2@gmail.com").password(passwordEncoder().encode("Madhu123@"))
+				.roles("SUPERADMIN").build(),
+			User.withUsername("Anil@qentelli.com").password(passwordEncoder().encode("Anil123@"))
+				.roles("SUPERADMIN").build()
+		);
 
-    // 🔐 AuthenticationManager via AuthenticationConfiguration
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+		return username -> {
+			try {
+				return PersonDetailService.wrapIfNeeded(inMemoryManager.loadUserByUsername(username));
+			} catch (UsernameNotFoundException e) {
+				return personDetailService.loadUserDetails(username);
+			}
+		};
+	}
+	
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
 
-    // 🔓 Security filter chain
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ✅ Stateless for JWT
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/auth/register", "/auth/login").permitAll()
-                .anyRequest().authenticated()
-            )
-            .userDetailsService(customUserDetailsService())
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
+				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						.requestMatchers("/auth/register", "/auth/login").permitAll().anyRequest().authenticated())
+				//.userDetailsService(customUserDetailsService())
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    // 🔐 Password hashing strategy
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    // 🌐 CORS configuration
-    @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:4200"));
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+	@Bean
+	public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:4200"));
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 }

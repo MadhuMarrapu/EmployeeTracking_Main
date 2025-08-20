@@ -11,10 +11,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.Sprint;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 @Repository
 public interface SprintRepository extends JpaRepository<Sprint, Long> {
-	public Page<Sprint> findBySprintStatusTrue(Pageable pageable);
-	@Query("SELECT s FROM Sprint s WHERE s.fromDate < :currentFromDate AND s.sprintStatus = true ORDER BY s.fromDate DESC")
-	List<Sprint> findPreviousActiveSprints(@Param("currentFromDate") LocalDate currentFromDate);
+	Page<Sprint> findByStatusFlag(Status statusFlag, Pageable pageable); // ✅ replaces Boolean query
+
+	@Query("SELECT s FROM Sprint s WHERE s.fromDate < :currentFromDate AND s.statusFlag = 'ACTIVE' ORDER BY s.fromDate DESC")
+	List<Sprint> findPreviousActiveSprints(@Param("currentFromDate") LocalDate currentFromDate); // ✅ enum-based filter
+
 }

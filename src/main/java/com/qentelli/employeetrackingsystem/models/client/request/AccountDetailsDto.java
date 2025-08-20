@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,15 +17,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class AccountDetailsDto {
-	private int accountId;
-	@NotBlank(message = "Project name is required")
-	@Size(max = 20, message = "Project name must not exceed 20 characters")
-	private String accountName;
-	private LocalDate accountStartDate;
-	private LocalDate accountEndDate;
-	private Boolean accountStatus = true; // true means active, false means inactive
-	private LocalDateTime createdAt;
-	private String createdBy;
-	private LocalDateTime updatedAt;
-	private String updatedBy;
+
+    private int accountId;
+    @NotBlank(message = "Account name is required")
+    @Size(max = 20, message = "Account name must not exceed 20 characters")
+    private String accountName;
+    private LocalDate accountStartDate;
+    private LocalDate accountEndDate;
+    private LocalDateTime createdAt;
+    private String createdBy;
+    private LocalDateTime updatedAt;
+    private String updatedBy;
 }

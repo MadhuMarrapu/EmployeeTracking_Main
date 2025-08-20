@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import jakarta.persistence.ElementCollection;
@@ -24,6 +25,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,41 +38,47 @@ import lombok.NoArgsConstructor;
 @EntityListeners(AuditingEntityListener.class)
 public class ViewReports {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer viewReportId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer viewReportId;
 
-	@Embedded
-	private Task task;
+    @Embedded
+    private Task task;
 
-	@Enumerated(EnumType.STRING)
-	private TaskStatus taskStatus;
+    @Enumerated(EnumType.STRING)
+    private TaskStatus taskStatus;
 
-	@ElementCollection
-	private List<String> comments;
+    @ElementCollection
+    private List<String> comments;
 
-	@ManyToOne
-	@JoinColumn(name = "week_id")
-	private WeekRange weekRange;
+    @ManyToOne
+    @JoinColumn(name = "week_id")
+    private WeekRange weekRange;
 
-	@ManyToOne
-	@JoinColumn(name = "project_id")
-	private Project project;
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
-	@ManyToOne
-	@JoinColumn(name = "personId")
-	private Person person;
+    @ManyToOne
+    @JoinColumn(name = "personId")
+    private Person person;
 
-	private String taskName;
-	private LocalDate taskStartDate;
-	private LocalDate taskEndDate;
-	private Boolean softDelete = false;
-	@CreatedDate
-	private LocalDateTime createdAt;
-	@CreatedBy
-	private String createdBy;
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
-	@LastModifiedBy
-	private String updatedBy;
+    private String taskName;
+    private LocalDate taskStartDate;
+    private LocalDate taskEndDate;
+
+    @Enumerated(EnumType.STRING)
+    private Status statusFlag ;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @CreatedBy
+    private String createdBy;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @LastModifiedBy
+    private String updatedBy;
 }

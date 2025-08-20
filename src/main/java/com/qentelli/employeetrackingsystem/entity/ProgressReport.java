@@ -3,6 +3,7 @@ package com.qentelli.employeetrackingsystem.entity;
 import java.time.LocalDateTime;
 
 import com.qentelli.employeetrackingsystem.entity.enums.RagStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,25 +24,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProgressReport {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "project_id")
-	private Project project;
-	
-	private String teamLead;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
 
-	private Integer assignedSP;
-	private Integer completedSP;
+    private String teamLead;
 
-	@Enumerated(EnumType.STRING)
-	private RagStatus rag;
+    private Integer assignedSP;
+    private Integer completedSP;
 
-	private Double completionPercentage;
+    @Enumerated(EnumType.STRING)
+    private RagStatus rag;
 
-	private Boolean progressReportStatus = true; // true for active, false for inactive
+    private Double completionPercentage;
 
-	private LocalDateTime snapshotDate; // Optional tracking date
+    @Enumerated(EnumType.STRING)
+    private Status statusFlag;
+
+    private LocalDateTime snapshotDate; // Optional tracking date
 }

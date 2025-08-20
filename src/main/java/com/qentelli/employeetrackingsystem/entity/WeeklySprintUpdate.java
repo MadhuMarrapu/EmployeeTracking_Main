@@ -2,7 +2,9 @@ package com.qentelli.employeetrackingsystem.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.qentelli.employeetrackingsystem.entity.enums.EnableStatus;
 import com.qentelli.employeetrackingsystem.entity.enums.HealthStatus;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,19 +25,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class WeeklySprintUpdate{
+public class WeeklySprintUpdate {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer weekSprintId;
- 
+
     @ManyToOne
     @JoinColumn(name = "weekId")
     private WeekRange week;
- 
+
     @ManyToOne
     @JoinColumn(name = "projectId")
     private Project project;
- 
+
     private int assignedPoints;
     private int assignedStoriesCount;
     private int inDevPoints;
@@ -47,22 +50,29 @@ public class WeeklySprintUpdate{
     private int blockedPoints;
     private int blockedStoriesCount;
     private double completePercentage;
+
     private String estimationHealth;
-    private String groomingHealth;//
+    private String groomingHealth;
+
     @Enumerated(EnumType.STRING)
     private HealthStatus estimationHealthStatus;
+
     @Enumerated(EnumType.STRING)
     private HealthStatus groomingHealthStatus;
+
     private int difficultCount1;
     private int difficultCount2;
     private int riskPoints;
     private int riskStoryCounts;
-    @Column(columnDefinition = "TEXT") 
-    private String comments; 
+
+    @Column(columnDefinition = "TEXT")
+    private String comments;
+
     private Integer injectionPercentage;
-    private Boolean weeklySprintUpdateStatus=true;   
-    private Boolean isEnabled = false; 
-    
-   
+
+    @Enumerated(EnumType.STRING)
+    private Status weeklySprintUpdateStatus ;
+
+    @Enumerated(EnumType.STRING)
+    private EnableStatus enableStatus = EnableStatus.DISABLED;
 }
- 

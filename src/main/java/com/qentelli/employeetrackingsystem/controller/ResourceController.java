@@ -1,12 +1,13 @@
 package com.qentelli.employeetrackingsystem.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -132,16 +133,43 @@ public class ResourceController {
 				LocalDateTime.now(), msg, grouped));
 	}
 
+//	@GetMapping("/previous/sprint/{sprintId}")
+//	public ResponseEntity<AuthResponse<List<ResourceResponse>>> getResourcesByPreviousSprint(
+//			@PathVariable Long sprintId) {
+//		try {
+//			logger.info("Fetching resources for previous sprint of sprint ID: {}", sprintId);
+//			List<ResourceResponse> resources = resourceService.getResourcesByPreviousSprint(sprintId);
+//			String message = resources.isEmpty() ? "No resources found for previous sprint"
+//					: "Fetched resources for previous sprint of sprint ID: " + sprintId;
+//			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
+//					LocalDateTime.now(), message, resources));
+//		} catch (Exception ex) {
+//			logger.error("Error fetching previous sprint resources: {}", ex.getMessage(), ex);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
+//							"Failed to fetch previous sprint resources", HttpStatus.INTERNAL_SERVER_ERROR,
+//							ex.getMessage()));
+//		}
+//	}
+
 	@GetMapping("/previous/sprint/{sprintId}")
-	public ResponseEntity<AuthResponse<List<ResourceResponse>>> getResourcesByPreviousSprint(
-			@PathVariable Long sprintId) {
+	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesByPreviousSprint(
+			@PathVariable Long sprintId,
+			@PageableDefault(page = 0, size = 10, sort = "resourceId", direction = Sort.Direction.DESC) Pageable pageable) {
 		try {
 			logger.info("Fetching resources for previous sprint of sprint ID: {}", sprintId);
-			List<ResourceResponse> resources = resourceService.getResourcesByPreviousSprint(sprintId);
-			String message = resources.isEmpty() ? "No resources found for previous sprint"
+			Page<ResourceResponse> pagedResources = resourceService.getPaginatedResourcesByPreviousSprint(sprintId,
+					pageable);
+
+			PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(pagedResources.getContent(),
+					pagedResources.getNumber(), pagedResources.getSize(), pagedResources.getTotalElements(),
+					pagedResources.getTotalPages(), pagedResources.isLast());
+
+			String message = response.getContent().isEmpty() ? "No resources found for previous sprint"
 					: "Fetched resources for previous sprint of sprint ID: " + sprintId;
+
 			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-					LocalDateTime.now(), message, resources));
+					LocalDateTime.now(), message, response));
 		} catch (Exception ex) {
 			logger.error("Error fetching previous sprint resources: {}", ex.getMessage(), ex);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

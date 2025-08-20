@@ -9,30 +9,29 @@ import org.springframework.stereotype.Repository;
 
 import com.qentelli.employeetrackingsystem.entity.Resource;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, Long> {
-	
-	 // Core fetch methods
-	public List<Resource> findBySprint_SprintIdAndResourceStatusTrue(Long sprintId);
-	public List<Resource> findByResourceStatus(Boolean resourceStatus);
 
-	 //  Pagination support
-	public Page<Resource> findBySprint_SprintIdAndResourceStatusTrue(Long sprintId, Pageable pageable);
-	public Page<Resource> findBySprint_SprintId(Long sprintId, Pageable pageable);
+    // ✅ Core fetch methods
+    List<Resource> findBySprint_SprintIdAndStatusFlag(Long sprintId, Status statusFlag);
+    List<Resource> findByStatusFlag(Status statusFlag);
 
-    // Filtering by type
-    Page<Resource> findByResourceTypeAndResourceStatus(ResourceType resourceType, Boolean resourceStatus, Pageable pageable);
-    Page<Resource> findBySprint_SprintIdAndResourceTypeAndResourceStatusTrue(Long sprintId, ResourceType resourceType, Pageable pageable);
+    // ✅ Pagination support
+    Page<Resource> findBySprint_SprintIdAndStatusFlag(Long sprintId, Status statusFlag, Pageable pageable);
+    Page<Resource> findBySprint_SprintId(Long sprintId, Pageable pageable);
 
-    // Filtering by tech stack
-    Page<Resource> findByResourceStatusTrueAndResourceTypeAndTechStack(ResourceType resourceType, TechStack techStack, Pageable pageable);
-    Page<Resource> findBySprint_SprintIdAndResourceTypeAndTechStackAndResourceStatusTrue(Long sprintId, ResourceType resourceType, TechStack techStack, Pageable pageable);
+    // ✅ Filtering by type
+    Page<Resource> findByResourceTypeAndStatusFlag(ResourceType resourceType, Status statusFlag, Pageable pageable);
+    Page<Resource> findBySprint_SprintIdAndResourceTypeAndStatusFlag(Long sprintId, ResourceType resourceType, Status statusFlag, Pageable pageable);
 
-    // Filtering by project name
-    Page<Resource> findByResourceStatusTrueAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(ResourceType resourceType, String projectName, Pageable pageable);
-    Page<Resource> findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndResourceStatusTrue(Long sprintId, ResourceType resourceType, String projectName, Pageable pageable);
+    // ✅ Filtering by tech stack
+    Page<Resource> findByStatusFlagAndResourceTypeAndTechStack(Status statusFlag, ResourceType resourceType, TechStack techStack, Pageable pageable);
+    Page<Resource> findBySprint_SprintIdAndResourceTypeAndTechStackAndStatusFlag(Long sprintId, ResourceType resourceType, TechStack techStack, Status statusFlag, Pageable pageable);
 
-
+    // ✅ Filtering by project name
+    Page<Resource> findByStatusFlagAndResourceTypeAndProject_ProjectNameContainingIgnoreCase(Status statusFlag, ResourceType resourceType, String projectName, Pageable pageable);
+    Page<Resource> findBySprint_SprintIdAndResourceTypeAndProject_ProjectNameContainingIgnoreCaseAndStatusFlag(Long sprintId, ResourceType resourceType, String projectName, Status statusFlag, Pageable pageable);
 }

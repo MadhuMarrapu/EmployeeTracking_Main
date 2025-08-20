@@ -210,4 +210,29 @@ public class GlobalExceptionHandler {
 		response.setErrorDescription(ex.getMessage());
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
+
+	@ExceptionHandler(SprintDependencyNotFoundException.class)
+	public ResponseEntity<AuthResponse<Object>> handleSprintDependencyNotFound(SprintDependencyNotFoundException ex,
+			HttpServletRequest request) {
+		logger.warn("SprintDependency not found: {}", ex.getMessage());
+		AuthResponse<Object> response = new AuthResponse<>(HttpStatus.NOT_FOUND.value(), RequestProcessStatus.FAILURE,
+				LocalDateTime.now(), "SprintDependency not found for request path: " + request.getRequestURI(), null);
+		response.setErrorCode(HttpStatus.NOT_FOUND);
+		response.setErrorDescription(ex.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(PIStandingNotFoundException.class)
+	public ResponseEntity<AuthResponse<Object>> handlePIStandingNotFound(PIStandingNotFoundException ex,
+			HttpServletRequest request) {
+		logger.warn("PIStanding not found: {}", ex.getMessage());
+
+		AuthResponse<Object> response = new AuthResponse<>(HttpStatus.NOT_FOUND.value(), RequestProcessStatus.FAILURE,
+				LocalDateTime.now(), "PIStanding not found for request path: " + request.getRequestURI(), null);
+
+		response.setErrorCode(HttpStatus.NOT_FOUND);
+		response.setErrorDescription(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	}
 }

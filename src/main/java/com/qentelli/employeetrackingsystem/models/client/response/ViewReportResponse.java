@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TaskStatus;
 
 import lombok.AllArgsConstructor;
@@ -14,34 +15,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ViewReportResponse {
-	private int viewReportId;
-	private WeekRangeResponse weekRange;
-	private String taskName;
-	private TaskStatus taskStatus;
-	private List<String> summary;
-	private List<String> keyAccomplishment;
-	private List<String> comments;
-	private List<String> upcomingTasks;
-	private String projectName;
-	private String personName;
-	private LocalDate taskStartDate;
-	private LocalDate taskEndDate;
-	private LocalDateTime createdAt;
-	private String createdBy;
-	
-	public ViewReportResponse(int viewReportId, 
-			 String projectName,
-			 String personName,
-			 List<String> upcomingTasks,
-			 List<String> summary,
-			 TaskStatus taskStatus,
-			 List<String> keyAccomplishment) {
-		this.viewReportId = viewReportId;
-		this.taskStatus = taskStatus;
-		this.summary = summary;
-		this.keyAccomplishment = keyAccomplishment;
-		this.upcomingTasks = upcomingTasks;
-		this.projectName = projectName;
-		this.personName = personName;
-	}
+    private int viewReportId;
+    private WeekRangeResponse weekRange;
+    private String taskName;
+    private TaskStatus taskStatus;
+    private List<String> summary;
+    private List<String> keyAccomplishment;
+    private List<String> comments;
+    private List<String> upcomingTasks;
+    private String projectName;
+    private String personName;
+    private LocalDate taskStartDate;
+    private LocalDate taskEndDate;
+    private LocalDateTime createdAt;
+    private String createdBy;
+
+    private Status statusFlag; // ✅ Lifecycle state
+
+    public ViewReportResponse(int viewReportId,
+                              String projectName,
+                              String personName,
+                              List<String> upcomingTasks,
+                              List<String> summary,
+                              TaskStatus taskStatus,
+                              List<String> keyAccomplishment) {
+        this.viewReportId = viewReportId;
+        this.taskStatus = taskStatus;
+        this.summary = summary;
+        this.keyAccomplishment = keyAccomplishment;
+        this.upcomingTasks = upcomingTasks;
+        this.projectName = projectName;
+        this.personName = personName;
+    }
 }
