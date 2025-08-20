@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.qentelli.employeetrackingsystem.entity.enums.RagStatus;
-import com.qentelli.employeetrackingsystem.entity.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class ProgressReportDTO {
     private Long reportId;
     private Integer projectId;
-    private String projectName; // ✅ Single project selected from dropdown
+    private String projectName; 
     private String teamLead;
     private Integer assignedSP;
     private Integer completedSP;

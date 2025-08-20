@@ -1,7 +1,5 @@
 package com.qentelli.employeetrackingsystem.models.client.request;
 
-import com.qentelli.employeetrackingsystem.entity.enums.Status;
-
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.qentelli.employeetrackingsystem.config.FlexibleTechStackDeserializer;
 import com.qentelli.employeetrackingsystem.entity.enums.Roles;
-import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 
 import lombok.AllArgsConstructor;
