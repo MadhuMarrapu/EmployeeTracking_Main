@@ -12,11 +12,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class JpaAuditConfig {
 
     private final Map<String, Map<String, String>> adminMetadata;
-
     public JpaAuditConfig(Map<String, Map<String, String>> adminMetadata) {
         this.adminMetadata = adminMetadata;
     }
-
     @Bean
     public AuditorAware<String> auditorAwareImpl() {
         return new AuditorAwareImpl(adminMetadata);

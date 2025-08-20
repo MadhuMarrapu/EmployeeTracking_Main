@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +23,7 @@ import com.qentelli.employeetrackingsystem.entity.enums.CloneState;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
 import com.qentelli.employeetrackingsystem.exception.RequestProcessStatus;
+import com.qentelli.employeetrackingsystem.exception.SprintNotFoundException;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.AuthResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.CombinedResourceSummaryResponse;
@@ -72,12 +71,14 @@ public class ResourceController {
 					LocalDateTime.now(), message, "CLONED");
 			return ResponseEntity.ok(response);
 		} catch (Exception ex) {
-			String errorMsg = "Failed to clone sprint ID: " + sprintId;
-			logger.error("{} - {}", errorMsg, ex.getMessage(), ex);
-			AuthResponse<String> errorResponse = new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-					RequestProcessStatus.FAILURE, errorMsg, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-		}
+			String message = "Failed to clone sprint ID: " + sprintId;
+			logger.warn("{} - {}", message, ex.getMessage());
+			AuthResponse<String> response = new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.FAILURE,
+					LocalDateTime.now(), message, null);
+			response.setErrorCode(HttpStatus.OK);
+			response.setErrorDescription(ex.getMessage());
+			return ResponseEntity.status(HttpStatus.OK).body(response);
+		} 
 	}
 
 	@PutMapping("/{id}")

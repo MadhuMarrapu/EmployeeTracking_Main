@@ -19,7 +19,6 @@ public class FlexibleEnumListDeserializer extends JsonDeserializer<List<TechStac
 		ObjectCodec codec = p.getCodec();
 		JsonNode node = codec.readTree(p);
 		List<TechStack> result = new ArrayList<>();
-
 		if (node.isArray()) {
 			for (JsonNode item : node) {
 				result.add(normalizeEnum(item.asText()));
@@ -29,12 +28,10 @@ public class FlexibleEnumListDeserializer extends JsonDeserializer<List<TechStac
 		} else {
 			throw new IllegalArgumentException("techStack must be a string or an array of strings");
 		}
-
 		return result;
 	}
-
 	private TechStack normalizeEnum(String rawValue) {
-		String normalized = rawValue.trim().toUpperCase(); // Supports values like "Frontend"
+		String normalized = rawValue.trim().toUpperCase(); 
 		try {
 			return TechStack.valueOf(normalized);
 		} catch (IllegalArgumentException ex) {

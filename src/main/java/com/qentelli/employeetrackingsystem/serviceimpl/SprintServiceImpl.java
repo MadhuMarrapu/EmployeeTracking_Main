@@ -105,9 +105,19 @@ public class SprintServiceImpl implements SprintService {
 	
 	@Override
 	public void markSprintAsCloned(Long sprintId) {
-		Sprint currentSprint =getSprintEntityById(sprintId);
+	    Sprint currentSprint = getSprintEntityById(sprintId);
+
 	    if (currentSprint.getCloneState() == CloneState.CLONED) {
 	        throw new IllegalStateException("Sprint ID " + sprintId + " is already marked as CLONED.");
+	    }
+	    List<Sprint> previousSprints = sprintRepository.findPreviousActiveSprints(currentSprint.getFromDate());
+	    Sprint previousSprint = previousSprints.stream()
+	        .filter(s -> s.getStatusFlag() == Status.ACTIVE)
+	        .findFirst()
+	        .orElse(null);
+
+	    if (previousSprint == null) {
+	        throw new SprintNotFoundException("Cannot clone: no previous sprint exists.");
 	    }
 	    currentSprint.setCloneState(CloneState.CLONED);
 	    sprintRepository.save(currentSprint);

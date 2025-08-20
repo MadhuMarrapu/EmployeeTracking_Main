@@ -43,16 +43,13 @@ public class Sprint {
     private List<WeekRange> weeks;
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdAt;
-    
+    private LocalDateTime createdAt;   
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status statusFlag;
-    
+    private Status statusFlag;  
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EnableStatus enableStatus;
-    
+    private EnableStatus enableStatus;   
     @Enumerated(EnumType.STRING)
     private CloneState cloneState;
     

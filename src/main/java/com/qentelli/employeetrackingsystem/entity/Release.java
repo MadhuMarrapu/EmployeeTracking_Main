@@ -24,24 +24,19 @@ public class Release {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long releaseId;
-
     @ManyToOne
     @JoinColumn(name = "weekId")
     private WeekRange week;
-
     @ManyToOne
     @JoinColumn(name = "sprintId")
     private Sprint sprint;
-
     @ManyToOne
     @JoinColumn(name = "projectId")
     private Project project;
-
     private int major;
     private int minor;
     private int incidentCreated;
     private String releaseInformation;
-
     @Enumerated(EnumType.STRING)
     private Status statusFlag;
 }
