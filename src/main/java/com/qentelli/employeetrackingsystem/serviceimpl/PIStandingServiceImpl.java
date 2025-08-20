@@ -1,5 +1,6 @@
 package com.qentelli.employeetrackingsystem.serviceimpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -137,14 +138,16 @@ public class PIStandingServiceImpl implements PIStandingService {
 
 	private List<SprintOrdinal> mapToSprintOrdinals(List<String> rawSprints) {
 		if (rawSprints == null)
-			return List.of();
+			return new ArrayList<>();
 
-		return rawSprints.stream().map(s -> {
-			try {
-				return SprintOrdinal.valueOf(s.trim().toUpperCase().replace("-", "_"));
-			} catch (IllegalArgumentException e) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sprint value: " + s);
-			}
-		}).toList();
+		return rawSprints.stream()
+			.map(s -> {
+				try {
+					return SprintOrdinal.valueOf(s.trim().toUpperCase().replace("-", "_"));
+				} catch (IllegalArgumentException e) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sprint value: " + s);
+				}
+			})
+			.collect(java.util.stream.Collectors.toCollection(ArrayList::new)); // ✅ mutable
 	}
 }
