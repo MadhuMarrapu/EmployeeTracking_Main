@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import com.qentelli.employeetrackingsystem.entity.enums.ResourceType;
 import com.qentelli.employeetrackingsystem.entity.enums.Status;
 import com.qentelli.employeetrackingsystem.entity.enums.TechStack;
-import com.qentelli.employeetrackingsystem.models.client.request.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.request.ResourceRequest;
 import com.qentelli.employeetrackingsystem.models.client.response.CombinedResourceSummaryResponse;
+import com.qentelli.employeetrackingsystem.models.client.response.GroupedResourceResponse;
 import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 
 public interface ResourceService {

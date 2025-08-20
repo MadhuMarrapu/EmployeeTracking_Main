@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -33,12 +32,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     private static final String PROJECT_NOT_FOUND = "Project not found with id : ";
     private static final String ACCOUNT_NOT_FOUND = "Account not found with id : ";
-
     private final ProjectRepository projectRepo;
     private final AccountRepository accountRepo;
     private final PersonService personService;
     private final Map<String, Map<String, String>> adminMetadata;
-    private final ModelMapper modelMapper;
 
     @Override
     public ProjectDTO create(ProjectDTO dto) throws DuplicateProjectException {
@@ -47,23 +44,16 @@ public class ProjectServiceImpl implements ProjectService {
         }
         Account account = accountRepo.findById(dto.getAccountId())
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND + dto.getAccountId()));
-        Project project = modelMapper.map(dto, Project.class);
-        project.setStatusFlag(Status.ACTIVE);
-        project.setAccount(account);
+        Project project = toEntity(dto, account);
         Project saved = projectRepo.save(project);
-        ProjectDTO responseDto = modelMapper.map(saved, ProjectDTO.class);
-        responseDto.setAccountName(account.getAccountName());
-        return responseDto;
+        return toDto(saved);
     }
 
     @Override
     public List<ProjectDTO> getAll() {
         return projectRepo.findByStatusFlag(Status.ACTIVE).stream()
-                .map(project -> {
-                    ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
-                    dto.setAccountName(project.getAccount().getAccountName());
-                    return dto;
-                }).toList();
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
@@ -75,9 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setUpdatedAt(LocalDateTime.now());
         project.setUpdatedBy(getAuthenticatedUserFullName());
         Project updated = projectRepo.save(project);
-        ProjectDTO responseDto = modelMapper.map(updated, ProjectDTO.class);
-        responseDto.setAccountName(updated.getAccount().getAccountName());
-        return responseDto;
+        return toDto(updated);
     }
 
     @Override
@@ -94,21 +82,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Page<ProjectDTO> searchProjectsByExactName(String name, Pageable pageable) {
         return projectRepo.findByProjectNameContainingIgnoreCaseAndStatusFlag(name, Status.ACTIVE, pageable)
-                .map(project -> {
-                    ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
-                    dto.setAccountName(project.getAccount().getAccountName());
-                    return dto;
-                });
+                .map(this::toDto);
     }
 
     @Override
     public Page<ProjectDTO> getActiveProjects(Pageable pageable) {
         return projectRepo.findByStatusFlag(Status.ACTIVE, pageable)
-                .map(project -> {
-                    ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
-                    dto.setAccountName(project.getAccount().getAccountName());
-                    return dto;
-                });
+                .map(this::toDto);
     }
 
     private String getAuthenticatedUserFullName() {
@@ -125,5 +105,25 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
         return "System";
+    }
+
+    private ProjectDTO toDto(Project project) {
+        ProjectDTO dto = new ProjectDTO();
+        dto.setProjectId(project.getProjectId());
+        dto.setProjectName(project.getProjectName());
+        dto.setAccountId(project.getAccount().getAccountId());
+        dto.setAccountName(project.getAccount().getAccountName());
+        dto.setCreatedAt(project.getCreatedAt());
+        dto.setCreatedBy(project.getCreatedBy());
+        dto.setUpdatedAt(project.getUpdatedAt());
+        dto.setUpdatedBy(project.getUpdatedBy());
+        return dto;
+    }
+
+    private Project toEntity(ProjectDTO dto, Account account) {
+        Project project = new Project();
+        project.setProjectName(dto.getProjectName());
+        project.setAccount(account);
+        return project;
     }
 }
