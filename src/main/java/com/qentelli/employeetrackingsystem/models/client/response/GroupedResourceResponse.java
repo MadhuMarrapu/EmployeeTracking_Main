@@ -1,9 +1,8 @@
-package com.qentelli.employeetrackingsystem.models.client.request;
+package com.qentelli.employeetrackingsystem.models.client.response;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.qentelli.employeetrackingsystem.models.client.response.ResourceResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

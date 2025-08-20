@@ -14,20 +14,15 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        jdbc:
-          time_zone: Asia/Kolkata
+      jdbc:
+        time_zone: Asia/Kolkata
     show-sql: true
-    open-in-view: false  # ✅ Explicitly disabling to avoid view-layer DB access
+    open-in-view: false
+    repositories:
+      bootstrap-mode: lazy
 
   jackson:
     time-zone: Asia/Kolkata
 
   main:
     allow-circular-references: true
-
-  data:
-    jpa:
-      repositories:
-        bootstrap-mode: lazy

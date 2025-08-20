@@ -24,7 +24,6 @@ public class ProjectDTO {
     @Size(max = 50, message = "Project name must not exceed 50 characters")
     private String projectName;
 
-    private Status statusFlag = Status.ACTIVE;
 
     private LocalDateTime createdAt;
     private String createdBy;
