@@ -141,21 +141,30 @@ public class ResourceController {
 
 	// clone
 	@GetMapping("/sprint/page/all")
-	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesBySprintId(
-			@RequestParam Long sprintId, Pageable pageable) {
+	public ResponseEntity<AuthResponse<Map<String, Object>>> getResourcesBySprintId(@RequestParam Long sprintId,
+			Pageable pageable) {
 		Sprint sprint = sprintService.getSprintEntityById(sprintId);
 		Page<ResourceResponse> page;
-		if (sprint.getCloneState() == CloneState.CLONED) {
+		boolean includePreviousSprint = sprint.getCloneState() == CloneState.CLONED;
+		if (includePreviousSprint) {
 			page = resourceService.getResourcesIncludingPreviousSprint(sprintId, pageable);
 		} else {
 			page = resourceService.getAllResourcesBySprintId(sprintId, pageable);
 		}
-		String cloneInfo = sprint.getCloneState() == CloneState.CLONED ? "Resources include previous sprint (CLONED)"
-				: "Resources from current sprint only (NOT_CLONED)";
-		String successMsg = "Fetched resources for sprint ID: " + sprintId + ". " + cloneInfo;
-		return buildPaginatedResponse(page, successMsg, "No resources found");
+		String cloneNote = includePreviousSprint ? "CLONED"
+				: "NOT_CLONED";
+		Map<String, Object> data = new LinkedHashMap<>();
+		data.put("content", page.getContent());
+		data.put("note", cloneNote);
+		data.put("pageNumber", page.getNumber());
+		data.put("pageSize", page.getSize());
+		data.put("totalElements", page.getTotalElements());
+		data.put("totalPages", page.getTotalPages());
+		data.put("last", page.isLast());
+		AuthResponse<Map<String, Object>> response = new AuthResponse<>(200, RequestProcessStatus.SUCCESS,
+				LocalDateTime.now(), "Fetched resources for sprint ID: " + sprintId, data);
+		return ResponseEntity.ok(response);
 	}
-
 	@GetMapping("/sprint/grouped")
 	public ResponseEntity<AuthResponse<GroupedResourceResponse>> getGroupedResources(@RequestParam Long sprintId) {
 		GroupedResourceResponse grouped = resourceService.getGroupedResourcesBySprintId(sprintId);
