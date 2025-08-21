@@ -39,6 +39,7 @@ public class JwtUtil {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + EXPIRATION_MILLIS);
         return Jwts.builder()
+        		.setHeaderParam("typ", "JWT")
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
