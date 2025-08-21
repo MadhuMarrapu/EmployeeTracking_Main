@@ -163,6 +163,8 @@ public class PersonServiceImpl implements PersonService {
 		dto.setEmployeeCode(person.getEmployeeCode());
 		dto.setRole(person.getRole());
 		dto.setTechStack(person.getTechStack());
+		dto.setPassword(person.getPassword());
+		dto.setConfirmPassword(person.getConfirmPassword());
 		List<Project> projects = person.getProjects();
 		if (projects != null && !projects.isEmpty()) {
 			dto.setProjectIds(projects.stream().map(Project::getProjectId).toList());
