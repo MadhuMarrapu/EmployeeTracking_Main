@@ -2,7 +2,12 @@ package com.qentelli.employeetrackingsystem.exception;
 
 public class PIStandingNotFoundException extends RuntimeException {
 
-    public PIStandingNotFoundException(Long id) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public PIStandingNotFoundException(Long id) {
         super("PIStanding with ID " + id + " not found.");
     }
 

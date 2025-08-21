@@ -2,7 +2,12 @@ package com.qentelli.employeetrackingsystem.exception;
 
 public class WeekRangeNotFoundException extends RuntimeException {
 
-    public WeekRangeNotFoundException(Long id) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public WeekRangeNotFoundException(Long id) {
         super("WeekRange not found with ID: " + id);
     }
 

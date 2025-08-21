@@ -1,7 +1,12 @@
 package com.qentelli.employeetrackingsystem.exception;
 
 public class ReleaseNotFoundException extends RuntimeException {
-    public ReleaseNotFoundException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ReleaseNotFoundException(String message) {
         super(message);
     } 
 }

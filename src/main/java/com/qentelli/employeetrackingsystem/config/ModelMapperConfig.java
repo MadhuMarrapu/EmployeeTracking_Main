@@ -6,10 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.qentelli.employeetrackingsystem.entity.Account;
-import com.qentelli.employeetrackingsystem.entity.Project;
 import com.qentelli.employeetrackingsystem.entity.WeeklySprintUpdate;
 import com.qentelli.employeetrackingsystem.models.client.request.AccountDetailsDto;
-import com.qentelli.employeetrackingsystem.models.client.request.ProjectDTO;
 import com.qentelli.employeetrackingsystem.models.client.request.WeeklySprintUpdateDto;
 
 @Configuration

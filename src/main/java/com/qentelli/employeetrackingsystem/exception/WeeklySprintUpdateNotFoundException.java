@@ -2,7 +2,12 @@ package com.qentelli.employeetrackingsystem.exception;
 
 public class WeeklySprintUpdateNotFoundException extends RuntimeException {
 
-    public WeeklySprintUpdateNotFoundException(Long id) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public WeeklySprintUpdateNotFoundException(Long id) {
         super("WeeklySprintUpdate not found with ID: " + id);
     }
 

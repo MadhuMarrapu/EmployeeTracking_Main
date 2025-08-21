@@ -139,24 +139,6 @@ public class ResourceController {
 				resourceService.searchActiveProjectsByName(sprintId, resourceType, projectName, pageable),
 				"Fetched project resources", "No project resources found");
 	}
-
-	// clone
-//	@GetMapping("/sprint/page/all")
-//	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesBySprintId(
-//			@RequestParam Long sprintId, Pageable pageable) {
-//		Sprint sprint = sprintService.getSprintEntityById(sprintId);
-//		Page<ResourceResponse> page;
-//		if (sprint.getCloneState() == CloneState.CLONED) {
-//			page = resourceService.getResourcesIncludingPreviousSprint(sprintId, pageable);
-//		} else {
-//			page = resourceService.getAllResourcesBySprintId(sprintId, pageable);
-//		}
-//		String cloneInfo = sprint.getCloneState() == CloneState.CLONED ? "Resources include previous sprint (CLONED)"
-//				: "Resources from current sprint only (NOT_CLONED)";
-//		String successMsg = "Fetched resources for sprint ID: " + sprintId + ". " + cloneInfo;
-//		return buildPaginatedResponse(page, successMsg, "No resources found");
-//	}
-
 	@GetMapping("/sprint/page/all")
 	public ResponseEntity<AuthResponse<Map<String, Object>>> getResourcesBySprintId(@RequestParam Long sprintId,
 			Pageable pageable) {
@@ -192,32 +174,6 @@ public class ResourceController {
 				LocalDateTime.now(), msg, grouped));
 	}
 
-//	@GetMapping("/previous/sprint/{sprintId}")
-//	public ResponseEntity<AuthResponse<PaginatedResponse<ResourceResponse>>> getResourcesByPreviousSprint(
-//			@PathVariable Long sprintId,
-//			@PageableDefault(page = 0, size = 10, sort = "resourceId", direction = Sort.Direction.DESC) Pageable pageable) {
-//		try {
-//			logger.info("Fetching resources for previous sprint of sprint ID: {}", sprintId);
-//			Page<ResourceResponse> pagedResources = resourceService.getPaginatedResourcesByPreviousSprint(sprintId,
-//					pageable);
-//
-//			PaginatedResponse<ResourceResponse> response = new PaginatedResponse<>(pagedResources.getContent(),
-//					pagedResources.getNumber(), pagedResources.getSize(), pagedResources.getTotalElements(),
-//					pagedResources.getTotalPages(), pagedResources.isLast());
-//
-//			String message = response.getContent().isEmpty() ? "No resources found for previous sprint"
-//					: "Fetched resources for previous sprint of sprint ID: " + sprintId;
-//
-//			return ResponseEntity.ok(new AuthResponse<>(HttpStatus.OK.value(), RequestProcessStatus.SUCCESS,
-//					LocalDateTime.now(), message, response));
-//		} catch (Exception ex) {
-//			logger.error("Error fetching previous sprint resources: {}", ex.getMessage(), ex);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body(new AuthResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), RequestProcessStatus.FAILURE,
-//							"Failed to fetch previous sprint resources", HttpStatus.INTERNAL_SERVER_ERROR,
-//							ex.getMessage()));
-//		}
-//	}
 
 	@GetMapping("/summary/combined/{sprintId}")
 	public ResponseEntity<AuthResponse<CombinedResourceSummaryResponse>> getCombinedResourceSummary(

@@ -57,8 +57,6 @@ public class Person implements UserDetails {
 	@Enumerated(EnumType.STRING)
 	private TechStack techStack;
 	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "resource_id", referencedColumnName = "resourceId")
-	private Resource resource;
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority(role.name()));
